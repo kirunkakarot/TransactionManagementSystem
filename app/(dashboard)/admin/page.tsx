@@ -437,7 +437,12 @@ export default function AdminPage() {
       await loadAllAdminData();
     } catch (err: any) {
       console.error('Error saving quotation:', err);
-      toast.error('Failed to save quotation', { description: err.message });
+      if (err.message?.includes('409') || err.message?.toLowerCase().includes('cancelled')) {
+        toast.error('Quotation Blocked', { description: 'Cannot create quotation because the customer has already cancelled this inquiry.' });
+      } else {
+        toast.error('Failed to save quotation', { description: err.message });
+      }
+      throw err;
     }
   };
 

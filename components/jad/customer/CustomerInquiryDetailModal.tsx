@@ -32,6 +32,7 @@ interface CustomerInquiryDetailModalProps {
   onClose: () => void;
   inquiry: InquiryFormData | null;
   onReviewQuotation?: (quotationId?: string) => void;
+  onCancelInquiry?: (id: string, reason: string) => Promise<void>;
 }
 
 export const CustomerInquiryDetailModal: React.FC<CustomerInquiryDetailModalProps> = ({
@@ -39,8 +40,34 @@ export const CustomerInquiryDetailModal: React.FC<CustomerInquiryDetailModalProp
   onClose,
   inquiry,
   onReviewQuotation,
+  onCancelInquiry
 }) => {
+  const [isCancelling, setIsCancelling] = React.useState(false);
+  const [cancelReason, setCancelReason] = React.useState('');
+  const [isSubmittingCancel, setIsSubmittingCancel] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!isOpen) {
+      setIsCancelling(false);
+      setCancelReason('');
+      setIsSubmittingCancel(false);
+    }
+  }, [isOpen]);
+
   if (!inquiry) return null;
+
+  const handleConfirmCancel = async () => {
+    if (!inquiry.id || !onCancelInquiry) return;
+    setIsSubmittingCancel(true);
+    try {
+      await onCancelInquiry(inquiry.id, cancelReason);
+      setIsCancelling(false);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsSubmittingCancel(false);
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -212,17 +239,69 @@ export const CustomerInquiryDetailModal: React.FC<CustomerInquiryDetailModalProp
             </div>
           </div>
 
+          {/* Cancellation Details Section (if cancelled) */}
+          {inquiry.status === 'CANCELLED' && inquiry.cancellationReason && (
+            <div className="space-y-2">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-red-500 flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-red-600" />
+                <span>Cancellation Reason</span>
+              </h4>
+              <div className="p-4 rounded-2xl bg-red-50 border border-red-200/80 text-xs text-red-800 whitespace-pre-wrap min-h-[50px]">
+                {inquiry.cancellationReason}
+              </div>
+            </div>
+          )}
+
+          {/* Cancellation Input Section (if cancelling) */}
+          {isCancelling && inquiry.status === 'Pending Review' && (
+            <div className="space-y-2 pt-4 border-t border-slate-100">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-red-500">
+                Cancel this Inquiry?
+              </h4>
+              <p className="text-[11px] text-slate-500">Please provide a reason for cancellation. This action cannot be undone.</p>
+              <textarea
+                className="w-full text-xs p-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500"
+                rows={3}
+                placeholder="Reason for cancellation (optional)"
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+              />
+              <div className="flex items-center justify-end gap-2 mt-2">
+                <Button variant="ghost" size="sm" onClick={() => setIsCancelling(false)} className="text-xs h-7">Keep Inquiry</Button>
+                <Button variant="destructive" size="sm" onClick={handleConfirmCancel} disabled={isSubmittingCancel} className="text-xs h-7">
+                  {isSubmittingCancel ? 'Cancelling...' : 'Confirm Cancel'}
+                </Button>
+              </div>
+            </div>
+          )}
+
           {/* Section 5: Metadata Footer */}
           <div className="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-100">
             <span className="flex items-center gap-1">
               <Clock className="w-3 h-3" />
               Submitted on: {inquiry.submittedAt || 'Recent'}
             </span>
+            {inquiry.status === 'CANCELLED' && (
+              <span className="flex items-center gap-1 text-red-500 font-medium">
+                Cancelled on: {inquiry.cancelledAt ? new Date(inquiry.cancelledAt).toLocaleDateString() : 'N/A'}
+              </span>
+            )}
           </div>
         </div>
 
         {/* Action Controls */}
         <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-2.5">
+          {!isCancelling && inquiry.status === 'Pending Review' && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsCancelling(true)}
+              className="rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 hover:text-red-700 border-red-200"
+            >
+              Cancel Inquiry
+            </Button>
+          )}
+
           <Button
             variant="outline"
             size="sm"

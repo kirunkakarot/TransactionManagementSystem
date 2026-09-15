@@ -316,6 +316,17 @@ export async function deleteInquiryApi(id: number | string, token?: string) {
   return data;
 }
 
+export async function cancelInquiryApi(id: number | string, reason: string | null = null, token?: string) {
+  const res = await fetch(`${API_URL}/inquiries/${id}/cancel`, {
+    method: 'POST',
+    headers: getAuthHeaders(token),
+    body: JSON.stringify({ reason }),
+  });
+  const data = await parseResponseJson(res);
+  if (!res.ok) throw new Error(data.message || 'Failed to cancel inquiry');
+  return data;
+}
+
 export async function fetchCustomerProfile(token?: string) {
   const res = await fetch(`${API_URL}/customer/profile`, {
     headers: getAuthHeaders(token, null),

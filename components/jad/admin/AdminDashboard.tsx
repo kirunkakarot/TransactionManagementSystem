@@ -1120,9 +1120,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             </div>
                           </td>
                           <td className="py-3 px-4 text-center">
-                            <Badge variant={inq.status === 'Confirmed' ? 'success' : inq.status === 'Accepted' ? 'blue' : inq.status === 'Quotation Sent' ? 'blue' : 'warning'} className="text-[10px]">
+                            <Badge variant={inq.status === 'Confirmed' ? 'success' : inq.status === 'Accepted' ? 'blue' : inq.status === 'Quotation Sent' ? 'blue' : inq.status === 'CANCELLED' ? 'destructive' : 'warning'} className="text-[10px]">
                               {inq.status || 'Pending Review'}
                             </Badge>
+                            {inq.status === 'CANCELLED' && (
+                              <div className="text-[9px] text-red-500 font-medium mt-1">Customer Cancelled</div>
+                            )}
                           </td>
                           <td className="py-3 px-4 text-right">
                             <div className="flex items-center justify-end gap-1.5">
@@ -1139,7 +1142,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 View
                               </Button>
 
-                              {!relatedQuote && (
+                              {!relatedQuote && inq.status !== 'CANCELLED' && (
                                 <Button
                                   size="sm"
                                   variant="brand"
@@ -1153,8 +1156,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                   Quote
                                 </Button>
                               )}
+                              
+                              {!relatedQuote && inq.status === 'CANCELLED' && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  disabled
+                                  className="h-7 px-2 text-xs rounded-lg font-bold text-slate-400 bg-slate-100 cursor-not-allowed"
+                                >
+                                  Quote
+                                </Button>
+                              )}
 
-                              {relatedQuote && inq.status !== 'Confirmed' && (
+                              {relatedQuote && inq.status !== 'Confirmed' && inq.status !== 'CANCELLED' && (
                                 <Button
                                   size="sm"
                                   variant="default"

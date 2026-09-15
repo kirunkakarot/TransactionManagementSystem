@@ -151,17 +151,51 @@ export const getInquiriesByCustomerEmail = async (email: string) => {
 
 export const updateInquiryStatus = async (id: number | string, status: string) => {
   const inquiryId = typeof id === 'string' ? parseInt(id, 10) : id;
+  let existing;
+
   if (isNaN(inquiryId)) {
-    const existing = await getInquiryByTrackingId(String(id));
-    if (!existing) return null;
-    return await prisma.inquiry.update({
-      where: { id: existing.id },
-      data: { status },
-    });
+    existing = await getInquiryByTrackingId(String(id));
+  } else {
+    existing = await prisma.inquiry.findUnique({ where: { id: inquiryId } });
   }
+
+  if (!existing) {
+    throw new Error('Inquiry not found');
+  }
+
+  if (existing.status === 'CANCELLED') {
+    throw new Error('Inquiry is already cancelled');
+  }
+
   return await prisma.inquiry.update({
-    where: { id: inquiryId },
+    where: { id: existing.id },
     data: { status },
+  });
+};
+
+export const cancelInquiry = async (id: number | string, reason: string | null = null, actor: string = 'Customer') => {
+  const inquiryId = typeof id === 'string' ? parseInt(id, 10) : id;
+  let targetId = inquiryId;
+  let existing;
+  if (isNaN(inquiryId)) {
+    existing = await getInquiryByTrackingId(String(id));
+  } else {
+    existing = await prisma.inquiry.findUnique({ where: { id: inquiryId } });
+  }
+
+  if (!existing) throw new Error('Inquiry not found');
+  if (existing.status !== 'Pending Review') {
+    throw new Error('Only inquiries in "Pending Review" status can be cancelled.');
+  }
+
+  return await prisma.inquiry.update({
+    where: { id: existing.id },
+    data: {
+      status: 'CANCELLED',
+      cancelledAt: new Date(),
+      cancelledBy: actor,
+      cancellationReason: reason,
+    },
   });
 };
 

@@ -190,6 +190,9 @@ export const createQuotation = async (data: QuotationInput) => {
     }
     if (inqRecord) {
       resolvedInquiryId = inqRecord.id;
+      if (inqRecord.status === 'CANCELLED') {
+        throw new Error('This inquiry has been cancelled by the customer and cannot proceed to quotation.');
+      }
     }
   }
 
@@ -264,6 +267,15 @@ export const updateQuotation = async (id: number | string, data: Partial<Quotati
     const found = await getQuotationByRef(String(id));
     if (!found) return null;
     targetId = found.id;
+  }
+  
+  const existingQuotation = await prisma.quotation.findUnique({
+    where: { id: targetId },
+    include: { inquiry: true }
+  });
+  
+  if (existingQuotation?.inquiry?.status === 'CANCELLED') {
+    throw new Error('This inquiry has been cancelled by the customer and its quotation cannot be updated or sent.');
   }
 
   const updateData: any = {};

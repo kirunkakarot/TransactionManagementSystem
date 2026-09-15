@@ -54,6 +54,9 @@ export type InquiryMinAggregateOutputType = {
   notes: string | null
   estimatedBudget: string | null
   status: string | null
+  cancelledAt: Date | null
+  cancelledBy: string | null
+  cancellationReason: string | null
   createdAt: Date | null
 }
 
@@ -73,6 +76,9 @@ export type InquiryMaxAggregateOutputType = {
   notes: string | null
   estimatedBudget: string | null
   status: string | null
+  cancelledAt: Date | null
+  cancelledBy: string | null
+  cancellationReason: string | null
   createdAt: Date | null
 }
 
@@ -93,6 +99,9 @@ export type InquiryCountAggregateOutputType = {
   notes: number
   estimatedBudget: number
   status: number
+  cancelledAt: number
+  cancelledBy: number
+  cancellationReason: number
   createdAt: number
   _all: number
 }
@@ -126,6 +135,9 @@ export type InquiryMinAggregateInputType = {
   notes?: true
   estimatedBudget?: true
   status?: true
+  cancelledAt?: true
+  cancelledBy?: true
+  cancellationReason?: true
   createdAt?: true
 }
 
@@ -145,6 +157,9 @@ export type InquiryMaxAggregateInputType = {
   notes?: true
   estimatedBudget?: true
   status?: true
+  cancelledAt?: true
+  cancelledBy?: true
+  cancellationReason?: true
   createdAt?: true
 }
 
@@ -165,6 +180,9 @@ export type InquiryCountAggregateInputType = {
   notes?: true
   estimatedBudget?: true
   status?: true
+  cancelledAt?: true
+  cancelledBy?: true
+  cancellationReason?: true
   createdAt?: true
   _all?: true
 }
@@ -272,6 +290,9 @@ export type InquiryGroupByOutputType = {
   notes: string | null
   estimatedBudget: string | null
   status: string | null
+  cancelledAt: Date | null
+  cancelledBy: string | null
+  cancellationReason: string | null
   createdAt: Date
   _count: InquiryCountAggregateOutputType | null
   _avg: InquiryAvgAggregateOutputType | null
@@ -315,6 +336,9 @@ export type InquiryWhereInput = {
   notes?: Prisma.StringNullableFilter<"Inquiry"> | string | null
   estimatedBudget?: Prisma.StringNullableFilter<"Inquiry"> | string | null
   status?: Prisma.StringNullableFilter<"Inquiry"> | string | null
+  cancelledAt?: Prisma.DateTimeNullableFilter<"Inquiry"> | Date | string | null
+  cancelledBy?: Prisma.StringNullableFilter<"Inquiry"> | string | null
+  cancellationReason?: Prisma.StringNullableFilter<"Inquiry"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Inquiry"> | Date | string
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   quotations?: Prisma.QuotationListRelationFilter
@@ -338,6 +362,9 @@ export type InquiryOrderByWithRelationInput = {
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   estimatedBudget?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrderInput | Prisma.SortOrder
+  cancelledAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  cancelledBy?: Prisma.SortOrderInput | Prisma.SortOrder
+  cancellationReason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   quotations?: Prisma.QuotationOrderByRelationAggregateInput
@@ -364,6 +391,9 @@ export type InquiryWhereUniqueInput = Prisma.AtLeast<{
   notes?: Prisma.StringNullableFilter<"Inquiry"> | string | null
   estimatedBudget?: Prisma.StringNullableFilter<"Inquiry"> | string | null
   status?: Prisma.StringNullableFilter<"Inquiry"> | string | null
+  cancelledAt?: Prisma.DateTimeNullableFilter<"Inquiry"> | Date | string | null
+  cancelledBy?: Prisma.StringNullableFilter<"Inquiry"> | string | null
+  cancellationReason?: Prisma.StringNullableFilter<"Inquiry"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Inquiry"> | Date | string
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   quotations?: Prisma.QuotationListRelationFilter
@@ -387,6 +417,9 @@ export type InquiryOrderByWithAggregationInput = {
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   estimatedBudget?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrderInput | Prisma.SortOrder
+  cancelledAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  cancelledBy?: Prisma.SortOrderInput | Prisma.SortOrder
+  cancellationReason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.InquiryCountOrderByAggregateInput
   _avg?: Prisma.InquiryAvgOrderByAggregateInput
@@ -415,6 +448,9 @@ export type InquiryScalarWhereWithAggregatesInput = {
   notes?: Prisma.StringNullableWithAggregatesFilter<"Inquiry"> | string | null
   estimatedBudget?: Prisma.StringNullableWithAggregatesFilter<"Inquiry"> | string | null
   status?: Prisma.StringNullableWithAggregatesFilter<"Inquiry"> | string | null
+  cancelledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Inquiry"> | Date | string | null
+  cancelledBy?: Prisma.StringNullableWithAggregatesFilter<"Inquiry"> | string | null
+  cancellationReason?: Prisma.StringNullableWithAggregatesFilter<"Inquiry"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Inquiry"> | Date | string
 }
 
@@ -433,6 +469,9 @@ export type InquiryCreateInput = {
   notes?: string | null
   estimatedBudget?: string | null
   status?: string | null
+  cancelledAt?: Date | string | null
+  cancelledBy?: string | null
+  cancellationReason?: string | null
   createdAt?: Date | string
   user?: Prisma.UserCreateNestedOneWithoutInquiriesInput
   quotations?: Prisma.QuotationCreateNestedManyWithoutInquiryInput
@@ -456,6 +495,9 @@ export type InquiryUncheckedCreateInput = {
   notes?: string | null
   estimatedBudget?: string | null
   status?: string | null
+  cancelledAt?: Date | string | null
+  cancelledBy?: string | null
+  cancellationReason?: string | null
   createdAt?: Date | string
   quotations?: Prisma.QuotationUncheckedCreateNestedManyWithoutInquiryInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutInquiryInput
@@ -476,6 +518,9 @@ export type InquiryUpdateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedBudget?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneWithoutInquiriesNestedInput
   quotations?: Prisma.QuotationUpdateManyWithoutInquiryNestedInput
@@ -499,6 +544,9 @@ export type InquiryUncheckedUpdateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedBudget?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   quotations?: Prisma.QuotationUncheckedUpdateManyWithoutInquiryNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutInquiryNestedInput
@@ -521,6 +569,9 @@ export type InquiryCreateManyInput = {
   notes?: string | null
   estimatedBudget?: string | null
   status?: string | null
+  cancelledAt?: Date | string | null
+  cancelledBy?: string | null
+  cancellationReason?: string | null
   createdAt?: Date | string
 }
 
@@ -539,6 +590,9 @@ export type InquiryUpdateManyMutationInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedBudget?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -559,6 +613,9 @@ export type InquiryUncheckedUpdateManyInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedBudget?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -589,6 +646,9 @@ export type InquiryCountOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   estimatedBudget?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  cancelledAt?: Prisma.SortOrder
+  cancelledBy?: Prisma.SortOrder
+  cancellationReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -614,6 +674,9 @@ export type InquiryMaxOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   estimatedBudget?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  cancelledAt?: Prisma.SortOrder
+  cancelledBy?: Prisma.SortOrder
+  cancellationReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -633,6 +696,9 @@ export type InquiryMinOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   estimatedBudget?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  cancelledAt?: Prisma.SortOrder
+  cancelledBy?: Prisma.SortOrder
+  cancellationReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -744,6 +810,9 @@ export type InquiryCreateWithoutUserInput = {
   notes?: string | null
   estimatedBudget?: string | null
   status?: string | null
+  cancelledAt?: Date | string | null
+  cancelledBy?: string | null
+  cancellationReason?: string | null
   createdAt?: Date | string
   quotations?: Prisma.QuotationCreateNestedManyWithoutInquiryInput
   bookings?: Prisma.BookingCreateNestedManyWithoutInquiryInput
@@ -765,6 +834,9 @@ export type InquiryUncheckedCreateWithoutUserInput = {
   notes?: string | null
   estimatedBudget?: string | null
   status?: string | null
+  cancelledAt?: Date | string | null
+  cancelledBy?: string | null
+  cancellationReason?: string | null
   createdAt?: Date | string
   quotations?: Prisma.QuotationUncheckedCreateNestedManyWithoutInquiryInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutInquiryInput
@@ -816,6 +888,9 @@ export type InquiryScalarWhereInput = {
   notes?: Prisma.StringNullableFilter<"Inquiry"> | string | null
   estimatedBudget?: Prisma.StringNullableFilter<"Inquiry"> | string | null
   status?: Prisma.StringNullableFilter<"Inquiry"> | string | null
+  cancelledAt?: Prisma.DateTimeNullableFilter<"Inquiry"> | Date | string | null
+  cancelledBy?: Prisma.StringNullableFilter<"Inquiry"> | string | null
+  cancellationReason?: Prisma.StringNullableFilter<"Inquiry"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Inquiry"> | Date | string
 }
 
@@ -834,6 +909,9 @@ export type InquiryCreateWithoutQuotationsInput = {
   notes?: string | null
   estimatedBudget?: string | null
   status?: string | null
+  cancelledAt?: Date | string | null
+  cancelledBy?: string | null
+  cancellationReason?: string | null
   createdAt?: Date | string
   user?: Prisma.UserCreateNestedOneWithoutInquiriesInput
   bookings?: Prisma.BookingCreateNestedManyWithoutInquiryInput
@@ -856,6 +934,9 @@ export type InquiryUncheckedCreateWithoutQuotationsInput = {
   notes?: string | null
   estimatedBudget?: string | null
   status?: string | null
+  cancelledAt?: Date | string | null
+  cancelledBy?: string | null
+  cancellationReason?: string | null
   createdAt?: Date | string
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutInquiryInput
 }
@@ -891,6 +972,9 @@ export type InquiryUpdateWithoutQuotationsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedBudget?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneWithoutInquiriesNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutInquiryNestedInput
@@ -913,6 +997,9 @@ export type InquiryUncheckedUpdateWithoutQuotationsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedBudget?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutInquiryNestedInput
 }
@@ -932,6 +1019,9 @@ export type InquiryCreateWithoutBookingsInput = {
   notes?: string | null
   estimatedBudget?: string | null
   status?: string | null
+  cancelledAt?: Date | string | null
+  cancelledBy?: string | null
+  cancellationReason?: string | null
   createdAt?: Date | string
   user?: Prisma.UserCreateNestedOneWithoutInquiriesInput
   quotations?: Prisma.QuotationCreateNestedManyWithoutInquiryInput
@@ -954,6 +1044,9 @@ export type InquiryUncheckedCreateWithoutBookingsInput = {
   notes?: string | null
   estimatedBudget?: string | null
   status?: string | null
+  cancelledAt?: Date | string | null
+  cancelledBy?: string | null
+  cancellationReason?: string | null
   createdAt?: Date | string
   quotations?: Prisma.QuotationUncheckedCreateNestedManyWithoutInquiryInput
 }
@@ -989,6 +1082,9 @@ export type InquiryUpdateWithoutBookingsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedBudget?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneWithoutInquiriesNestedInput
   quotations?: Prisma.QuotationUpdateManyWithoutInquiryNestedInput
@@ -1011,6 +1107,9 @@ export type InquiryUncheckedUpdateWithoutBookingsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedBudget?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   quotations?: Prisma.QuotationUncheckedUpdateManyWithoutInquiryNestedInput
 }
@@ -1031,6 +1130,9 @@ export type InquiryCreateManyUserInput = {
   notes?: string | null
   estimatedBudget?: string | null
   status?: string | null
+  cancelledAt?: Date | string | null
+  cancelledBy?: string | null
+  cancellationReason?: string | null
   createdAt?: Date | string
 }
 
@@ -1049,6 +1151,9 @@ export type InquiryUpdateWithoutUserInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedBudget?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   quotations?: Prisma.QuotationUpdateManyWithoutInquiryNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutInquiryNestedInput
@@ -1070,6 +1175,9 @@ export type InquiryUncheckedUpdateWithoutUserInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedBudget?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   quotations?: Prisma.QuotationUncheckedUpdateManyWithoutInquiryNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutInquiryNestedInput
@@ -1091,6 +1199,9 @@ export type InquiryUncheckedUpdateManyWithoutUserInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   estimatedBudget?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -1151,6 +1262,9 @@ export type InquirySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   notes?: boolean
   estimatedBudget?: boolean
   status?: boolean
+  cancelledAt?: boolean
+  cancelledBy?: boolean
+  cancellationReason?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.Inquiry$userArgs<ExtArgs>
   quotations?: boolean | Prisma.Inquiry$quotationsArgs<ExtArgs>
@@ -1175,6 +1289,9 @@ export type InquirySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   notes?: boolean
   estimatedBudget?: boolean
   status?: boolean
+  cancelledAt?: boolean
+  cancelledBy?: boolean
+  cancellationReason?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.Inquiry$userArgs<ExtArgs>
 }, ExtArgs["result"]["inquiry"]>
@@ -1196,6 +1313,9 @@ export type InquirySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   notes?: boolean
   estimatedBudget?: boolean
   status?: boolean
+  cancelledAt?: boolean
+  cancelledBy?: boolean
+  cancellationReason?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.Inquiry$userArgs<ExtArgs>
 }, ExtArgs["result"]["inquiry"]>
@@ -1217,10 +1337,13 @@ export type InquirySelectScalar = {
   notes?: boolean
   estimatedBudget?: boolean
   status?: boolean
+  cancelledAt?: boolean
+  cancelledBy?: boolean
+  cancellationReason?: boolean
   createdAt?: boolean
 }
 
-export type InquiryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "trackingId" | "userId" | "clientName" | "clientEmail" | "clientPhone" | "eventType" | "eventDate" | "eventVenue" | "guestsCount" | "requirements" | "selectedServices" | "packageId" | "notes" | "estimatedBudget" | "status" | "createdAt", ExtArgs["result"]["inquiry"]>
+export type InquiryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "trackingId" | "userId" | "clientName" | "clientEmail" | "clientPhone" | "eventType" | "eventDate" | "eventVenue" | "guestsCount" | "requirements" | "selectedServices" | "packageId" | "notes" | "estimatedBudget" | "status" | "cancelledAt" | "cancelledBy" | "cancellationReason" | "createdAt", ExtArgs["result"]["inquiry"]>
 export type InquiryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.Inquiry$userArgs<ExtArgs>
   quotations?: boolean | Prisma.Inquiry$quotationsArgs<ExtArgs>
@@ -1258,6 +1381,9 @@ export type $InquiryPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     notes: string | null
     estimatedBudget: string | null
     status: string | null
+    cancelledAt: Date | null
+    cancelledBy: string | null
+    cancellationReason: string | null
     createdAt: Date
   }, ExtArgs["result"]["inquiry"]>
   composites: {}
@@ -1701,6 +1827,9 @@ export interface InquiryFieldRefs {
   readonly notes: Prisma.FieldRef<"Inquiry", 'String'>
   readonly estimatedBudget: Prisma.FieldRef<"Inquiry", 'String'>
   readonly status: Prisma.FieldRef<"Inquiry", 'String'>
+  readonly cancelledAt: Prisma.FieldRef<"Inquiry", 'DateTime'>
+  readonly cancelledBy: Prisma.FieldRef<"Inquiry", 'String'>
+  readonly cancellationReason: Prisma.FieldRef<"Inquiry", 'String'>
   readonly createdAt: Prisma.FieldRef<"Inquiry", 'DateTime'>
 }
     

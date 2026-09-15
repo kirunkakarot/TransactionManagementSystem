@@ -62,6 +62,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json(quotation, { status: 201 });
   } catch (error: any) {
+    if (error.message?.includes('cancelled')) {
+      return NextResponse.json({ message: error.message }, { status: 409 });
+    }
     return NextResponse.json({ message: 'Server error', error: error.message }, { status: 500 });
   }
 }

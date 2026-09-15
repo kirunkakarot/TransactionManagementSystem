@@ -1730,6 +1730,9 @@ export const InquiryScalarFieldEnum = {
   notes: 'notes',
   estimatedBudget: 'estimatedBudget',
   status: 'status',
+  cancelledAt: 'cancelledAt',
+  cancelledBy: 'cancelledBy',
+  cancellationReason: 'cancellationReason',
   createdAt: 'createdAt'
 } as const
 

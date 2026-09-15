@@ -37,6 +37,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     }
     return NextResponse.json(updated);
   } catch (error: any) {
+    if (error.message?.includes('cancelled')) {
+      return NextResponse.json({ message: error.message }, { status: 409 });
+    }
     return NextResponse.json({ message: error.message || 'Server error' }, { status: 400 });
   }
 }

@@ -43,7 +43,7 @@ import { Quotation, InquiryFormData, PaymentTransaction, Booking, Feedback } fro
 import { CustomerInquiryDetailModal } from './CustomerInquiryDetailModal';
 import { SubmitPaymentProofModal } from './SubmitPaymentProofModal';
 import { CustomerFeedbackModal } from './CustomerFeedbackModal';
-import { acceptQuotationApi } from '@/services/api';
+import { acceptQuotationApi, cancelInquiryApi } from '@/services/api';
 import Cookies from 'js-cookie';
 
 interface CustomerDashboardProps {
@@ -281,6 +281,18 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
     if (target) {
       setSelectedInquiryForDetails(target);
       setIsInquiryDetailModalOpen(true);
+    }
+  };
+
+  const handleCancelInquiry = async (id: string, reason: string) => {
+    try {
+      const token = Cookies.get('jad_token');
+      await cancelInquiryApi(id, reason, token);
+      toast.success('Inquiry cancelled successfully');
+      if (onRefreshData) onRefreshData();
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to cancel inquiry');
+      throw error;
     }
   };
 
@@ -1668,6 +1680,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
         isOpen={isInquiryDetailModalOpen}
         onClose={() => setIsInquiryDetailModalOpen(false)}
         inquiry={selectedInquiryForDetails}
+        onCancelInquiry={handleCancelInquiry}
         onReviewQuotation={() => {
           setIsInquiryDetailModalOpen(false);
           setActiveTab('quotation');

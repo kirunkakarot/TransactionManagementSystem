@@ -89,6 +89,9 @@ model Inquiry {
   notes            String?   @db.Text
   estimatedBudget  String?   @map("estimated_budget") @db.VarChar(50)
   status           String?   @default("Pending Review") @db.VarChar(50)
+  cancelledAt      DateTime? @map("cancelled_at") @db.Timestamp(6)
+  cancelledBy      String?   @map("cancelled_by") @db.VarChar(100)
+  cancellationReason String? @map("cancellation_reason") @db.Text
   createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
 
   user       User?       @relation(fields: [userId], references: [id], onDelete: SetNull)

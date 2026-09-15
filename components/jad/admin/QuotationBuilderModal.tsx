@@ -44,7 +44,7 @@ interface QuotationBuilderModalProps {
   existingQuotation?: Quotation | null;
   services?: ServiceItem[];
   packages?: PackageItem[];
-  onSaveAndSend: (quotation: Quotation) => void;
+  onSaveAndSend: (quotation: Quotation) => void | Promise<void>;
 }
 
 export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
@@ -268,7 +268,7 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
     setValidUntil(expiry.toISOString().split('T')[0]);
   };
 
-  const handleSendToCustomer = () => {
+  const handleSendToCustomer = async () => {
     if (items.length === 0) {
       toast.error('Cannot send empty quotation', { description: 'Please add at least one service or package.' });
       return;
@@ -300,11 +300,13 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
       sentAt: new Date().toISOString().split('T')[0]
     };
 
-    onSaveAndSend(newQuotation);
-    toast.success('Official Quotation Dispatched!', {
-      description: `Sent to ${clientName} (${clientEmail}). Status updated to Quotation Sent with 50% downpayment requirement.`
-    });
-    onClose();
+    try {
+      await onSaveAndSend(newQuotation);
+      onClose();
+    } catch (error) {
+      // The parent component might handle its own toast, but we should prevent modal closing.
+      console.error('Save quotation failed in modal:', error);
+    }
   };
 
   const handlePrint = () => {

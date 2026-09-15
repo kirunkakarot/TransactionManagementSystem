@@ -65,8 +65,11 @@ export interface InquiryFormData {
   packageId?: string;
   notes: string;
   budgetRange?: string;
-  status?: 'Pending Review' | 'Quotation Sent' | 'Accepted' | 'Deposit Paid' | 'Confirmed' | 'Declined';
+  status?: 'Pending Review' | 'Quotation Sent' | 'Accepted' | 'Deposit Paid' | 'Confirmed' | 'Declined' | 'CANCELLED';
   submittedAt?: string;
+  cancelledAt?: string;
+  cancelledBy?: string;
+  cancellationReason?: string;
 }
 
 export interface QuotationLineItem {
@@ -259,7 +262,7 @@ export interface CustomerPortalData {
     date: string;
     guests: number;
     venue: string;
-    status: 'Pending Review' | 'Quotation Sent' | 'Deposit Paid' | 'Confirmed';
+    status: 'Pending Review' | 'Quotation Sent' | 'Deposit Paid' | 'Confirmed' | 'CANCELLED';
     submittedAt: string;
   };
   quotation?: Quotation | null;
