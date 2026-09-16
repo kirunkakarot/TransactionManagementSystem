@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Mail, ArrowLeft, Send, CheckCircle2, ShieldAlert, Sparkles } from 'lucide-react';
+import { Mail, ArrowLeft, Send, CheckCircle2, ShieldAlert } from 'lucide-react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -35,13 +36,18 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-blue-50/30 flex flex-col justify-center items-center p-4 sm:p-6">
+    <div className="min-h-screen bg-white flex flex-col justify-center items-center p-4 sm:p-6">
       <div className="w-full max-w-md">
         {/* Brand Header */}
         <div className="text-center mb-8">
           <Link href="/homepage" className="inline-flex items-center gap-2 group mb-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1E3A8A] to-[#172554] flex items-center justify-center text-white shadow-md shadow-blue-950/20 group-hover:scale-105 transition-transform">
-              <Sparkles className="w-5 h-5 text-amber-300" />
+            <div className="relative w-10 h-10 rounded-xl overflow-hidden shadow-md shadow-blue-950/20 group-hover:scale-105 transition-transform">
+              <Image
+                src="/jadlogo.png"
+                alt="JAD Events Logo"
+                fill
+                className="object-cover"
+              />
             </div>
             <div className="text-left">
               <span className="text-xl font-black tracking-tight text-[#1E3A8A] block leading-none">JAD EVENTS</span>
