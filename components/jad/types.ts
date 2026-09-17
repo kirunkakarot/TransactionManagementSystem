@@ -65,7 +65,7 @@ export interface InquiryFormData {
   packageId?: string;
   notes: string;
   budgetRange?: string;
-  status?: 'Pending Review' | 'Quotation Sent' | 'Accepted' | 'Deposit Paid' | 'Confirmed' | 'Declined' | 'CANCELLED';
+  status?: 'Pending Review' | 'Quotation Sent' | 'Accepted' | 'Deposit Paid' | 'Confirmed' | 'Declined' | 'CANCELLED' | 'Cancelled';
   submittedAt?: string;
   cancelledAt?: string;
   cancelledBy?: string;
@@ -115,7 +115,7 @@ export interface Quotation {
   requiredDownpayment: number;
   validUntil: string;
   validityDays: number;
-  status: 'Draft' | 'Quotation Sent' | 'Accepted' | 'Deposit Paid' | 'Confirmed' | 'Expired';
+  status: 'Draft' | 'Quotation Sent' | 'Accepted' | 'Deposit Paid' | 'Confirmed' | 'Expired' | 'Declined';
   notes: string;
   terms: string[];
   createdAt: string;

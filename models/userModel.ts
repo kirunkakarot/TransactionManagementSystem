@@ -10,7 +10,7 @@ export const createUser = async (name: string, email: string, passwordHash: stri
     data: {
       name,
       email,
-      password: passwordHash,
+      ...(passwordHash ? { password: passwordHash } : {}),
       role: 'Customer',
       ...(phone && { phone }),
     },
@@ -163,3 +163,41 @@ export const getAllUsers = async () => {
   });
 };
 
+export const findGoogleIdentity = async (googleId: string) => {
+  return await prisma.googleIdentity.findUnique({
+    where: { googleId },
+    include: { user: true },
+  });
+};
+
+export const linkGoogleIdentity = async (userId: number, googleId: string, email: string) => {
+  return await prisma.googleIdentity.create({
+    data: {
+      userId,
+      googleId,
+      email,
+    },
+  });
+};
+
+export const createGoogleUser = async (name: string, email: string, googleId: string) => {
+  return await prisma.user.create({
+    data: {
+      name,
+      email,
+      role: 'Customer',
+      googleIdentities: {
+        create: {
+          googleId,
+          email,
+        },
+      },
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+    },
+  });
+};

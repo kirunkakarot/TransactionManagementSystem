@@ -11,7 +11,7 @@ model User {
   id                      Int       @id @default(autoincrement())
   name                    String    @db.VarChar(100)
   email                   String    @unique @db.VarChar(100)
-  password                String    @db.VarChar(255)
+  password                String?   @db.VarChar(255)
   role                    String?   @default("Customer") @db.VarChar(50)
   phone                   String?   @db.VarChar(50)
   address                 String?   @db.Text
@@ -25,6 +25,7 @@ model User {
   inquiries  Inquiry[]
   feedbacks  Feedback[]
   passwordResetTokens PasswordResetToken[]
+  googleIdentities    GoogleIdentity[]
 
   @@map("users")
 }
@@ -344,4 +345,16 @@ model PasswordResetToken {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("password_reset_tokens")
+}
+
+model GoogleIdentity {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique @map("user_id")
+  googleId  String   @unique @map("google_id") @db.VarChar(255)
+  email     String   @db.VarChar(100)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("google_identities")
 }

@@ -97,3 +97,8 @@ export type Feedback = Prisma.FeedbackModel
  * 
  */
 export type PasswordResetToken = Prisma.PasswordResetTokenModel
+/**
+ * Model GoogleIdentity
+ * 
+ */
+export type GoogleIdentity = Prisma.GoogleIdentityModel

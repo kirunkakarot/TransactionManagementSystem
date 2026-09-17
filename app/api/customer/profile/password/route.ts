@@ -38,7 +38,11 @@ export async function PUT(req: Request) {
       return NextResponse.json({ message: 'User account not found.' }, { status: 404 });
     }
 
-    const isMatch = await bcrypt.compare(currentPassword, fullUser.password);
+    if (!fullUser.password) {
+      return NextResponse.json({ message: 'This account uses Google Sign-In and does not have a local password to change.' }, { status: 400 });
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, fullUser.password as string);
     if (!isMatch) {
       return NextResponse.json(
         { message: 'Incorrect current password. Please verify and try again.' },
@@ -46,7 +50,7 @@ export async function PUT(req: Request) {
       );
     }
 
-    const isSameAsOld = await bcrypt.compare(newPassword, fullUser.password);
+    const isSameAsOld = await bcrypt.compare(newPassword, fullUser.password as string);
     if (isSameAsOld) {
       return NextResponse.json(
         { message: 'New password cannot be the same as your current password.' },

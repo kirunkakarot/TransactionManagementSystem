@@ -1,4 +1,5 @@
 import nodemailer, { type Transporter } from 'nodemailer';
+import { google } from 'googleapis';
 
 export interface SendResetEmailParams {
   toEmail: string;
@@ -196,24 +197,89 @@ export async function sendPasswordResetEmail({
   resetUrl,
   expiresInMinutes,
 }: SendResetEmailParams): Promise<SendResetEmailResult> {
-  const fromEmail = process.env.EMAIL_FROM || process.env.SMTP_FROM || 'no-reply@jadevents.com';
   const fromName = process.env.EMAIL_FROM_NAME || 'JAD Events Support';
 
+  const gmailClientId = process.env.GMAIL_CLIENT_ID?.trim();
+  const gmailClientSecret = process.env.GMAIL_CLIENT_SECRET?.trim();
+  const gmailRefreshToken = process.env.GMAIL_REFRESH_TOKEN?.trim();
+  const gmailSenderEmail = process.env.GMAIL_SENDER_EMAIL?.trim() || process.env.EMAIL_FROM || 'no-reply@jadevents.com';
+
+  const subject = 'Reset Your JAD Events Account Password';
+  const textContent = `Hello ${recipientName},\n\nWe received a request to reset your password. Open this link to set a new password:\n${resetUrl}\n\nThis link expires in ${expiresInMinutes} minutes. If you did not request this, please ignore this email.`;
+  const htmlContent = buildResetEmailHtml(recipientName, resetUrl, expiresInMinutes);
+
   try {
+    if (gmailClientId && gmailClientSecret && gmailRefreshToken) {
+      const oauth2Client = new google.auth.OAuth2(
+        gmailClientId,
+        gmailClientSecret
+      );
+
+      oauth2Client.setCredentials({
+        refresh_token: gmailRefreshToken,
+      });
+
+      const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+
+      const emailLines = [
+        `From: "${fromName}" <${gmailSenderEmail}>`,
+        `To: "${recipientName}" <${toEmail}>`,
+        `Subject: ${subject}`,
+        'Content-Type: text/html; charset="UTF-8"',
+        'MIME-Version: 1.0',
+        '',
+        htmlContent,
+      ];
+      const email = emailLines.join('\r\n');
+
+      const encodedMessage = Buffer.from(email)
+        .toString('base64')
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/, '');
+
+      const res = await gmail.users.messages.send({
+        userId: 'me',
+        requestBody: {
+          raw: encodedMessage,
+        },
+      });
+
+      console.log(`[EMAIL DISPATCH SUCCESS] Accepted by Gmail API for recipient: <${toEmail}> (messageId: ${res.data.id})`);
+      return {
+        success: true,
+        messageId: res.data.id || undefined,
+        simulated: false,
+      };
+    }
+
+    // 2. Fallback to existing logic if Gmail API is NOT configured.
+    // However, the prompt specifically requested NOT to silently fall back to Ethereal.
+    // If it's not configured, we should throw an error to fail clearly, unless there is a valid PROD smtp.
+    // To respect "Ethereal must no longer be the normal Forgot Password email transport", we check if the fallback was ethereal.
+
     const { transporter, isEthereal } = await getTransporter();
 
+    if (isEthereal && !process.env.ALLOW_ETHEREAL) {
+      console.error(`[EMAIL DISPATCH ERROR] Gmail API is not configured and Ethereal fallback is disabled.`);
+      return {
+        success: false,
+        error: 'Email transport is not configured.',
+        simulated: false,
+      };
+    }
+
     const info = await transporter.sendMail({
-      from: `"${fromName}" <${fromEmail}>`,
+      from: `"${fromName}" <${gmailSenderEmail}>`,
       to: `"${recipientName}" <${toEmail}>`,
-      subject: 'Reset Your JAD Events Account Password',
-      text: `Hello ${recipientName},\n\nWe received a request to reset your password. Open this link to set a new password:\n${resetUrl}\n\nThis link expires in ${expiresInMinutes} minutes. If you did not request this, please ignore this email.`,
-      html: buildResetEmailHtml(recipientName, resetUrl, expiresInMinutes),
+      subject,
+      text: textContent,
+      html: htmlContent,
     });
 
     const previewUrl = isEthereal ? nodemailer.getTestMessageUrl(info) : false;
 
-    // Safe server logging: recipient email, provider status, preview url if Ethereal
-    // NEVER log token, password, or sensitive auth headers
+    // Safe server logging
     console.log(`[EMAIL DISPATCH SUCCESS] Accepted by mail provider for recipient: <${toEmail}> (messageId: ${info.messageId})`);
     if (previewUrl) {
       console.log(`[EMAIL PREVIEW LINK (ETHEREAL)] ${previewUrl}`);
@@ -226,7 +292,6 @@ export async function sendPasswordResetEmail({
       simulated: false,
     };
   } catch (err: any) {
-    // Safe error logging without sensitive credentials
     console.error(`[EMAIL DISPATCH ERROR] Failed sending to <${toEmail}>: ${err?.message || err}`);
     return {
       success: false,
