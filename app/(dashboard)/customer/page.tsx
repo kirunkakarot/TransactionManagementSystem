@@ -43,6 +43,13 @@ export default function CustomerPage() {
         setUserEmail(data.user.email);
         setUserName(data.user.name);
         setUserAvatar(data.user.profileImage || undefined);
+        
+        // Ensure localStorage is synced (important for Google OAuth users returning to homepage)
+        localStorage.setItem('jad_user', JSON.stringify({
+          role: data.user.role === 'Administrator' ? 'Administrator' : 'Customer',
+          email: data.user.email,
+          name: data.user.name
+        }));
       }
 
       if (data.inquiries && data.inquiries.length > 0) {

@@ -55,23 +55,28 @@ export async function POST(req: Request) {
 
     // If user exists, create token and send reset email
     if (user) {
-      const { rawToken } = await createPasswordResetToken(user.id);
+      if (!user.password) {
+        console.warn(`[FORGOT-PASSWORD] Warning: Attempt to reset password for Google-only account: ${user.email}`);
+        // Skip creating a token and sending an email for Google-only accounts
+      } else {
+        const { rawToken } = await createPasswordResetToken(user.id);
 
-      // Determine origin base URL
-      const host = req.headers.get('host') || 'localhost:3000';
-      const protocol = req.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || `${protocol}://${host}`;
-      const resetUrl = `${baseUrl}/reset-password?token=${rawToken}`;
+        // Determine origin base URL
+        const host = req.headers.get('host') || 'localhost:3000';
+        const protocol = req.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || `${protocol}://${host}`;
+        const resetUrl = `${baseUrl}/reset-password?token=${rawToken}`;
 
-      const emailResult = await sendPasswordResetEmail({
-        toEmail: user.email,
-        recipientName: user.name,
-        resetUrl,
-        expiresInMinutes: 30,
-      });
+        const emailResult = await sendPasswordResetEmail({
+          toEmail: user.email,
+          recipientName: user.name,
+          resetUrl,
+          expiresInMinutes: 30,
+        });
 
-      if (!emailResult.success) {
-        console.warn(`[FORGOT-PASSWORD] Warning: Email dispatch could not complete for ${user.email}: ${emailResult.error}`);
+        if (!emailResult.success) {
+          console.warn(`[FORGOT-PASSWORD] Warning: Email dispatch could not complete for ${user.email}: ${emailResult.error}`);
+        }
       }
     }
 

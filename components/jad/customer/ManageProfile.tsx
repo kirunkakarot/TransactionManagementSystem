@@ -109,23 +109,6 @@ export const ManageProfile: React.FC<ManageProfileProps> = ({
 
   const loadProfile = async () => {
     const token = getAuthToken();
-    if (!token) {
-      // Check if user is in localStorage as fallback
-      const savedUserStr = localStorage.getItem('jad_user');
-      if (savedUserStr) {
-        try {
-          const u = JSON.parse(savedUserStr);
-          setName(u.name || '');
-          setEmail(u.email || '');
-          setProfile(u);
-        } catch (e) {
-          console.error(e);
-        }
-      }
-      setIsLoading(false);
-      return;
-    }
-
     try {
       setIsLoading(true);
       const res = await fetchCustomerProfile(token);
@@ -190,10 +173,6 @@ export const ManageProfile: React.FC<ManageProfileProps> = ({
     }
 
     const token = getAuthToken();
-    if (!token) {
-      toast.error('Authentication session expired. Please log in again.');
-      return;
-    }
 
     setIsSavingProfile(true);
     try {
@@ -262,10 +241,6 @@ export const ManageProfile: React.FC<ManageProfileProps> = ({
     }
 
     const token = getAuthToken();
-    if (!token) {
-      toast.error('Session expired. Please log in.');
-      return;
-    }
 
     setIsUploadingImage(true);
     try {
@@ -303,7 +278,6 @@ export const ManageProfile: React.FC<ManageProfileProps> = ({
   // Handle Remove Image
   const handleRemoveImage = async () => {
     const token = getAuthToken();
-    if (!token) return;
 
     setIsUploadingImage(true);
     try {
@@ -347,10 +321,6 @@ export const ManageProfile: React.FC<ManageProfileProps> = ({
     }
 
     const token = getAuthToken();
-    if (!token) {
-      toast.error('Session expired. Please log in.');
-      return;
-    }
 
     setIsSavingPassword(true);
     try {
@@ -382,7 +352,6 @@ export const ManageProfile: React.FC<ManageProfileProps> = ({
     setNotifications(updated);
 
     const token = getAuthToken();
-    if (!token) return;
 
     setIsSavingNotifications(true);
     try {

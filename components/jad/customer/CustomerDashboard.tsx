@@ -43,7 +43,7 @@ import { Quotation, InquiryFormData, PaymentTransaction, Booking, Feedback } fro
 import { CustomerInquiryDetailModal } from './CustomerInquiryDetailModal';
 import { SubmitPaymentProofModal } from './SubmitPaymentProofModal';
 import { CustomerFeedbackModal } from './CustomerFeedbackModal';
-import { acceptQuotationApi, cancelInquiryApi } from '@/services/api';
+import { acceptQuotationApi, declineQuotationApi, cancelInquiryApi } from '@/services/api';
 import Cookies from 'js-cookie';
 
 interface CustomerDashboardProps {
@@ -87,6 +87,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
   const [currentInquiry, setCurrentInquiry] = useState<InquiryFormData | null>(initialInquiry);
   const [activeTab, setActiveTab] = useState<'overview' | 'inquiries' | 'quotation' | 'payments' | 'booking'>('overview');
   const [isAccepting, setIsAccepting] = useState(false);
+  const [isDeclining, setIsDeclining] = useState(false);
 
   // Inquiry Detail Modal state
   const [isInquiryDetailModalOpen, setIsInquiryDetailModalOpen] = useState(false);
@@ -314,6 +315,30 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
       toast.error('Failed to accept quotation', { description: err.message });
     } finally {
       setIsAccepting(false);
+    }
+  };
+
+  const handleDeclineQuotation = async () => {
+    const targetQuote = effectiveQuotation || quotation;
+    if (!targetQuote) return;
+    
+    const reason = window.prompt('Are you sure you want to decline this quotation? This will also cancel your event inquiry.\n\nPlease provide a reason (optional):');
+    if (reason === null) return; // User clicked Cancel
+
+    setIsDeclining(true);
+    try {
+      const token = localStorage.getItem('jad_token') || Cookies.get('token') || Cookies.get('jad_token') || '';
+      await declineQuotationApi(targetQuote.id, reason || 'Customer declined quotation', token);
+      
+      toast.info('Quotation Declined', {
+        description: 'The quotation has been declined and your inquiry has been cancelled.'
+      });
+      if (onRefreshData) onRefreshData();
+    } catch (err: any) {
+      console.error('Error declining quotation:', err);
+      toast.error('Failed to decline quotation', { description: err.message });
+    } finally {
+      setIsDeclining(false);
     }
   };
 
@@ -753,12 +778,25 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                       <Button
                         variant="brand"
                         size="sm"
-                        disabled={isAccepting}
+                        disabled={isAccepting || isDeclining}
                         onClick={handleAcceptQuotation}
                         className="rounded-xl text-xs font-bold gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
                       >
                         <Check className="w-3.5 h-3.5" />
                         <span>{isAccepting ? 'Accepting...' : 'Accept Quotation'}</span>
+                      </Button>
+                    )}
+
+                    {effectiveQuotation && isQuotationSent && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={isDeclining || isAccepting}
+                        onClick={handleDeclineQuotation}
+                        className="rounded-xl text-xs font-bold gap-1.5 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 shadow-xs"
+                      >
+                        <AlertTriangle className="w-3.5 h-3.5" />
+                        <span>{isDeclining ? 'Declining...' : 'Decline'}</span>
                       </Button>
                     )}
 

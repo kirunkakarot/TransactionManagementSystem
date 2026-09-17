@@ -581,6 +581,18 @@ export async function acceptQuotationApi(id: number | string, token?: string) {
   return data;
 }
 
+export async function declineQuotationApi(id: number | string, reason: string, token?: string) {
+  const targetId = encodeURIComponent(String(id).trim());
+  const res = await fetch(`${API_URL}/quotations/${targetId}/decline`, {
+    method: 'POST',
+    headers: getAuthHeaders(token),
+    body: JSON.stringify({ reason }),
+  });
+  const data = await parseResponseJson(res);
+  if (!res.ok) throw new Error(data.message || 'Failed to decline quotation');
+  return data;
+}
+
 export async function payQuotationDepositApi(id: number | string, paymentData: any, token?: string) {
   const targetId = encodeURIComponent(String(id).trim());
   const res = await fetch(`${API_URL}/quotations/${targetId}/pay-deposit`, {

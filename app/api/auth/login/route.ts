@@ -39,8 +39,12 @@ export async function POST(req: Request) {
 
     const user = await findUserByEmail(email);
 
-    if (user && (await bcrypt.compare(password, user.password))) {
-      const token = generateToken(user.id, user.role);
+    if (user) {
+      if (!user.password) {
+        return NextResponse.json({ message: "This account uses Google Sign-In. Please use the 'Continue with Google' button." }, { status: 401 });
+      }
+      if (await bcrypt.compare(password, user.password as string)) {
+        const token = generateToken(user.id, user.role);
       const response = NextResponse.json({
         id: user.id,
         name: user.name,
@@ -65,9 +69,9 @@ export async function POST(req: Request) {
       });
 
       return response;
-    } else {
-      return NextResponse.json({ message: 'Invalid email or password' }, { status: 401 });
+      }
     }
+    return NextResponse.json({ message: 'Invalid email or password' }, { status: 401 });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json({ message: 'Server error', error: message }, { status: 500 });

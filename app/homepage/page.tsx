@@ -56,9 +56,23 @@ export default function Homepage() {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const authParam = params.get('auth');
+      const errorParam = params.get('error');
+
       if (authParam === 'login' || authParam === 'signup') {
         setAuthMode(authParam);
         setIsAuthModalOpen(true);
+      }
+
+      if (errorParam) {
+        setTimeout(() => {
+          toast.error('Authentication Error', {
+            description: `Google Sign-In failed: ${errorParam.replace(/_/g, ' ')}`,
+          });
+        }, 100);
+        
+        // Remove error from URL without reloading
+        const newUrl = window.location.pathname + (authParam ? `?auth=${authParam}` : '');
+        window.history.replaceState({}, '', newUrl);
       }
     }
 

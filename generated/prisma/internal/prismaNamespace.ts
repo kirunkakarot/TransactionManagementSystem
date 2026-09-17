@@ -412,7 +412,8 @@ export const ModelName = {
   EventSchedule: 'EventSchedule',
   PaymentTransaction: 'PaymentTransaction',
   Feedback: 'Feedback',
-  PasswordResetToken: 'PasswordResetToken'
+  PasswordResetToken: 'PasswordResetToken',
+  GoogleIdentity: 'GoogleIdentity'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -428,7 +429,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "service" | "package" | "inquiry" | "quotation" | "staff" | "equipmentResource" | "booking" | "bookingService" | "bookingPackage" | "bookingStaff" | "bookingResource" | "eventSchedule" | "paymentTransaction" | "feedback" | "passwordResetToken"
+    modelProps: "user" | "service" | "package" | "inquiry" | "quotation" | "staff" | "equipmentResource" | "booking" | "bookingService" | "bookingPackage" | "bookingStaff" | "bookingResource" | "eventSchedule" | "paymentTransaction" | "feedback" | "passwordResetToken" | "googleIdentity"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1616,6 +1617,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    GoogleIdentity: {
+      payload: Prisma.$GoogleIdentityPayload<ExtArgs>
+      fields: Prisma.GoogleIdentityFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GoogleIdentityFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoogleIdentityPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GoogleIdentityFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoogleIdentityPayload>
+        }
+        findFirst: {
+          args: Prisma.GoogleIdentityFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoogleIdentityPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GoogleIdentityFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoogleIdentityPayload>
+        }
+        findMany: {
+          args: Prisma.GoogleIdentityFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoogleIdentityPayload>[]
+        }
+        create: {
+          args: Prisma.GoogleIdentityCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoogleIdentityPayload>
+        }
+        createMany: {
+          args: Prisma.GoogleIdentityCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GoogleIdentityCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoogleIdentityPayload>[]
+        }
+        delete: {
+          args: Prisma.GoogleIdentityDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoogleIdentityPayload>
+        }
+        update: {
+          args: Prisma.GoogleIdentityUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoogleIdentityPayload>
+        }
+        deleteMany: {
+          args: Prisma.GoogleIdentityDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GoogleIdentityUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GoogleIdentityUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoogleIdentityPayload>[]
+        }
+        upsert: {
+          args: Prisma.GoogleIdentityUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoogleIdentityPayload>
+        }
+        aggregate: {
+          args: Prisma.GoogleIdentityAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGoogleIdentity>
+        }
+        groupBy: {
+          args: Prisma.GoogleIdentityGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GoogleIdentityGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GoogleIdentityCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GoogleIdentityCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1954,6 +2029,17 @@ export const PasswordResetTokenScalarFieldEnum = {
 export type PasswordResetTokenScalarFieldEnum = (typeof PasswordResetTokenScalarFieldEnum)[keyof typeof PasswordResetTokenScalarFieldEnum]
 
 
+export const GoogleIdentityScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  googleId: 'googleId',
+  email: 'email',
+  createdAt: 'createdAt'
+} as const
+
+export type GoogleIdentityScalarFieldEnum = (typeof GoogleIdentityScalarFieldEnum)[keyof typeof GoogleIdentityScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -2265,6 +2351,7 @@ export type GlobalOmitConfig = {
   paymentTransaction?: Prisma.PaymentTransactionOmit
   feedback?: Prisma.FeedbackOmit
   passwordResetToken?: Prisma.PasswordResetTokenOmit
+  googleIdentity?: Prisma.GoogleIdentityOmit
 }
 
 /* Types for Logging */

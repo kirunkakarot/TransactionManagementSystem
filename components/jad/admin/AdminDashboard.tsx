@@ -1,24 +1,24 @@
 "use client";
 import React, { useState } from 'react';
-import { 
-  Building2, 
-  Users, 
-  Receipt, 
-  Calendar, 
-  CreditCard, 
-  CheckCircle2, 
-  Clock, 
-  AlertCircle, 
-  ArrowLeft, 
-  LogOut, 
-  Search, 
-  Filter, 
-  ChevronRight, 
+import {
+  Building2,
+  Users,
+  Receipt,
+  Calendar,
+  CreditCard,
+  CheckCircle2,
+  Clock,
+  AlertCircle,
+  ArrowLeft,
+  LogOut,
+  Search,
+  Filter,
+  ChevronRight,
   ChevronLeft,
-  FileText, 
-  Check, 
-  X, 
-  Layers, 
+  FileText,
+  Check,
+  X,
+  Layers,
   ShieldCheck,
   Plus,
   Printer,
@@ -75,11 +75,11 @@ import { PaymentReceiptModal } from './PaymentReceiptModal';
 import { BookingDetailModal } from './BookingDetailModal';
 import { CreateAccountModal } from './CreateAccountModal';
 
-import { 
-  InquiryFormData, 
-  Quotation, 
-  ServiceItem, 
-  PackageItem, 
+import {
+  InquiryFormData,
+  Quotation,
+  ServiceItem,
+  PackageItem,
   EquipmentResource,
   Booking,
   PaymentTransaction,
@@ -356,13 +356,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   // Convert Inquiry to Booking directly
   const handleConvertInquiryToBooking = (inq: InquiryFormData) => {
     const relatedQuote = quotations.find(q => q.inquiryId === inq.id || (inq.dbId && q.inquiryId === inq.dbId.toString()));
-    
+
     // 0. Check if already booked
-    const existingBooking = bookings.find(b => 
-      b.status !== 'Cancelled' && 
-      (b.inquiryId === inq.id || 
-       (inq.dbId && b.inquiryId === inq.dbId.toString()) || 
-       (relatedQuote && (b.quotationId === relatedQuote.id || (relatedQuote.dbId && b.quotationId === relatedQuote.dbId.toString()))))
+    const existingBooking = bookings.find(b =>
+      b.status !== 'Cancelled' &&
+      (b.inquiryId === inq.id ||
+        (inq.dbId && b.inquiryId === inq.dbId.toString()) ||
+        (relatedQuote && (b.quotationId === relatedQuote.id || (relatedQuote.dbId && b.quotationId === relatedQuote.dbId.toString()))))
     );
     if (existingBooking) {
       toast.info('Already Booked', {
@@ -390,8 +390,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
     // 3. Check downpayment status
     const quotePayments = payments.filter(p => relatedQuote && (
-      p.quotationId === relatedQuote.id || 
-      (relatedQuote.dbId && p.quotationId === relatedQuote.dbId.toString()) || 
+      p.quotationId === relatedQuote.id ||
+      (relatedQuote.dbId && p.quotationId === relatedQuote.dbId.toString()) ||
       (inq.dbId && p.bookingId === inq.dbId.toString()) ||
       (p.clientEmail && inq.email && p.clientEmail.toLowerCase() === inq.email.toLowerCase())
     ));
@@ -415,12 +415,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     }
 
     // Choose available staff from live staff roster
-    const defaultStaff = staffRoster.length > 0 
+    const defaultStaff = staffRoster.length > 0
       ? staffRoster.slice(0, 2).map(s => ({ id: s.id, name: s.name, role: s.role }))
       : [
-          { id: 'st-1', name: 'Marco Valenzuela', role: 'Lead Director' },
-          { id: 'st-4', name: 'Marie Del Rosario', role: 'Event Coordinator' }
-        ];
+        { id: 'st-1', name: 'Marco Valenzuela', role: 'Lead Director' },
+        { id: 'st-4', name: 'Marie Del Rosario', role: 'Event Coordinator' }
+      ];
 
     const newBooking: Booking = {
       id: `BK-2026-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -470,7 +470,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   // Filtered lists
   const filteredBookings = bookings.filter(b => {
-    const matchesSearch = 
+    const matchesSearch =
       b.clientName.toLowerCase().includes(bookingSearch.toLowerCase()) ||
       b.id.toLowerCase().includes(bookingSearch.toLowerCase()) ||
       b.eventTitle.toLowerCase().includes(bookingSearch.toLowerCase()) ||
@@ -480,13 +480,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   });
 
   const filteredPayments = payments.filter(p => {
-    const matchesSearch = 
+    const matchesSearch =
       p.clientName.toLowerCase().includes(paymentSearch.toLowerCase()) ||
       p.referenceNumber.toLowerCase().includes(paymentSearch.toLowerCase()) ||
       p.method.toLowerCase().includes(paymentSearch.toLowerCase()) ||
       (p.receiptNumber && p.receiptNumber.toLowerCase().includes(paymentSearch.toLowerCase())) ||
       (p.bookingId && p.bookingId.toLowerCase().includes(paymentSearch.toLowerCase()));
-    
+
     let matchesFilter = true;
     if (paymentFilter === 'PENDING') matchesFilter = !p.verified && p.status === 'Pending Verification';
     else if (paymentFilter === 'VERIFIED') matchesFilter = p.verified;
@@ -495,7 +495,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   });
 
   const filteredInquiries = inquiries.filter(inq => {
-    const matchesSearch = 
+    const matchesSearch =
       inq.fullName.toLowerCase().includes(inquirySearch.toLowerCase()) ||
       inq.email.toLowerCase().includes(inquirySearch.toLowerCase()) ||
       inq.venue.toLowerCase().includes(inquirySearch.toLowerCase()) ||
@@ -505,7 +505,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     return matchesSearch && matchesStatus;
   });
 
-  const filteredQuotations = quotations.filter(q => 
+  const filteredQuotations = quotations.filter(q =>
     q.clientName.toLowerCase().includes(quotationSearch.toLowerCase()) ||
     q.id.toLowerCase().includes(quotationSearch.toLowerCase()) ||
     q.inquiryId.toLowerCase().includes(quotationSearch.toLowerCase()) ||
@@ -519,17 +519,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     return matchesSearch && matchesCat;
   });
 
-  const filteredPackages = packages.filter(pkg => 
+  const filteredPackages = packages.filter(pkg =>
     pkg.name.toLowerCase().includes(packageSearch.toLowerCase()) ||
     pkg.capacity.toLowerCase().includes(packageSearch.toLowerCase())
   );
 
-  const filteredEquipment = equipmentResources.filter(eq => 
+  const filteredEquipment = equipmentResources.filter(eq =>
     eq.name.toLowerCase().includes(equipmentSearch.toLowerCase()) ||
     eq.category.toLowerCase().includes(equipmentSearch.toLowerCase())
   );
 
-  const filteredStaff = staffRoster.filter(st => 
+  const filteredStaff = staffRoster.filter(st =>
     st.name.toLowerCase().includes(staffSearch.toLowerCase()) ||
     st.role.toLowerCase().includes(staffSearch.toLowerCase())
   );
@@ -556,31 +556,31 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     {
       group: 'RESERVATIONS',
       items: [
-        { 
-          id: 'inquiries', 
-          label: 'Inquiries', 
-          icon: Clock, 
-          badge: pendingInquiriesList.length > 0 ? `${pendingInquiriesList.length} new` : null, 
-          badgeColor: 'bg-amber-100 text-amber-800' 
+        {
+          id: 'inquiries',
+          label: 'Inquiries',
+          icon: Clock,
+          badge: pendingInquiriesList.length > 0 ? `${pendingInquiriesList.length} new` : null,
+          badgeColor: 'bg-amber-100 text-amber-800'
         },
-        { 
-          id: 'quotations', 
-          label: 'Quotations', 
-          icon: Receipt, 
+        {
+          id: 'quotations',
+          label: 'Quotations',
+          icon: Receipt,
           badge: quotationsAwaitingResponse.length > 0 ? `${quotationsAwaitingResponse.length}` : null,
           badgeColor: 'bg-blue-100 text-blue-800'
         },
-        { 
-          id: 'bookings', 
-          label: 'Bookings', 
-          icon: CalendarCheck, 
+        {
+          id: 'bookings',
+          label: 'Bookings',
+          icon: CalendarCheck,
           badge: bookings.length > 0 ? `${bookings.length}` : null,
           badgeColor: 'bg-slate-100 text-slate-700'
         },
-        { 
-          id: 'scheduling', 
-          label: 'Calendar & Schedule', 
-          icon: Calendar, 
+        {
+          id: 'scheduling',
+          label: 'Calendar & Schedule',
+          icon: Calendar,
           badge: detectedConflicts.length > 0 ? `${detectedConflicts.length} alert` : null,
           badgeColor: 'bg-red-100 text-red-700'
         }
@@ -589,10 +589,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     {
       group: 'TRANSACTIONS',
       items: [
-        { 
-          id: 'payments', 
-          label: 'Payment Verification', 
-          icon: CreditCard, 
+        {
+          id: 'payments',
+          label: 'Payment Verification',
+          icon: CreditCard,
           badge: pendingVerificationPaymentsList.length > 0 ? `${pendingVerificationPaymentsList.length} verify` : null,
           badgeColor: 'bg-orange-100 text-orange-800 font-bold'
         }
@@ -610,12 +610,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       group: 'OPERATIONS',
       items: [
         { id: 'staff', label: 'Staff Roster', icon: Users, badge: `${staffRoster.length}`, badgeColor: 'bg-slate-100 text-slate-600' },
-        { 
-          id: 'evaluations', 
-          label: 'Customer Evaluations', 
-          icon: Star, 
-          badge: bookings.filter(b => Boolean(b.feedback)).length > 0 ? `${bookings.filter(b => Boolean(b.feedback)).length} reviews` : null, 
-          badgeColor: 'bg-amber-100 text-amber-800 font-bold' 
+        {
+          id: 'evaluations',
+          label: 'Customer Evaluations',
+          icon: Star,
+          badge: bookings.filter(b => Boolean(b.feedback)).length > 0 ? `${bookings.filter(b => Boolean(b.feedback)).length} reviews` : null,
+          badgeColor: 'bg-amber-100 text-amber-800 font-bold'
         }
       ]
     }
@@ -723,11 +723,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <button
                       key={item.id}
                       onClick={() => setActiveSection(item.id as any)}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                        isActive
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${isActive
                           ? 'bg-blue-50 text-[#1E3A8A] font-bold shadow-2xs'
                           : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center gap-2.5 truncate">
                         <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#1E3A8A]' : 'text-slate-400'}`} />
@@ -749,16 +748,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         {/* MOBILE SIDEBAR DRAWER OVERLAY */}
         {isMobileSidebarOpen && (
           <div className="lg:hidden fixed inset-0 z-50 flex">
-            <div 
-              className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs" 
+            <div
+              className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs"
               onClick={() => setIsMobileSidebarOpen(false)}
             />
             <div className="relative w-64 max-w-xs bg-white border-r border-slate-200 p-4 space-y-6 overflow-y-auto z-10 shadow-2xl">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <span className="text-xs font-extrabold text-[#1E3A8A] tracking-wider">NAVIGATION</span>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
+                <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={() => setIsMobileSidebarOpen(false)}
                   className="h-7 w-7 rounded-lg"
                 >
@@ -782,11 +781,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             setActiveSection(item.id as any);
                             setIsMobileSidebarOpen(false);
                           }}
-                          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                            isActive
+                          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${isActive
                               ? 'bg-blue-50 text-[#1E3A8A] font-bold'
                               : 'text-slate-600 hover:bg-slate-50'
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center gap-2.5 truncate">
                             <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#1E3A8A]' : 'text-slate-400'}`} />
@@ -1120,10 +1118,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             </div>
                           </td>
                           <td className="py-3 px-4 text-center">
-                            <Badge variant={inq.status === 'Confirmed' ? 'success' : inq.status === 'Accepted' ? 'blue' : inq.status === 'Quotation Sent' ? 'blue' : inq.status === 'CANCELLED' ? 'destructive' : 'warning'} className="text-[10px]">
+                            <Badge variant={inq.status === 'Confirmed' ? 'success' : inq.status === 'Accepted' ? 'blue' : inq.status === 'Quotation Sent' ? 'blue' : (inq.status === 'CANCELLED' || inq.status === 'Cancelled') ? 'destructive' : 'warning'} className="text-[10px]">
                               {inq.status || 'Pending Review'}
                             </Badge>
-                            {inq.status === 'CANCELLED' && (
+                            {(inq.status === 'CANCELLED' || inq.status === 'Cancelled') && (
                               <div className="text-[9px] text-red-500 font-medium mt-1">Customer Cancelled</div>
                             )}
                           </td>
@@ -1156,8 +1154,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                   Quote
                                 </Button>
                               )}
-                              
-                              {!relatedQuote && inq.status === 'CANCELLED' && (
+                              {!relatedQuote && (inq.status === 'CANCELLED' || inq.status === 'Cancelled') && (
                                 <Button
                                   size="sm"
                                   variant="outline"
@@ -1167,7 +1164,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                   Quote
                                 </Button>
                               )}
-
                               {relatedQuote && inq.status !== 'Confirmed' && inq.status !== 'CANCELLED' && (
                                 <Button
                                   size="sm"
@@ -1284,7 +1280,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           ₱{quote.requiredDownpayment.toLocaleString()} PHP
                         </td>
                         <td className="py-3 px-4 text-center">
-                          <Badge variant={quote.status === 'Confirmed' ? 'success' : quote.status === 'Accepted' ? 'blue' : 'warning'} className="text-[10px]">
+                          <Badge variant={quote.status === 'Confirmed' ? 'success' : quote.status === 'Accepted' ? 'blue' : quote.status === 'Declined' ? 'destructive' : 'warning'} className="text-[10px]">
                             {quote.status}
                           </Badge>
                         </td>
@@ -1438,7 +1434,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </td>
                         <td className="py-3 px-4 text-center">
                           <div className="flex flex-col items-center gap-1">
-                            <Badge 
+                            <Badge
                               variant={b.status === 'Confirmed' ? 'success' : b.status === 'Completed' ? 'success' : b.status === 'Cancelled' ? 'destructive' : 'blue'}
                               className="text-[10px]"
                             >
@@ -1591,9 +1587,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
 
                 {/* Conflict Status Banner */}
-                <div className={`p-4 rounded-xl border flex items-center justify-between text-xs ${
-                  detectedConflicts.length > 0 ? 'bg-red-50 border-red-200 text-red-900' : 'bg-emerald-50 border-emerald-200 text-emerald-900'
-                }`}>
+                <div className={`p-4 rounded-xl border flex items-center justify-between text-xs ${detectedConflicts.length > 0 ? 'bg-red-50 border-red-200 text-red-900' : 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                  }`}>
                   <div className="flex items-center gap-2 font-bold">
                     {detectedConflicts.length > 0 ? <AlertTriangle className="w-4 h-4 text-red-600" /> : <CheckCircle2 className="w-4 h-4 text-emerald-600" />}
                     <span>
@@ -1623,15 +1618,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       <div
                         key={day}
                         onClick={() => setSelectedCalendarDay(dateStr)}
-                        className={`min-h-[70px] p-1.5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between text-left ${
-                          isSelected
+                        className={`min-h-[70px] p-1.5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between text-left ${isSelected
                             ? 'ring-2 ring-[#1E3A8A] bg-blue-50/50 border-blue-300'
                             : hasConflict
-                            ? 'bg-red-50/60 border-red-200'
-                            : dayBookings.length > 0
-                            ? 'bg-emerald-50/40 border-emerald-200'
-                            : 'bg-white border-slate-100 hover:bg-slate-50'
-                        }`}
+                              ? 'bg-red-50/60 border-red-200'
+                              : dayBookings.length > 0
+                                ? 'bg-emerald-50/40 border-emerald-200'
+                                : 'bg-white border-slate-100 hover:bg-slate-50'
+                          }`}
                       >
                         <span className="font-bold text-xs text-slate-700">{day}</span>
                         {dayBookings.length > 0 && (
@@ -1866,11 +1860,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 {filteredServices.map(srv => {
                   const isDisabled = srv.isActive === false;
                   return (
-                    <div 
+                    <div
                       key={srv.id}
-                      className={`p-5 rounded-2xl border flex flex-col justify-between space-y-3 transition-all ${
-                        isDisabled ? 'bg-slate-50/85 border-dashed border-red-200 shadow-2xs' : 'bg-white border-slate-200 hover:border-blue-300 shadow-xs'
-                      }`}
+                      className={`p-5 rounded-2xl border flex flex-col justify-between space-y-3 transition-all ${isDisabled ? 'bg-slate-50/85 border-dashed border-red-200 shadow-2xs' : 'bg-white border-slate-200 hover:border-blue-300 shadow-xs'
+                        }`}
                     >
                       <div className="space-y-2">
                         <div className="flex items-start justify-between gap-2">
@@ -1908,11 +1901,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         <Button
                           size="sm"
                           onClick={() => onToggleServiceActive(srv.id)}
-                          className={`text-xs h-7.5 px-3 rounded-xl font-bold transition-all duration-200 flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 ${
-                            !isDisabled 
-                              ? 'bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-700 hover:shadow-emerald-200' 
+                          className={`text-xs h-7.5 px-3 rounded-xl font-bold transition-all duration-200 flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 ${!isDisabled
+                              ? 'bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-700 hover:shadow-emerald-200'
                               : 'bg-red-600 hover:bg-red-700 text-white border border-red-700 hover:shadow-red-200'
-                          }`}
+                            }`}
                           title={!isDisabled ? 'Service is currently Enabled. Click to Disable.' : 'Service is currently Disabled. Click to Enable.'}
                         >
                           {!isDisabled ? (
@@ -1991,11 +1983,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 {filteredPackages.map(pkg => {
                   const isDisabled = pkg.isActive === false;
                   return (
-                    <div 
-                      key={pkg.id} 
-                      className={`p-5 rounded-2xl border flex flex-col justify-between space-y-3 transition-all ${
-                        isDisabled ? 'bg-slate-50/85 border-dashed border-red-200 shadow-2xs' : 'bg-white border-slate-200 hover:border-blue-300 shadow-xs'
-                      }`}
+                    <div
+                      key={pkg.id}
+                      className={`p-5 rounded-2xl border flex flex-col justify-between space-y-3 transition-all ${isDisabled ? 'bg-slate-50/85 border-dashed border-red-200 shadow-2xs' : 'bg-white border-slate-200 hover:border-blue-300 shadow-xs'
+                        }`}
                     >
                       <div className="space-y-2">
                         <div className="flex items-start justify-between gap-2">
@@ -2030,11 +2021,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         <Button
                           size="sm"
                           onClick={() => onTogglePackageActive(pkg.id)}
-                          className={`text-xs h-7.5 px-3 rounded-xl font-bold transition-all duration-200 flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 ${
-                            !isDisabled 
-                              ? 'bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-700 hover:shadow-emerald-200' 
+                          className={`text-xs h-7.5 px-3 rounded-xl font-bold transition-all duration-200 flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 ${!isDisabled
+                              ? 'bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-700 hover:shadow-emerald-200'
                               : 'bg-red-600 hover:bg-red-700 text-white border border-red-700 hover:shadow-red-200'
-                          }`}
+                            }`}
                           title={!isDisabled ? 'Package is currently Enabled. Click to Disable.' : 'Package is currently Disabled. Click to Enable.'}
                         >
                           {!isDisabled ? (
@@ -2250,20 +2240,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 const evaluatedBookings = bookings.filter(b => Boolean(b.feedback));
                 const completedBookings = bookings.filter(b => b.status === 'Completed');
                 const totalEvaluations = evaluatedBookings.length;
-                
-                const avgOverall = totalEvaluations > 0 
+
+                const avgOverall = totalEvaluations > 0
                   ? (evaluatedBookings.reduce((sum, b) => sum + (b.feedback?.overallRating || 0), 0) / totalEvaluations).toFixed(1)
                   : '0.0';
 
-                const avgService = totalEvaluations > 0 
+                const avgService = totalEvaluations > 0
                   ? (evaluatedBookings.reduce((sum, b) => sum + (b.feedback?.serviceRating || 0), 0) / totalEvaluations).toFixed(1)
                   : '0.0';
 
-                const avgStaff = totalEvaluations > 0 
+                const avgStaff = totalEvaluations > 0
                   ? (evaluatedBookings.reduce((sum, b) => sum + (b.feedback?.staffRating || 0), 0) / totalEvaluations).toFixed(1)
                   : '0.0';
 
-                const avgExecution = totalEvaluations > 0 
+                const avgExecution = totalEvaluations > 0
                   ? (evaluatedBookings.reduce((sum, b) => sum + (b.feedback?.executionRating || 0), 0) / totalEvaluations).toFixed(1)
                   : '0.0';
 
@@ -2335,7 +2325,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           {totalEvaluations} / {completedBookings.length}
                         </div>
                         <span className="text-[11px] text-slate-500 block">
-                          {completedBookings.length > 0 
+                          {completedBookings.length > 0
                             ? `${Math.round((totalEvaluations / completedBookings.length) * 100)}% evaluation submission rate`
                             : 'No completed events yet'}
                         </span>
@@ -2365,8 +2355,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     {bookings.filter(b => Boolean(b.feedback)).map(b => {
                       const fb = b.feedback!;
                       return (
-                        <div 
-                          key={fb.id} 
+                        <div
+                          key={fb.id}
                           className="p-5 rounded-2xl border border-slate-200/90 bg-white hover:border-amber-200 transition-colors space-y-3"
                         >
                           <div className="flex items-start justify-between gap-2 pb-2 border-b border-slate-100">
