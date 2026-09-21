@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   X, 
   Plus, 
@@ -9,7 +9,9 @@ import {
   Image as ImageIcon,
   Tag,
   Wrench,
-  Power
+  Power,
+  Upload,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +19,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { ServiceItem, EquipmentResource } from '../types';
 import { toast } from 'sonner';
+import { getStoredToken } from '@/services/api';
 
 interface ServiceEditorModalProps {
   isOpen: boolean;
@@ -64,6 +67,12 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
   const [iconName, setIconName] = useState('Wrench');
   const [isActive, setIsActive] = useState(true);
 
+  // Image Upload State
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   // Features list
   const [features, setFeatures] = useState<string[]>([]);
   const [newFeature, setNewFeature] = useState('');
@@ -108,8 +117,25 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
       setInclusions(['Full Ingress & Egress', 'Dedicated Supervisor', 'Contingency Spares']);
       setSelectedResourceIds([]);
     }
+    // Reset file upload state when modal opens/changes
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    setIsUploading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serviceToEdit, isOpen]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File too large', { description: 'Please select an image smaller than 5MB.' });
+      return;
+    }
+
+    setSelectedFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
+  };
 
   const handleAddFeature = () => {
     if (!newFeature.trim()) return;
@@ -137,7 +163,7 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
     );
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
       toast.error('Service Name Required', { description: 'Please enter a name for the event service.' });
@@ -146,6 +172,35 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
     if (startingPrice <= 0) {
       toast.error('Invalid Rate', { description: 'Starting price must be greater than zero.' });
       return;
+    }
+
+    let finalImageUrl = featuredImage.trim() || DEFAULT_IMAGES[category] || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80';
+
+    if (selectedFile) {
+      setIsUploading(true);
+      try {
+        const formData = new FormData();
+        formData.append('image', selectedFile);
+
+        const res = await fetch('/api/services/upload-image', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${getStoredToken()}`,
+          },
+          body: formData,
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || data.message || 'Image upload failed');
+        }
+
+        finalImageUrl = data.imageUrl;
+      } catch (err: any) {
+        toast.error('Upload Error', { description: err.message });
+        setIsUploading(false);
+        return; // Stop submission on upload failure
+      }
     }
 
     const linkedResources = availableResources.filter(r => selectedResourceIds.includes(r.id));
@@ -157,7 +212,7 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
       startingPrice: Number(startingPrice),
       shortDesc: shortDesc.trim(),
       fullDesc: fullDesc.trim(),
-      featuredImage: featuredImage.trim() || DEFAULT_IMAGES[category] || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80',
+      featuredImage: finalImageUrl,
       iconName,
       features: features.length > 0 ? features : ['Standard Professional Inclusions'],
       inclusions: inclusions.length > 0 ? inclusions : ['On-Site Crew & Supervision'],
@@ -166,6 +221,7 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
     };
 
     onSaveService(finalService);
+    setIsUploading(false);
     onClose();
   };
 
@@ -296,19 +352,79 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
 
           {/* Featured Banner Image */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700">Featured Media Photo URL</label>
-            <div className="flex items-center gap-2">
-              <Input
-                value={featuredImage}
-                onChange={e => setFeaturedImage(e.target.value)}
-                placeholder="https://images.unsplash.com/..."
-                className="text-xs rounded-md flex-1 font-mono"
-              />
-              {featuredImage && (
-                <div className="w-10 h-10 rounded-md overflow-hidden shrink-0 border border-slate-200">
-                  <img src={featuredImage} alt="Preview" className="w-full h-full object-cover" />
+            <label className="text-xs font-bold text-slate-700">Featured Service Image</label>
+            <div className="flex flex-col gap-3">
+              {/* Responsive 16:9 Preview */}
+              <div className="w-full aspect-video rounded-xl overflow-hidden bg-slate-100 border border-slate-200 relative group">
+                <img
+                  src={previewUrl || featuredImage || DEFAULT_IMAGES[category]}
+                  alt="Service Preview"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-slate-900/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="rounded-md font-bold text-xs"
+                    disabled={isUploading}
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    Replace Image
+                  </Button>
                 </div>
-              )}
+              </div>
+
+              {/* Upload Controls */}
+              <div className="flex items-center justify-between">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  accept="image/jpeg, image/png, image/webp"
+                  className="hidden"
+                />
+                
+                <div className="flex-1 truncate pr-4 text-xs text-slate-500">
+                  {selectedFile ? (
+                    <span className="font-medium text-slate-700">Selected: {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)}MB)</span>
+                  ) : (
+                    "Upload a high-quality 16:9 image."
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {selectedFile && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedFile(null);
+                        setPreviewUrl(null);
+                        if (fileInputRef.current) fileInputRef.current.value = '';
+                      }}
+                      className="text-red-500 hover:text-red-600 hover:bg-red-50 text-xs px-2 h-8 rounded-md"
+                      disabled={isUploading}
+                    >
+                      <Trash2 className="w-4 h-4 mr-1" />
+                      Remove
+                    </Button>
+                  )}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="text-xs h-8 px-3 rounded-md"
+                    disabled={isUploading}
+                  >
+                    <Upload className="w-3.5 h-3.5 mr-1" />
+                    Browse Files
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -424,9 +540,9 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
             <Button type="button" variant="outline" onClick={onClose} className="rounded-md text-xs font-bold">
               Cancel
             </Button>
-            <Button type="submit" variant="brand" className="rounded-md text-xs font-bold bg-orange-500 hover:bg-orange-600 text-white gap-1.5 shadow-sm">
-              <Check className="w-4 h-4" />
-              <span>{serviceToEdit ? 'Save Changes' : 'Create Event Service'}</span>
+            <Button type="submit" variant="brand" disabled={isUploading} className="rounded-md text-xs font-bold bg-orange-500 hover:bg-orange-600 text-white gap-1.5 shadow-sm">
+              {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+              <span>{isUploading ? 'Uploading...' : (serviceToEdit ? 'Save Changes' : 'Create Event Service')}</span>
             </Button>
           </DialogFooter>
         </form>

@@ -5,13 +5,19 @@ const globalForDb = globalThis as unknown as {
 };
 
 const createPool = () => {
-  const p = new Pool({
-    user: process.env.DB_USER || 'postgres',
-    host: process.env.DB_HOST || 'localhost',
-    database: process.env.DB_NAME || 'jad_events_db',
-    password: process.env.DB_PASSWORD || 'root',
-    port: parseInt(process.env.DB_PORT || '5432', 10),
-  });
+  const connectionString = process.env.DATABASE_URL;
+  
+  const poolConfig = connectionString 
+    ? { connectionString } 
+    : {
+        user: process.env.DB_USER || 'postgres',
+        host: process.env.DB_HOST || 'localhost',
+        database: process.env.DB_NAME || 'jad_events_db',
+        password: process.env.DB_PASSWORD || 'root',
+        port: parseInt(process.env.DB_PORT || '5432', 10),
+      };
+
+  const p = new Pool(poolConfig);
 
   p.on('connect', () => {
     console.log('Connected to PostgreSQL Database');
