@@ -175,7 +175,7 @@ export const updateInquiryStatus = async (id: number | string, status: string) =
 
 export const cancelInquiry = async (id: number | string, reason: string | null = null, actor: string = 'Customer') => {
   const inquiryId = typeof id === 'string' ? parseInt(id, 10) : id;
-  let targetId = inquiryId;
+  const targetId = inquiryId;
   let existing;
   if (isNaN(inquiryId)) {
     existing = await getInquiryByTrackingId(String(id));

@@ -37,6 +37,21 @@ export default function Homepage() {
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [packages, setPackages] = useState<PackageItem[]>([]);
 
+  // Modal States
+  const [isInquiryModalOpen, setIsInquiryModalOpen] = useState(false);
+  const [selectedPackageForInquiry, setSelectedPackageForInquiry] = useState<PackageItem | null>(null);
+  const [selectedServiceIdForInquiry, setSelectedServiceIdForInquiry] = useState<string | undefined>(undefined);
+  const [inquiryDate, setInquiryDate] = useState<string | undefined>(undefined);
+  const [inquiryEventType, setInquiryEventType] = useState<string | undefined>(undefined);
+  const [inquiryVenue, setInquiryVenue] = useState<string | undefined>(undefined);
+
+  // Service Detail Modal State
+  const [selectedServiceDetail, setSelectedServiceDetail] = useState<ServiceItem | null>(null);
+
+  // Auth Modal State
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+
   useEffect(() => {
     // Restore session
     const savedUser = localStorage.getItem('jad_user');
@@ -142,20 +157,6 @@ export default function Homepage() {
     };
   }, []);
 
-  // Modal States
-  const [isInquiryModalOpen, setIsInquiryModalOpen] = useState(false);
-  const [selectedPackageForInquiry, setSelectedPackageForInquiry] = useState<PackageItem | null>(null);
-  const [selectedServiceIdForInquiry, setSelectedServiceIdForInquiry] = useState<string | undefined>(undefined);
-  const [inquiryDate, setInquiryDate] = useState<string | undefined>(undefined);
-  const [inquiryEventType, setInquiryEventType] = useState<string | undefined>(undefined);
-  const [inquiryVenue, setInquiryVenue] = useState<string | undefined>(undefined);
-
-  // Service Detail Modal State
-  const [selectedServiceDetail, setSelectedServiceDetail] = useState<ServiceItem | null>(null);
-
-  // Auth Modal State
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
 
   const handleLoginSuccess = (role: 'client' | 'admin', email: string) => {
     setCurrentUser({ role, email });

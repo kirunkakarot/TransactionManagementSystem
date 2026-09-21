@@ -306,8 +306,8 @@ export const createPaymentTransaction = async (data: PaymentInput) => {
 };
 
 export const verifyPaymentTransaction = async (id: number | string, verifiedBy: string) => {
-  let pId = typeof id === 'string' ? parseInt(id, 10) : id;
-  let lookupByRef = isNaN(pId) ? String(id) : undefined;
+  const pId = typeof id === 'string' ? parseInt(id, 10) : id;
+  const lookupByRef = isNaN(pId) ? String(id) : undefined;
 
   return await prisma.$transaction(async (tx) => {
     const existing = lookupByRef
@@ -438,8 +438,8 @@ export const rejectPaymentTransaction = async (
   rejectedBy: string,
   rejectionReason: string
 ) => {
-  let pId = typeof id === 'string' ? parseInt(id, 10) : id;
-  let lookupByRef = isNaN(pId) ? String(id) : undefined;
+  const pId = typeof id === 'string' ? parseInt(id, 10) : id;
+  const lookupByRef = isNaN(pId) ? String(id) : undefined;
 
   return await prisma.$transaction(async (tx) => {
     const existing = lookupByRef
@@ -481,8 +481,8 @@ export const rejectPaymentTransaction = async (
 };
 
 export const deletePaymentTransaction = async (id: number | string) => {
-  let pId = typeof id === 'string' ? parseInt(id, 10) : id;
-  let lookupByRef = isNaN(pId) ? String(id) : undefined;
+  const pId = typeof id === 'string' ? parseInt(id, 10) : id;
+  const lookupByRef = isNaN(pId) ? String(id) : undefined;
 
   const payment = lookupByRef
     ? await prisma.paymentTransaction.findUnique({ where: { paymentRef: lookupByRef } })
