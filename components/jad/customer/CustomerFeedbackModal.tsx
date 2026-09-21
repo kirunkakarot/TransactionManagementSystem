@@ -67,7 +67,7 @@ export const CustomerFeedbackModal: React.FC<CustomerFeedbackModalProps> = ({
     currentScore: number,
     category: 'overall' | 'service' | 'staff' | 'execution'
   ) => (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3.5 rounded-md bg-slate-50 border border-slate-200/80">
       <div>
         <span className="text-xs font-bold text-slate-800 block">{label}</span>
         <span className="text-[11px] text-slate-500 block">{description}</span>
@@ -147,10 +147,10 @@ export const CustomerFeedbackModal: React.FC<CustomerFeedbackModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-xl p-6 max-h-[90vh] overflow-y-auto bg-white rounded-3xl shadow-2xl border border-slate-200">
+      <DialogContent className="max-w-xl p-6 max-h-[90vh] overflow-y-auto bg-white rounded-md shadow-2xl border border-slate-200">
         <DialogHeader className="pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-extrabold text-sm shadow-xs shrink-0">
+            <div className="w-10 h-10 rounded-md bg-amber-50 text-amber-600 flex items-center justify-center font-extrabold text-sm shadow-xs shrink-0">
               <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
             </div>
             <div>
@@ -166,7 +166,7 @@ export const CustomerFeedbackModal: React.FC<CustomerFeedbackModalProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
           {errorMsg && (
-            <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2">
+            <div className="p-3 rounded-md bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
               <span>{errorMsg}</span>
             </div>
@@ -217,7 +217,7 @@ export const CustomerFeedbackModal: React.FC<CustomerFeedbackModalProps> = ({
               onChange={(e) => setComments(e.target.value)}
               rows={3}
               maxLength={2000}
-              className="text-xs rounded-xl border-slate-200 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A]"
+              className="text-xs rounded-md border-slate-200 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A]"
             />
           </div>
 
@@ -232,7 +232,7 @@ export const CustomerFeedbackModal: React.FC<CustomerFeedbackModalProps> = ({
               onChange={(e) => setSuggestions(e.target.value)}
               rows={2}
               maxLength={2000}
-              className="text-xs rounded-xl border-slate-200 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A]"
+              className="text-xs rounded-md border-slate-200 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A]"
             />
           </div>
 
@@ -243,7 +243,7 @@ export const CustomerFeedbackModal: React.FC<CustomerFeedbackModalProps> = ({
               size="sm"
               onClick={onClose}
               disabled={isSubmitting}
-              className="text-xs font-bold rounded-xl"
+              className="text-xs font-bold rounded-md"
             >
               Cancel
             </Button>
@@ -251,7 +251,7 @@ export const CustomerFeedbackModal: React.FC<CustomerFeedbackModalProps> = ({
               type="submit"
               size="sm"
               disabled={isSubmitting}
-              className="text-xs font-bold rounded-xl bg-[#1E3A8A] hover:bg-blue-900 text-white gap-1.5 shadow-xs"
+              className="text-xs font-bold rounded-md bg-[#1E3A8A] hover:bg-blue-900 text-white gap-1.5 shadow-xs"
             >
               {isSubmitting ? (
                 <span>Submitting...</span>

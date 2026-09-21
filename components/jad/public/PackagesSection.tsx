@@ -40,7 +40,7 @@ export const PackagesSection: React.FC<PackagesSectionProps> = ({
             return (
               <Card
                 key={pkg.id}
-                className="relative rounded-3xl p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 bg-white border border-slate-200 shadow-[0_4px_20px_rgba(15,23,42,0.05)] hover:shadow-[0_12px_32px_rgba(15,23,42,0.09)] hover:border-slate-300"
+                className="relative rounded-md p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 bg-white border border-slate-200 shadow-sm hover:border-slate-300"
               >
                 <div className="space-y-4">
                   {/* Title & Tagline */}
@@ -52,7 +52,7 @@ export const PackagesSection: React.FC<PackagesSectionProps> = ({
                   {/* Guest Capacity Pill */}
                   <div>
                     <Badge variant="secondary" className="gap-1.5 py-1 px-3 text-xs font-semibold bg-slate-100 text-slate-700 border-slate-200">
-                      <Users className="w-3.5 h-3.5 text-orange-500" />
+                      <Users className="w-3.5 h-3.5 text-slate-500" />
                       <span>Capacity: {pkg.capacity || '50 - 200 Guests'}</span>
                     </Badge>
                   </div>
@@ -86,12 +86,11 @@ export const PackagesSection: React.FC<PackagesSectionProps> = ({
                   </div>
                 </div>
 
-                {/* CTA Button */}
                 <div className="pt-4">
                   <Button
                     id={`select-package-${pkg.id}`}
                     variant="default"
-                    size="pill"
+                    size="lg"
                     onClick={() => onSelectPackage(pkg)}
                     className="w-full font-bold group bg-[#1E3A8A] hover:bg-blue-900 text-white"
                   >

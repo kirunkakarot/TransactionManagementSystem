@@ -123,13 +123,13 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-y-auto">
       <div 
-        className={`bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200 w-full ${modalWidthClass} max-h-[94vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 transition-all`}
+        className={`bg-white rounded-md sm:rounded-md shadow-2xl border border-slate-200 w-full ${modalWidthClass} max-h-[94vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 transition-all`}
       >
         
         {/* Top Modal Header (Sticky) */}
         <div className="px-4 sm:px-6 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between gap-3 shrink-0 no-print">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-[#1E3A8A] text-white flex items-center justify-center font-bold text-xs shrink-0">
+            <div className="w-8 h-8 rounded-md bg-[#1E3A8A] text-white flex items-center justify-center font-bold text-xs shrink-0">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
             </div>
             <div className="min-w-0">
@@ -158,7 +158,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
               variant="outline"
               size="sm"
               onClick={handlePrint}
-              className="text-xs h-8 px-2.5 sm:px-3 rounded-xl font-bold gap-1 text-slate-700 hover:text-[#1E3A8A] hover:border-[#1E3A8A] bg-white shadow-2xs"
+              className="text-xs h-8 px-2.5 sm:px-3 rounded-md font-bold gap-1 text-slate-700 hover:text-[#1E3A8A] hover:border-[#1E3A8A] bg-white shadow-sm"
               title="Print official receipt voucher"
             >
               <Printer className="w-3.5 h-3.5 text-orange-500" />
@@ -181,13 +181,13 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
         <div className="no-print px-4 sm:px-6 py-2.5 bg-slate-100/90 border-b border-slate-200 text-xs shrink-0 flex flex-wrap items-center justify-between gap-3">
           {/* View Mode Switcher (only shown if proof image is present) */}
           {hasProof ? (
-            <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex items-center gap-1 bg-white p-1 rounded-md border border-slate-200 shadow-sm">
               <button
                 type="button"
                 onClick={() => setViewMode('split')}
-                className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-colors ${
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold transition-colors ${
                   viewMode === 'split' 
-                    ? 'bg-[#1E3A8A] text-white shadow-2xs' 
+                    ? 'bg-[#1E3A8A] text-white shadow-sm' 
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}
                 title="View proof screenshot and receipt side-by-side"
@@ -199,9 +199,9 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
               <button
                 type="button"
                 onClick={() => setViewMode('receipt')}
-                className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-colors ${
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold transition-colors ${
                   viewMode === 'receipt' 
-                    ? 'bg-[#1E3A8A] text-white shadow-2xs' 
+                    ? 'bg-[#1E3A8A] text-white shadow-sm' 
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}
                 title="Focus on official receipt"
@@ -212,9 +212,9 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
               <button
                 type="button"
                 onClick={() => setViewMode('proof')}
-                className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-colors ${
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold transition-colors ${
                   viewMode === 'proof' 
-                    ? 'bg-[#1E3A8A] text-white shadow-2xs' 
+                    ? 'bg-[#1E3A8A] text-white shadow-sm' 
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}
                 title="Focus on proof screenshot inspector"
@@ -233,19 +233,19 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
           {/* Verification Actions */}
           <div className="flex items-center gap-2">
             {payment.verified ? (
-              <div className="flex items-center gap-2 text-emerald-700 font-bold text-xs bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
+              <div className="flex items-center gap-2 text-emerald-700 font-bold text-xs bg-emerald-50 px-3 py-1.5 rounded-md border border-emerald-200">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                 <span>Verified by {payment.verifiedBy || 'Administrator'}</span>
               </div>
             ) : payment.status === 'Rejected' ? (
               <div className="flex items-center gap-2">
-                <span className="text-red-700 font-bold text-xs bg-red-50 px-2.5 py-1 rounded-lg border border-red-200">
+                <span className="text-red-700 font-bold text-xs bg-red-50 px-2.5 py-1 rounded-md border border-red-200">
                   Proof Rejected
                 </span>
                 <Button
                   size="sm"
                   onClick={handleConfirmVerify}
-                  className="text-xs h-7 px-3 rounded-lg font-bold bg-emerald-600 hover:bg-emerald-700 text-white"
+                  className="text-xs h-7 px-3 rounded-md font-bold bg-emerald-600 hover:bg-emerald-700 text-white"
                 >
                   <Check className="w-3.5 h-3.5 mr-1" />
                   Override & Verify
@@ -259,7 +259,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                       placeholder="Specify rejection reason..."
                       value={rejectionReason}
                       onChange={(e) => setRejectionReason(e.target.value)}
-                      className="text-xs h-8 w-48 sm:w-64 rounded-xl bg-white border-slate-300"
+                      className="text-xs h-8 w-48 sm:w-64 rounded-md bg-white border-slate-300"
                       autoFocus
                     />
                     <Button
@@ -273,7 +273,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                     <Button
                       size="sm"
                       onClick={handleConfirmReject}
-                      className="text-xs h-8 px-3 rounded-xl font-bold bg-red-600 hover:bg-red-700 text-white shadow-2xs"
+                      className="text-xs h-8 px-3 rounded-md font-bold bg-red-600 hover:bg-red-700 text-white shadow-sm"
                     >
                       Confirm
                     </Button>
@@ -284,7 +284,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                       size="sm"
                       variant="outline"
                       onClick={() => setIsRejecting(true)}
-                      className="text-xs h-8 px-3 rounded-xl font-bold text-red-600 border-red-200 hover:bg-red-50"
+                      className="text-xs h-8 px-3 rounded-md font-bold text-red-600 border-red-200 hover:bg-red-50"
                     >
                       <Ban className="w-3.5 h-3.5 mr-1 text-red-500" />
                       Reject Proof
@@ -292,7 +292,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                     <Button
                       size="sm"
                       onClick={handleConfirmVerify}
-                      className="text-xs h-8 px-4 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs"
+                      className="text-xs h-8 px-4 rounded-md font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
                     >
                       <Check className="w-3.5 h-3.5 mr-1" />
                       Verify Payment
@@ -325,7 +325,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
               
               {/* Left Column: Proof Screenshot Inspector */}
-              <div className="space-y-4 no-print bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs">
+              <div className="space-y-4 no-print bg-white p-4 sm:p-5 rounded-md border border-slate-200 shadow-sm">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <div className="flex items-center gap-2">
                     <Eye className="w-4 h-4 text-blue-600" />
@@ -338,7 +338,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                       variant="ghost"
                       size="sm"
                       onClick={handleZoomIn}
-                      className="h-7 w-7 p-0 rounded-lg text-slate-600 hover:bg-slate-100"
+                      className="h-7 w-7 p-0 rounded-md text-slate-600 hover:bg-slate-100"
                       title="Zoom In"
                     >
                       <ZoomIn className="w-3.5 h-3.5" />
@@ -347,7 +347,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                       variant="ghost"
                       size="sm"
                       onClick={handleZoomOut}
-                      className="h-7 w-7 p-0 rounded-lg text-slate-600 hover:bg-slate-100"
+                      className="h-7 w-7 p-0 rounded-md text-slate-600 hover:bg-slate-100"
                       title="Zoom Out"
                     >
                       <ZoomOut className="w-3.5 h-3.5" />
@@ -356,7 +356,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                       variant="ghost"
                       size="sm"
                       onClick={handleRotate}
-                      className="h-7 w-7 p-0 rounded-lg text-slate-600 hover:bg-slate-100"
+                      className="h-7 w-7 p-0 rounded-md text-slate-600 hover:bg-slate-100"
                       title="Rotate 90°"
                     >
                       <RotateCw className="w-3.5 h-3.5" />
@@ -365,7 +365,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                       variant="ghost"
                       size="sm"
                       onClick={handleResetView}
-                      className="h-7 w-7 p-0 rounded-lg text-slate-600 hover:bg-slate-100"
+                      className="h-7 w-7 p-0 rounded-md text-slate-600 hover:bg-slate-100"
                       title="Reset View"
                     >
                       <RefreshCw className="w-3.5 h-3.5" />
@@ -374,7 +374,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                       variant="outline"
                       size="sm"
                       onClick={() => setShowImageZoom(true)}
-                      className="h-7 px-2 text-[11px] rounded-lg text-slate-700 hover:text-[#1E3A8A] font-medium gap-1"
+                      className="h-7 px-2 text-[11px] rounded-md text-slate-700 hover:text-[#1E3A8A] font-medium gap-1"
                       title="Fullscreen Lightbox"
                     >
                       <Maximize2 className="w-3 h-3 text-orange-500" />
@@ -384,7 +384,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                       href={payment.proofUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="h-7 w-7 inline-flex items-center justify-center rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                      className="h-7 w-7 inline-flex items-center justify-center rounded-md text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
                       title="Open Original in New Tab"
                     >
                       <ExternalLink className="w-3.5 h-3.5" />
@@ -394,17 +394,17 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
 
                 {/* Scalable Image Viewport */}
                 <div 
-                  className="relative rounded-xl border border-slate-200 bg-slate-900/5 min-h-[380px] max-h-[540px] flex items-center justify-center overflow-auto p-4 select-none"
+                  className="relative rounded-md border border-slate-200 bg-slate-900/5 min-h-[380px] max-h-[540px] flex items-center justify-center overflow-auto p-4 select-none"
                   style={{ cursor: zoomLevel > 1 ? 'grab' : 'zoom-in' }}
                   onClick={() => {
                     if (zoomLevel === 1) setShowImageZoom(true);
                   }}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  { }
                   <img
                     src={payment.proofUrl}
                     alt="Payment Proof Screenshot"
-                    className="max-h-[500px] w-auto object-contain rounded-lg shadow-sm transition-transform duration-200"
+                    className="max-h-[500px] w-auto object-contain rounded-md shadow-sm transition-transform duration-200"
                     style={{
                       transform: `scale(${zoomLevel}) rotate(${rotation}deg)`,
                       transformOrigin: 'center center'
@@ -419,7 +419,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
 
                 {/* Quick Metadata Verification Strip */}
                 <div className="grid grid-cols-2 gap-2 text-xs pt-1">
-                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+                  <div className="p-2.5 rounded-md bg-slate-50 border border-slate-200">
                     <span className="text-[10px] font-bold text-slate-400 uppercase block">Channel & Ref #</span>
                     <div className="flex items-center justify-between mt-0.5">
                       <span className="font-mono font-bold text-slate-800 truncate" title={payment.referenceNumber}>
@@ -436,7 +436,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-200">
+                  <div className="p-2.5 rounded-md bg-emerald-50/70 border border-emerald-200">
                     <span className="text-[10px] font-bold text-emerald-600 uppercase block">Reported Amount</span>
                     <span className="font-extrabold text-sm text-emerald-800 block mt-0.5">
                       ₱{payment.amount.toLocaleString()} PHP
@@ -450,7 +450,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
               </div>
 
               {/* Right Column: Official Receipt Document */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="bg-white rounded-md border border-slate-200 shadow-sm overflow-hidden">
                 {renderOfficialReceiptDocument()}
               </div>
 
@@ -459,7 +459,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
 
           {/* Case 2: Proof Only Mode */}
           {hasProof && viewMode === 'proof' && (
-            <div className="max-w-4xl mx-auto space-y-4 no-print bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-xs">
+            <div className="max-w-4xl mx-auto space-y-4 no-print bg-white p-5 sm:p-6 rounded-md border border-slate-200 shadow-sm">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2">
                   <Eye className="w-4 h-4 text-blue-600" />
@@ -516,17 +516,17 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
               </div>
 
               <div 
-                className="relative rounded-2xl border border-slate-200 bg-slate-950/5 min-h-[460px] max-h-[680px] flex items-center justify-center overflow-auto p-6"
+                className="relative rounded-md border border-slate-200 bg-slate-950/5 min-h-[460px] max-h-[680px] flex items-center justify-center overflow-auto p-6"
                 style={{ cursor: zoomLevel > 1 ? 'grab' : 'zoom-in' }}
                 onClick={() => {
                   if (zoomLevel === 1) setShowImageZoom(true);
                 }}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
+                { }
                 <img
                   src={payment.proofUrl}
                   alt="Payment Proof Screenshot"
-                  className="max-h-[640px] w-auto object-contain rounded-xl shadow-md transition-transform duration-200"
+                  className="max-h-[640px] w-auto object-contain rounded-md shadow-md transition-transform duration-200"
                   style={{
                     transform: `scale(${zoomLevel}) rotate(${rotation}deg)`,
                     transformOrigin: 'center center'
@@ -534,7 +534,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                 />
               </div>
 
-              <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+              <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-md bg-slate-50 border border-slate-200 text-xs">
                 <div>
                   <span className="text-slate-400 uppercase text-[10px] font-bold block">Payment Channel & Ref</span>
                   <div className="flex items-center gap-2 font-bold text-slate-800 text-sm">
@@ -566,7 +566,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
 
           {/* Case 3: Receipt Focus Mode or No Proof Available */}
           {(!hasProof || viewMode === 'receipt') && (
-            <div className="max-w-3xl mx-auto bg-white rounded-2xl sm:rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="max-w-3xl mx-auto bg-white rounded-md sm:rounded-md border border-slate-200 shadow-sm overflow-hidden">
               {renderOfficialReceiptDocument()}
             </div>
           )}
@@ -583,7 +583,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
         >
           {/* Floating Controls Bar */}
           <div 
-            className="flex items-center justify-between w-full max-w-4xl px-4 py-2 mb-3 bg-slate-900/80 border border-white/10 rounded-2xl text-white text-xs backdrop-blur-md z-70"
+            className="flex items-center justify-between w-full max-w-4xl px-4 py-2 mb-3 bg-slate-900/80 border border-white/10 rounded-md text-white text-xs backdrop-blur-md z-70"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-2">
@@ -645,11 +645,11 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
             className="relative max-w-5xl max-h-[85vh] flex items-center justify-center overflow-auto p-2"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+            { }
             <img
               src={payment.proofUrl}
               alt="Zoomed Payment Proof"
-              className="max-h-[80vh] w-auto max-w-[90vw] rounded-xl object-contain shadow-2xl transition-transform duration-200"
+              className="max-h-[80vh] w-auto max-w-[90vw] rounded-md object-contain shadow-2xl transition-transform duration-200"
               style={{
                 transform: `scale(${zoomLevel}) rotate(${rotation}deg)`,
                 transformOrigin: 'center center'
@@ -672,7 +672,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
         <div className="flex flex-wrap items-start justify-between gap-4 border-b-2 border-slate-900 pb-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-[#1E3A8A] text-white flex items-center justify-center font-extrabold text-sm">
+              <div className="w-8 h-8 rounded-md bg-[#1E3A8A] text-white flex items-center justify-center font-extrabold text-sm">
                 J
               </div>
               <h2 className="font-extrabold text-base sm:text-lg tracking-tight text-[#1E3A8A]">
@@ -700,7 +700,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
         </div>
 
         {/* Client & Booking Metadata */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 sm:p-4 rounded-md bg-slate-50 border border-slate-200 text-xs">
           <div>
             <span className="text-[10px] uppercase font-bold text-slate-400 block">Received From (Client)</span>
             <span className="font-bold text-slate-900 block text-sm">{payment.clientName}</span>
@@ -720,7 +720,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
 
         {/* Transaction Ledger Table */}
         <div className="space-y-2">
-          <div className="overflow-x-auto rounded-xl border border-slate-200 text-xs">
+          <div className="overflow-x-auto rounded-md border border-slate-200 text-xs">
             <table className="w-full text-left min-w-[480px]">
               <thead className="bg-slate-100 text-slate-600 font-bold uppercase text-[10px]">
                 <tr>
@@ -749,7 +749,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
           </div>
 
           {/* Total Paid Summary */}
-          <div className="flex flex-wrap justify-between items-center gap-2 p-3.5 sm:p-4 rounded-xl bg-slate-900 text-white text-xs">
+          <div className="flex flex-wrap justify-between items-center gap-2 p-3.5 sm:p-4 rounded-md bg-slate-900 text-white text-xs">
             <div>
               <span className="text-slate-400 block text-[10px]">TOTAL AMOUNT RECEIVED</span>
               <span className="font-bold text-xs sm:text-sm text-emerald-400">
@@ -767,7 +767,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
         {/* Verification & Signature Seal */}
         <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-200 text-xs">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-slate-100 rounded-xl border border-slate-200 flex items-center justify-center p-1 shrink-0">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-slate-100 rounded-md border border-slate-200 flex items-center justify-center p-1 shrink-0">
               <QrCode className="w-8 h-8 sm:w-10 sm:h-10 text-slate-700" />
             </div>
             <div className="space-y-0.5">

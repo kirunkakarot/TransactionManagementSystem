@@ -1,4 +1,4 @@
-﻿import * as React from 'react';
+import * as React from 'react';
 import * as TabsPrimitive from '@radix-ui/react-tabs';
 import { cn } from '@/lib/utils';
 
@@ -11,7 +11,7 @@ const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      'inline-flex h-11 items-center justify-center rounded-2xl bg-slate-100 p-1 text-slate-500 border border-slate-200/80',
+      'inline-flex h-11 items-center justify-start bg-transparent text-slate-500 border-b border-slate-200 w-full overflow-x-auto',
       className
     )}
     {...props}
@@ -26,7 +26,7 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      'inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-xl px-3.5 py-1.5 text-xs sm:text-sm font-semibold ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1E3A8A] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-white data-[state=active]:text-[#1E3A8A] data-[state=active]:shadow-sm cursor-pointer',
+      'inline-flex items-center justify-center gap-1.5 whitespace-nowrap px-4 py-2.5 text-xs sm:text-sm font-semibold transition-colors disabled:pointer-events-none disabled:opacity-50 data-[state=active]:text-[#1E3A8A] data-[state=active]:border-b-2 data-[state=active]:border-[#1E3A8A] cursor-pointer hover:text-slate-800 border-b-2 border-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1E3A8A] focus-visible:ring-offset-2 ring-offset-white',
       className
     )}
     {...props}

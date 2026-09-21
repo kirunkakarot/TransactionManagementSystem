@@ -151,7 +151,7 @@ export const SubmitPaymentProofModal: React.FC<SubmitPaymentProofModalProps> = (
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open && !isSubmitting) onClose(); }}>
-      <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl p-6 sm:p-8 bg-white text-slate-800 shadow-2xl border border-slate-200">
+      <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto rounded-md p-6 sm:p-8 bg-white text-slate-800 shadow-2xl border border-slate-200">
         <DialogHeader className="space-y-1 pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2 text-emerald-700 font-bold text-xs">
             <ShieldCheck className="w-4 h-4" />
@@ -166,7 +166,7 @@ export const SubmitPaymentProofModal: React.FC<SubmitPaymentProofModalProps> = (
         </DialogHeader>
 
         {/* Offline Payment Instructions Banner */}
-        <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200/90 text-xs space-y-2">
+        <div className="p-4 rounded-md bg-amber-50/80 border border-amber-200/90 text-xs space-y-2">
           <div className="flex items-center gap-2 font-bold text-amber-900">
             <Clock className="w-4 h-4 text-amber-600 shrink-0" />
             <span>Payment Instructions & External Deposit</span>
@@ -175,11 +175,11 @@ export const SubmitPaymentProofModal: React.FC<SubmitPaymentProofModalProps> = (
             JAD Events receives payments externally (GCash, BDO/BPI Wire, or Cash/Remittance). Please settle your 50% reservation deposit externally, then upload the payment proof screenshot and transaction reference number below for manual administrator verification.
           </p>
           <div className="grid grid-cols-2 gap-2 pt-1">
-            <div className="bg-white/80 p-2 rounded-xl border border-amber-200">
+            <div className="bg-white/80 p-2 rounded-md border border-amber-200">
               <span className="text-[10px] text-amber-700 font-bold block">GCash Official Merchant</span>
               <span className="font-mono text-xs font-bold text-slate-900">0917-888-JADE (5233)</span>
             </div>
-            <div className="bg-white/80 p-2 rounded-xl border border-amber-200">
+            <div className="bg-white/80 p-2 rounded-md border border-amber-200">
               <span className="text-[10px] text-amber-700 font-bold block">BDO Corporate Account</span>
               <span className="font-mono text-xs font-bold text-slate-900">0048-9102-9910</span>
             </div>
@@ -187,7 +187,7 @@ export const SubmitPaymentProofModal: React.FC<SubmitPaymentProofModalProps> = (
         </div>
 
         {/* Payment Amount Card */}
-        <div className="grid grid-cols-2 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs">
+        <div className="grid grid-cols-2 gap-3 p-4 rounded-md bg-slate-50 border border-slate-200 text-xs">
           <div>
             <span className="text-slate-400 font-medium block text-[11px]">Quotation Grand Total</span>
             <span className="text-sm font-bold text-slate-900">₱{quotation.grandTotal.toLocaleString()} PHP</span>
@@ -206,7 +206,7 @@ export const SubmitPaymentProofModal: React.FC<SubmitPaymentProofModalProps> = (
               <select
                 value={method}
                 onChange={(e) => setMethod(e.target.value)}
-                className="w-full h-9 rounded-xl border border-slate-200 bg-white px-3 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20"
+                className="w-full h-9 rounded-md border border-slate-200 bg-white px-3 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20"
               >
                 <option value="GCash QR">GCash QR / GCash Transfer</option>
                 <option value="BDO Corporate Wire">BDO Corporate Wire / Online Banking</option>
@@ -225,7 +225,7 @@ export const SubmitPaymentProofModal: React.FC<SubmitPaymentProofModalProps> = (
                 value={referenceNumber}
                 onChange={(e) => setReferenceNumber(e.target.value)}
                 required
-                className="h-9 text-xs rounded-xl border-slate-200 font-mono"
+                className="h-9 text-xs rounded-md border-slate-200 font-mono"
               />
             </div>
           </div>
@@ -241,7 +241,7 @@ export const SubmitPaymentProofModal: React.FC<SubmitPaymentProofModalProps> = (
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 required
-                className="h-9 text-xs rounded-xl border-slate-200 font-bold text-emerald-700"
+                className="h-9 text-xs rounded-md border-slate-200 font-bold text-emerald-700"
               />
             </div>
 
@@ -252,7 +252,7 @@ export const SubmitPaymentProofModal: React.FC<SubmitPaymentProofModalProps> = (
                 value={paymentDate}
                 onChange={(e) => setPaymentDate(e.target.value)}
                 required
-                className="h-9 text-xs rounded-xl border-slate-200"
+                className="h-9 text-xs rounded-md border-slate-200"
               />
             </div>
           </div>
@@ -265,10 +265,10 @@ export const SubmitPaymentProofModal: React.FC<SubmitPaymentProofModalProps> = (
             </Label>
 
             {previewUrl ? (
-              <div className="relative rounded-2xl border border-emerald-200 bg-emerald-50/40 p-3 flex items-center justify-between gap-3">
+              <div className="relative rounded-md border border-emerald-200 bg-emerald-50/40 p-3 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 overflow-hidden">
-                  <div className="w-12 h-12 rounded-xl bg-white border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <div className="w-12 h-12 rounded-md bg-white border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
+                    { }
                     <img src={previewUrl} alt="Payment Proof Preview" className="w-full h-full object-cover" />
                   </div>
                   <div className="overflow-hidden">
@@ -281,7 +281,7 @@ export const SubmitPaymentProofModal: React.FC<SubmitPaymentProofModalProps> = (
                   variant="ghost"
                   size="sm"
                   onClick={handleRemoveFile}
-                  className="h-8 w-8 p-0 text-slate-400 hover:text-red-600 rounded-xl hover:bg-red-50"
+                  className="h-8 w-8 p-0 text-slate-400 hover:text-red-600 rounded-md hover:bg-red-50"
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
@@ -289,7 +289,7 @@ export const SubmitPaymentProofModal: React.FC<SubmitPaymentProofModalProps> = (
             ) : (
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="border-2 border-dashed border-slate-200 hover:border-blue-400 rounded-2xl p-4 text-center cursor-pointer transition-all bg-slate-50/50 hover:bg-blue-50/30 group"
+                className="border-2 border-dashed border-slate-200 hover:border-blue-400 rounded-md p-4 text-center cursor-pointer transition-all bg-slate-50/50 hover:bg-blue-50/30 group"
               >
                 <input
                   type="file"
@@ -299,7 +299,7 @@ export const SubmitPaymentProofModal: React.FC<SubmitPaymentProofModalProps> = (
                   className="hidden"
                 />
                 <div className="flex flex-col items-center justify-center gap-1.5">
-                  <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#1E3A8A] flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <div className="w-9 h-9 rounded-md bg-blue-50 text-[#1E3A8A] flex items-center justify-center group-hover:scale-105 transition-transform">
                     <Upload className="w-4 h-4" />
                   </div>
                   <span className="font-bold text-slate-700 text-xs">Click to upload payment screenshot</span>
@@ -316,7 +316,7 @@ export const SubmitPaymentProofModal: React.FC<SubmitPaymentProofModalProps> = (
               placeholder="e.g. Paid via Maria Santos GCash account"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="h-9 text-xs rounded-xl border-slate-200"
+              className="h-9 text-xs rounded-md border-slate-200"
             />
           </div>
 
@@ -326,14 +326,14 @@ export const SubmitPaymentProofModal: React.FC<SubmitPaymentProofModalProps> = (
               variant="outline"
               onClick={onClose}
               disabled={isSubmitting}
-              className="text-xs h-9 px-4 rounded-xl border-slate-200 font-semibold text-slate-600"
+              className="text-xs h-9 px-4 rounded-md border-slate-200 font-semibold text-slate-600"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="text-xs h-9 px-5 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+              className="text-xs h-9 px-5 rounded-md font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
             >
               {isSubmitting ? (
                 isUploadingProof ? 'Uploading Proof...' : 'Submitting...'

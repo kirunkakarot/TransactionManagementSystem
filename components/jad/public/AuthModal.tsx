@@ -142,11 +142,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         </DialogHeader>
 
         {/* Tab Selector */}
-        <div className="flex items-center p-1 rounded-2xl bg-slate-100 border border-slate-200 my-1">
+        <div className="flex items-center p-1 rounded-md bg-slate-100 border border-slate-200 my-1">
           <button
             type="button"
             onClick={() => setMode('login')}
-            className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`flex-1 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
               mode === 'login'
                 ? 'bg-white text-[#1E3A8A] shadow-xs'
                 : 'text-slate-500 hover:text-slate-800'
@@ -157,7 +157,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <button
             type="button"
             onClick={() => setMode('signup')}
-            className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`flex-1 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
               mode === 'signup'
                 ? 'bg-white text-[#1E3A8A] shadow-xs'
                 : 'text-slate-500 hover:text-slate-800'
@@ -264,7 +264,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               type="submit"
               disabled={isLoading}
               variant="default"
-              size="pill"
+              size="lg"
               className="w-full font-bold shadow-md"
             >
               {isLoading ? (
@@ -293,7 +293,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <Button
             type="button"
             variant="outline"
-            size="pill"
+            size="lg"
             className="w-full font-bold shadow-sm flex items-center justify-center gap-2 border-slate-200 text-slate-700 hover:bg-slate-50"
             onClick={() => window.location.href = '/api/auth/google'}
             disabled={isLoading}

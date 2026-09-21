@@ -133,9 +133,9 @@ export const CreateAccountModal: React.FC<CreateAccountModalProps> = ({
               <button
                 type="button"
                 onClick={() => setRole('Staff')}
-                className={`flex flex-col items-start p-3 rounded-xl border text-left cursor-pointer transition-all ${
+                className={`flex flex-col items-start p-3 rounded-md border text-left cursor-pointer transition-all ${
                   role === 'Staff'
-                    ? 'bg-blue-50/80 border-[#1E3A8A] text-[#1E3A8A] shadow-xs'
+                    ? 'bg-blue-50/80 border-[#1E3A8A] text-[#1E3A8A] shadow-sm'
                     : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                 }`}
               >
@@ -149,9 +149,9 @@ export const CreateAccountModal: React.FC<CreateAccountModalProps> = ({
               <button
                 type="button"
                 onClick={() => setRole('Administrator')}
-                className={`flex flex-col items-start p-3 rounded-xl border text-left cursor-pointer transition-all ${
+                className={`flex flex-col items-start p-3 rounded-md border text-left cursor-pointer transition-all ${
                   role === 'Administrator'
-                    ? 'bg-orange-50/80 border-orange-500 text-orange-700 shadow-xs'
+                    ? 'bg-orange-50/80 border-orange-500 text-orange-700 shadow-sm'
                     : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                 }`}
               >
@@ -174,7 +174,7 @@ export const CreateAccountModal: React.FC<CreateAccountModalProps> = ({
                 placeholder="e.g. Roberto Gomez"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="pl-8 text-xs rounded-xl h-9"
+                className="pl-8 text-xs rounded-md h-9"
               />
               <User className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-3" />
             </div>
@@ -190,7 +190,7 @@ export const CreateAccountModal: React.FC<CreateAccountModalProps> = ({
                 placeholder="staff@jadevents.ph"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pl-8 text-xs rounded-xl h-9"
+                className="pl-8 text-xs rounded-md h-9"
               />
               <Mail className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-3" />
             </div>
@@ -205,7 +205,7 @@ export const CreateAccountModal: React.FC<CreateAccountModalProps> = ({
                 placeholder="0917-xxx-xxxx"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="pl-8 text-xs rounded-xl h-9"
+                className="pl-8 text-xs rounded-md h-9"
               />
               <Phone className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-3" />
             </div>
@@ -222,7 +222,7 @@ export const CreateAccountModal: React.FC<CreateAccountModalProps> = ({
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-8 text-xs rounded-xl h-9"
+                  className="pl-8 text-xs rounded-md h-9"
                 />
                 <Lock className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-3" />
               </div>
@@ -237,14 +237,14 @@ export const CreateAccountModal: React.FC<CreateAccountModalProps> = ({
                   placeholder="••••••••"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="pl-8 text-xs rounded-xl h-9"
+                  className="pl-8 text-xs rounded-md h-9"
                 />
                 <Lock className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-3" />
               </div>
             </div>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-[11px] flex items-start gap-2">
+          <div className="p-2.5 rounded-md bg-amber-50 border border-amber-200 text-amber-800 text-[11px] flex items-start gap-2">
             <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-amber-600" />
             <span>
               Privileged credentials grant operational portal access. Ensure email accuracy before provisioning.
@@ -257,7 +257,7 @@ export const CreateAccountModal: React.FC<CreateAccountModalProps> = ({
               variant="outline"
               size="sm"
               onClick={onClose}
-              className="rounded-xl text-xs"
+              className="rounded-md text-xs"
             >
               Cancel
             </Button>
@@ -266,7 +266,7 @@ export const CreateAccountModal: React.FC<CreateAccountModalProps> = ({
               disabled={isLoading}
               variant="brand"
               size="sm"
-              className="rounded-xl text-xs font-bold bg-[#1E3A8A] hover:bg-[#1E3A8A]/90 text-white"
+              className="rounded-md text-xs font-bold bg-[#1E3A8A] hover:bg-[#1E3A8A]/90 text-white"
             >
               {isLoading ? 'Creating Account...' : `Create ${role} Account`}
             </Button>

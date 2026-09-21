@@ -75,7 +75,7 @@ export const CustomerInquiryDetailModal: React.FC<CustomerInquiryDetailModalProp
         <DialogHeader className="pb-4 border-b border-slate-100">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-2xl bg-[#1E3A8A] text-white flex items-center justify-center font-extrabold text-sm shadow-sm">
+              <div className="w-10 h-10 rounded-md bg-[#1E3A8A] text-white flex items-center justify-center font-extrabold text-sm shadow-sm">
                 <FileText className="w-5 h-5 text-orange-400" />
               </div>
               <div>
@@ -105,7 +105,7 @@ export const CustomerInquiryDetailModal: React.FC<CustomerInquiryDetailModalProp
               <User className="w-3.5 h-3.5 text-blue-600" />
               <span>Contact Details</span>
             </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-md bg-slate-50 border border-slate-200/80">
               <div>
                 <span className="text-[10px] font-semibold uppercase text-slate-400 block">Full Name</span>
                 <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5 mt-0.5">
@@ -139,14 +139,14 @@ export const CustomerInquiryDetailModal: React.FC<CustomerInquiryDetailModalProp
               <span>Event Information</span>
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              <Card className="p-3.5 rounded-2xl bg-white border-slate-200 shadow-2xs">
+              <Card className="p-3.5 rounded-md bg-white border-slate-200 shadow-2xs">
                 <CardContent className="p-0 space-y-1">
                   <span className="text-[10px] font-semibold uppercase text-slate-400 block">Event Type</span>
                   <span className="text-xs font-extrabold text-[#1E3A8A] block">{inquiry.eventType}</span>
                 </CardContent>
               </Card>
 
-              <Card className="p-3.5 rounded-2xl bg-white border-slate-200 shadow-2xs">
+              <Card className="p-3.5 rounded-md bg-white border-slate-200 shadow-2xs">
                 <CardContent className="p-0 space-y-1">
                   <span className="text-[10px] font-semibold uppercase text-slate-400 block">Target Date</span>
                   <span className="text-xs font-extrabold text-slate-900 flex items-center gap-1 block">
@@ -156,7 +156,7 @@ export const CustomerInquiryDetailModal: React.FC<CustomerInquiryDetailModalProp
                 </CardContent>
               </Card>
 
-              <Card className="p-3.5 rounded-2xl bg-white border-slate-200 shadow-2xs">
+              <Card className="p-3.5 rounded-md bg-white border-slate-200 shadow-2xs">
                 <CardContent className="p-0 space-y-1">
                   <span className="text-[10px] font-semibold uppercase text-slate-400 block">Venue Location</span>
                   <span className="text-xs font-bold text-slate-900 flex items-center gap-1 block truncate" title={inquiry.venue}>
@@ -166,7 +166,7 @@ export const CustomerInquiryDetailModal: React.FC<CustomerInquiryDetailModalProp
                 </CardContent>
               </Card>
 
-              <Card className="p-3.5 rounded-2xl bg-white border-slate-200 shadow-2xs">
+              <Card className="p-3.5 rounded-md bg-white border-slate-200 shadow-2xs">
                 <CardContent className="p-0 space-y-1">
                   <span className="text-[10px] font-semibold uppercase text-slate-400 block">Guest Count</span>
                   <span className="text-xs font-extrabold text-slate-900 flex items-center gap-1 block">
@@ -185,9 +185,9 @@ export const CustomerInquiryDetailModal: React.FC<CustomerInquiryDetailModalProp
               <span>Requested Inclusions</span>
             </h4>
 
-            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+            <div className="p-4 rounded-md bg-slate-50 border border-slate-200/80 space-y-3">
               {inquiry.packageId && (
-                <div className="flex items-center justify-between p-3 rounded-xl bg-purple-50 border border-purple-200">
+                <div className="flex items-center justify-between p-3 rounded-md bg-purple-50 border border-purple-200">
                   <div className="flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center font-bold">
                       <Package className="w-4 h-4" />
@@ -234,7 +234,7 @@ export const CustomerInquiryDetailModal: React.FC<CustomerInquiryDetailModalProp
               <FileText className="w-3.5 h-3.5 text-blue-600" />
               <span>Event Requirements & Notes</span>
             </h4>
-            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs text-slate-700 whitespace-pre-wrap min-h-[70px]">
+            <div className="p-4 rounded-md bg-slate-50 border border-slate-200/80 text-xs text-slate-700 whitespace-pre-wrap min-h-[70px]">
               {inquiry.notes || 'No special requirements noted.'}
             </div>
           </div>
@@ -246,7 +246,7 @@ export const CustomerInquiryDetailModal: React.FC<CustomerInquiryDetailModalProp
                 <FileText className="w-3.5 h-3.5 text-red-600" />
                 <span>Cancellation Reason</span>
               </h4>
-              <div className="p-4 rounded-2xl bg-red-50 border border-red-200/80 text-xs text-red-800 whitespace-pre-wrap min-h-[50px]">
+              <div className="p-4 rounded-md bg-red-50 border border-red-200/80 text-xs text-red-800 whitespace-pre-wrap min-h-[50px]">
                 {inquiry.cancellationReason}
               </div>
             </div>
@@ -260,7 +260,7 @@ export const CustomerInquiryDetailModal: React.FC<CustomerInquiryDetailModalProp
               </h4>
               <p className="text-[11px] text-slate-500">Please provide a reason for cancellation. This action cannot be undone.</p>
               <textarea
-                className="w-full text-xs p-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500"
+                className="w-full text-xs p-3 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                 rows={3}
                 placeholder="Reason for cancellation (optional)"
                 value={cancelReason}
@@ -296,7 +296,7 @@ export const CustomerInquiryDetailModal: React.FC<CustomerInquiryDetailModalProp
               variant="outline"
               size="sm"
               onClick={() => setIsCancelling(true)}
-              className="rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 hover:text-red-700 border-red-200"
+              className="rounded-md text-xs font-semibold text-red-600 hover:bg-red-50 hover:text-red-700 border-red-200"
             >
               Cancel Inquiry
             </Button>
@@ -306,7 +306,7 @@ export const CustomerInquiryDetailModal: React.FC<CustomerInquiryDetailModalProp
             variant="outline"
             size="sm"
             onClick={onClose}
-            className="rounded-xl text-xs font-semibold"
+            className="rounded-md text-xs font-semibold"
           >
             Close
           </Button>
@@ -319,7 +319,7 @@ export const CustomerInquiryDetailModal: React.FC<CustomerInquiryDetailModalProp
                 onClose();
                 onReviewQuotation();
               }}
-              className="rounded-xl text-xs font-bold gap-1.5 bg-orange-500 hover:bg-orange-600 text-white shadow-xs"
+              className="rounded-md text-xs font-bold gap-1.5 bg-orange-500 hover:bg-orange-600 text-white shadow-xs"
             >
               <Receipt className="w-4 h-4" />
               <span>Review Quotation</span>

@@ -93,6 +93,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
         setAmount('');
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, selectedBookingId]);
 
   if (!isOpen) return null;
@@ -154,12 +155,12 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-2xl max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-white rounded-md shadow-2xl border border-slate-200 w-full max-w-2xl max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         
         {/* Header (Sticky) */}
         <div className="px-6 py-4.5 bg-emerald-50/70 border-b border-emerald-100 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-extrabold shadow-sm">
+            <div className="w-10 h-10 rounded-md bg-emerald-600 text-white flex items-center justify-center font-extrabold shadow-sm">
               <CreditCard className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -193,7 +194,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                 <select
                   value={selectedBookingId}
                   onChange={e => setSelectedBookingId(e.target.value)}
-                  className="w-full h-9 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-[#1E3A8A]"
+                  className="w-full h-9 rounded-md border border-slate-200 bg-white px-3 text-xs font-bold text-[#1E3A8A]"
                 >
                   {bookings.map(b => (
                     <option key={b.id} value={b.id}>
@@ -205,15 +206,15 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
 
               {activeBooking && (
                 <div className="grid grid-cols-3 gap-2 text-center">
-                  <div className="bg-white p-2.5 rounded-xl border border-slate-200">
+                  <div className="bg-white p-2.5 rounded-md border border-slate-200">
                     <span className="text-[10px] text-slate-400 block font-medium">Contract Value</span>
                     <span className="font-extrabold text-slate-800 text-sm">₱{totalContract.toLocaleString()}</span>
                   </div>
-                  <div className="bg-white p-2.5 rounded-xl border border-slate-200">
+                  <div className="bg-white p-2.5 rounded-md border border-slate-200">
                     <span className="text-[10px] text-slate-400 block font-medium">Total Paid to Date</span>
                     <span className="font-extrabold text-emerald-600 text-sm">₱{totalPaidSoFar.toLocaleString()}</span>
                   </div>
-                  <div className="bg-white p-2.5 rounded-xl border border-slate-200">
+                  <div className="bg-white p-2.5 rounded-md border border-slate-200">
                     <span className="text-[10px] text-slate-400 block font-medium">Remaining Balance</span>
                     <span className="font-extrabold text-orange-600 text-sm">₱{remainingBalance.toLocaleString()}</span>
                   </div>
@@ -238,9 +239,9 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                   key={t.type}
                   type="button"
                   onClick={() => handleTypeChange(t.type as PaymentTransaction['type'])}
-                  className={`p-2.5 rounded-xl border text-left transition-all ${
+                  className={`p-2.5 rounded-md border text-left transition-all ${
                     paymentType === t.type 
-                      ? 'bg-emerald-50 border-emerald-500 shadow-xs' 
+                      ? 'bg-emerald-50 border-emerald-500 shadow-sm' 
                       : 'bg-white border-slate-200 hover:border-slate-300'
                   }`}
                 >
@@ -264,7 +265,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
                 required
-                className="rounded-xl text-base font-extrabold text-emerald-700 h-10"
+                className="rounded-md text-base font-extrabold text-emerald-700 h-10"
               />
             </div>
 
@@ -275,7 +276,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
               <select
                 value={method}
                 onChange={e => setMethod(e.target.value as PaymentTransaction['method'])}
-                className="w-full h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold focus:ring-2 focus:ring-emerald-600"
+                className="w-full h-10 rounded-md border border-slate-200 bg-white px-3 text-xs font-semibold focus:ring-2 focus:ring-emerald-600"
               >
                 <option value="GCash QR">GCash QR (Escrow)</option>
                 <option value="BDO Corporate Wire">BDO Corporate Wire / Online Banking</option>
@@ -296,7 +297,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                 onChange={e => setReferenceNumber(e.target.value)}
                 placeholder="e.g. GCASH-9812401 or Bank Trace #"
                 required
-                className="rounded-xl font-mono text-xs font-bold"
+                className="rounded-md font-mono text-xs font-bold"
               />
             </div>
 
@@ -308,7 +309,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                 type="date"
                 value={paymentDate}
                 onChange={e => setPaymentDate(e.target.value)}
-                className="rounded-xl text-xs"
+                className="rounded-md text-xs"
               />
             </div>
           </div>
@@ -321,12 +322,12 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
               value={notes}
               onChange={e => setNotes(e.target.value)}
               placeholder="Verified via bank mobile app notification, acknowledged by admin..."
-              className="rounded-xl text-xs"
+              className="rounded-md text-xs"
             />
           </div>
 
           {/* Verification Switch */}
-          <div className="flex items-center justify-between p-3 rounded-2xl bg-emerald-50/50 border border-emerald-200">
+          <div className="flex items-center justify-between p-3 rounded-md bg-emerald-50/50 border border-emerald-200">
             <div className="space-y-0.5">
               <span className="font-bold text-slate-900 block text-xs">Verify Payment Immediately</span>
               <span className="text-[10px] text-slate-500">
@@ -354,7 +355,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
               variant="outline"
               size="sm"
               onClick={onClose}
-              className="rounded-xl text-xs font-semibold"
+              className="rounded-md text-xs font-semibold"
             >
               Cancel
             </Button>
@@ -362,7 +363,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
               type="submit"
               variant="brand"
               size="sm"
-              className="rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+              className="rounded-md text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
             >
               <Receipt className="w-3.5 h-3.5 mr-1" />
               <span>Record & Issue Receipt</span>

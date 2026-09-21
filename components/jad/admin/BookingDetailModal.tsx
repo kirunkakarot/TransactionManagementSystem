@@ -100,12 +100,12 @@ export const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-3xl p-6 sm:p-8 max-h-[90vh] overflow-y-auto bg-white rounded-3xl shadow-2xl border border-slate-200">
+      <DialogContent className="max-w-3xl p-6 sm:p-8 max-h-[90vh] overflow-y-auto bg-white rounded-md shadow-2xl border border-slate-200">
         {/* Header */}
         <DialogHeader className="pb-4 border-b border-slate-100">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-[#1E3A8A] text-white flex items-center justify-center font-extrabold text-sm shadow-xs">
+              <div className="w-10 h-10 rounded-md bg-[#1E3A8A] text-white flex items-center justify-center font-extrabold text-sm shadow-sm">
                 <ShieldCheck className="w-5 h-5 text-emerald-400" />
               </div>
               <div>
@@ -145,7 +145,7 @@ export const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
               <User className="w-3.5 h-3.5 text-blue-600" />
               <span>Customer Information</span>
             </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-md bg-slate-50 border border-slate-200/80 text-xs">
               <div>
                 <span className="text-[10px] font-semibold uppercase text-slate-400 block">Client Name</span>
                 <span className="font-bold text-slate-900 flex items-center gap-1.5 mt-0.5">
@@ -176,7 +176,7 @@ export const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
               <Calendar className="w-3.5 h-3.5 text-orange-500" />
               <span>Event Logistics & Schedule</span>
             </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 p-4 rounded-md bg-slate-50 border border-slate-200/80 text-xs">
               <div>
                 <span className="text-[10px] font-semibold uppercase text-slate-400 block">Event Type</span>
                 <span className="font-bold text-slate-900 block mt-0.5">{booking.eventType}</span>
@@ -218,21 +218,21 @@ export const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
               <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
               <span>Financial Ledger & Escrow Status</span>
             </h4>
-            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3 text-xs">
+            <div className="p-4 rounded-md bg-slate-50 border border-slate-200/80 space-y-3 text-xs">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="bg-white p-3 rounded-xl border border-slate-200">
+                <div className="bg-white p-3 rounded-md border border-slate-200">
                   <span className="text-[10px] font-semibold uppercase text-slate-400 block">Contract Total</span>
                   <span className="text-sm font-extrabold text-[#1E3A8A]">
                     ₱{Number(booking.totalAmount).toLocaleString()} PHP
                   </span>
                 </div>
-                <div className="bg-white p-3 rounded-xl border border-slate-200">
+                <div className="bg-white p-3 rounded-md border border-slate-200">
                   <span className="text-[10px] font-semibold uppercase text-emerald-700 block">Verified Paid</span>
                   <span className="text-sm font-extrabold text-emerald-700">
                     ₱{totalVerifiedPaid.toLocaleString()} PHP
                   </span>
                 </div>
-                <div className="bg-white p-3 rounded-xl border border-slate-200">
+                <div className="bg-white p-3 rounded-md border border-slate-200">
                   <span className="text-[10px] font-semibold uppercase text-orange-600 block">Outstanding Balance</span>
                   <span className="text-sm font-extrabold text-orange-600">
                     ₱{remainingBalance.toLocaleString()} PHP
@@ -294,13 +294,13 @@ export const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
               <HardHat className="w-3.5 h-3.5 text-indigo-600" />
               <span>Assigned Event Crew & Staff ({booking.assignedStaff.length})</span>
             </h4>
-            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs">
+            <div className="p-4 rounded-md bg-slate-50 border border-slate-200/80 text-xs">
               {booking.assignedStaff.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {booking.assignedStaff.map((staff, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl bg-white border border-slate-200">
+                    <div key={idx} className="flex items-center justify-between p-2.5 rounded-md bg-white border border-slate-200">
                       <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-blue-100 text-[#1E3A8A] font-bold text-xs flex items-center justify-center">
+                        <div className="w-7 h-7 rounded-md bg-blue-100 text-[#1E3A8A] font-bold text-xs flex items-center justify-center">
                           {staff.name.slice(0, 1).toUpperCase()}
                         </div>
                         <div>
@@ -329,7 +329,7 @@ export const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
                 <FileText className="w-3.5 h-3.5 text-slate-500" />
                 <span>Client Notes & Special Instructions</span>
               </h4>
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs text-slate-700 leading-relaxed whitespace-pre-wrap">
+              <div className="p-4 rounded-md bg-slate-50 border border-slate-200/80 text-xs text-slate-700 leading-relaxed whitespace-pre-wrap">
                 {booking.notes}
               </div>
             </div>
@@ -350,7 +350,7 @@ export const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
             </div>
 
             {booking.feedback ? (
-              <div className="p-4 rounded-2xl bg-amber-50/50 border border-amber-200/80 space-y-3">
+              <div className="p-4 rounded-md bg-amber-50/50 border border-amber-200/80 space-y-3">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-amber-100">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold text-amber-950">Overall Experience Rating:</span>
@@ -377,7 +377,7 @@ export const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                  <div className="p-2.5 rounded-xl bg-white border border-amber-100/90">
+                  <div className="p-2.5 rounded-md bg-white border border-amber-100/90">
                     <span className="text-[10px] font-semibold text-slate-500 block">Service Quality</span>
                     <div className="flex items-center gap-1 mt-0.5">
                       <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
@@ -385,7 +385,7 @@ export const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="p-2.5 rounded-xl bg-white border border-amber-100/90">
+                  <div className="p-2.5 rounded-md bg-white border border-amber-100/90">
                     <span className="text-[10px] font-semibold text-slate-500 block">Staff Performance</span>
                     <div className="flex items-center gap-1 mt-0.5">
                       <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
@@ -393,7 +393,7 @@ export const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="p-2.5 rounded-xl bg-white border border-amber-100/90">
+                  <div className="p-2.5 rounded-md bg-white border border-amber-100/90">
                     <span className="text-[10px] font-semibold text-slate-500 block">Event Execution</span>
                     <div className="flex items-center gap-1 mt-0.5">
                       <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
@@ -403,21 +403,21 @@ export const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
                 </div>
 
                 {booking.feedback.comments && (
-                  <div className="p-3 rounded-xl bg-white border border-amber-100/90 text-xs">
+                  <div className="p-3 rounded-md bg-white border border-amber-100/90 text-xs">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Customer Impressions</span>
                     <p className="text-slate-800 italic">"{booking.feedback.comments}"</p>
                   </div>
                 )}
 
                 {booking.feedback.suggestions && (
-                  <div className="p-3 rounded-xl bg-white border border-amber-100/90 text-xs">
+                  <div className="p-3 rounded-md bg-white border border-amber-100/90 text-xs">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Suggestions for Improvement</span>
                     <p className="text-slate-800 italic">"{booking.feedback.suggestions}"</p>
                   </div>
                 )}
               </div>
             ) : (
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs text-slate-500 flex items-center justify-between">
+              <div className="p-4 rounded-md bg-slate-50 border border-slate-200/80 text-xs text-slate-500 flex items-center justify-between">
                 <span>
                   {booking.status === 'Completed'
                     ? 'Event completed. Awaiting customer submission of evaluation.'
@@ -437,7 +437,7 @@ export const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
             variant="outline"
             size="sm"
             onClick={handlePrint}
-            className="text-xs font-bold text-slate-600 gap-1.5 rounded-xl self-start sm:self-auto"
+            className="text-xs font-bold text-slate-600 gap-1.5 rounded-md self-start sm:self-auto"
           >
             <Printer className="w-3.5 h-3.5" />
             <span>Print Voucher</span>
@@ -454,7 +454,7 @@ export const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
                     onClose();
                   }
                 }}
-                className="text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl gap-1 shadow-xs"
+                className="text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-md gap-1 shadow-sm"
               >
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 <span>Mark as Completed</span>
@@ -469,7 +469,7 @@ export const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
                   onClose();
                   onRescheduleBooking(booking);
                 }}
-                className="text-xs font-bold text-blue-700 border-blue-200 hover:bg-blue-50 rounded-xl"
+                className="text-xs font-bold text-blue-700 border-blue-200 hover:bg-blue-50 rounded-md"
               >
                 <RefreshCw className="w-3.5 h-3.5 mr-1" />
                 <span>Reschedule</span>
@@ -484,7 +484,7 @@ export const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
                   onClose();
                   onEditBooking(booking);
                 }}
-                className="text-xs font-bold text-[#1E3A8A] border-slate-200 rounded-xl"
+                className="text-xs font-bold text-[#1E3A8A] border-slate-200 rounded-md"
               >
                 <Edit3 className="w-3.5 h-3.5 mr-1" />
                 <span>Edit</span>
@@ -499,7 +499,7 @@ export const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
                   onClose();
                   onCancelBooking(booking);
                 }}
-                className="text-xs font-bold text-red-600 hover:bg-red-50 rounded-xl"
+                className="text-xs font-bold text-red-600 hover:bg-red-50 rounded-md"
               >
                 <Ban className="w-3.5 h-3.5 mr-1" />
                 <span>Cancel</span>
@@ -516,7 +516,7 @@ export const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
                     onDeleteBooking(booking.id);
                   }
                 }}
-                className="text-xs font-bold text-red-600 hover:bg-red-50 rounded-xl"
+                className="text-xs font-bold text-red-600 hover:bg-red-50 rounded-md"
                 title="Permanently delete booking from system"
               >
                 <Trash2 className="w-3.5 h-3.5 mr-1" />
@@ -528,7 +528,7 @@ export const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
               variant="default"
               size="sm"
               onClick={onClose}
-              className="text-xs font-bold bg-[#1E3A8A] text-white rounded-xl px-4"
+              className="text-xs font-bold bg-[#1E3A8A] text-white rounded-md px-4"
             >
               Close
             </Button>

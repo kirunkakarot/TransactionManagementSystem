@@ -19,7 +19,6 @@ const buttonVariants = cva(
           "bg-red-600 text-white hover:bg-red-700 hover:text-white",
         link: "text-[#1E3A8A] underline-offset-4 hover:underline hover:text-blue-800",
         brand: "bg-[#1E3A8A] text-white hover:bg-blue-900 hover:text-white shadow-sm",
-        pill: "bg-orange-500 text-white hover:bg-orange-600 hover:text-white rounded-full shadow-sm",
       },
       size: {
         default:
@@ -33,9 +32,6 @@ const buttonVariants = cva(
         "icon-sm":
           "size-7 rounded-lg in-data-[slot=button-group]:rounded-lg",
         "icon-lg": "size-9",
-        "pill-sm": "h-8 px-3.5 py-1.5 rounded-full text-xs font-bold",
-        pill: "h-10 px-6 py-2 rounded-full font-bold",
-        "pill-lg": "h-11 px-8 py-3 rounded-full text-base font-bold",
       },
     },
     defaultVariants: {

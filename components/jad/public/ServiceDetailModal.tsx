@@ -100,7 +100,7 @@ export const ServiceDetailModal: React.FC<ServiceDetailModalProps> = ({
 
           <Button
             variant="brand"
-            size="pill"
+            size="default"
             onClick={() => {
               onInquire(service.id);
               onClose();

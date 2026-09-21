@@ -108,6 +108,7 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
       setInclusions(['Full Ingress & Egress', 'Dedicated Supervisor', 'Contingency Spares']);
       setSelectedResourceIds([]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serviceToEdit, isOpen]);
 
   const handleAddFeature = () => {
@@ -170,11 +171,11 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
-      <DialogContent className="max-w-2xl max-h-[92vh] overflow-y-auto p-6 sm:p-8 rounded-3xl">
+      <DialogContent className="max-w-2xl max-h-[92vh] overflow-y-auto p-6 sm:p-8 rounded-md">
         <DialogHeader>
           <div className="flex items-center justify-between pb-2 border-b border-slate-100">
             <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center font-bold">
+              <div className="w-10 h-10 rounded-md bg-orange-100 text-orange-600 flex items-center justify-center font-bold">
                 <Wrench className="w-5 h-5" />
               </div>
               <div>
@@ -205,7 +206,7 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
                     setFeaturedImage(DEFAULT_IMAGES[e.target.value] || '');
                   }
                 }}
-                className="w-full h-10 px-3 rounded-xl border border-slate-200 text-xs font-semibold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
+                className="w-full h-10 px-3 rounded-md border border-slate-200 text-xs font-semibold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
               >
                 {SERVICE_CATEGORIES.map(cat => (
                   <option key={cat} value={cat}>{cat}</option>
@@ -215,13 +216,13 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
 
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-700">Availability Status</label>
-              <div className="flex items-center gap-2 h-10 px-3 rounded-xl border border-slate-200 bg-slate-50">
+              <div className="flex items-center gap-2 h-10 px-3 rounded-md border border-slate-200 bg-slate-50">
                 <Button
                   type="button"
                   variant={isActive ? 'brand' : 'outline'}
                   size="sm"
                   onClick={() => setIsActive(true)}
-                  className={`text-xs h-7 px-3 rounded-lg font-bold flex-1 ${isActive ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : ''}`}
+                  className={`text-xs h-7 px-3 rounded-md font-bold flex-1 ${isActive ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : ''}`}
                 >
                   <Power className="w-3.5 h-3.5 mr-1" /> Active
                 </Button>
@@ -230,7 +231,7 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
                   variant={!isActive ? 'outline' : 'ghost'}
                   size="sm"
                   onClick={() => setIsActive(false)}
-                  className={`text-xs h-7 px-3 rounded-lg font-bold flex-1 ${!isActive ? 'bg-slate-200 text-slate-800 border-slate-300' : 'text-slate-500'}`}
+                  className={`text-xs h-7 px-3 rounded-md font-bold flex-1 ${!isActive ? 'bg-slate-200 text-slate-800 border-slate-300' : 'text-slate-500'}`}
                 >
                   Deactivated
                 </Button>
@@ -247,7 +248,7 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
                 onChange={e => setName(e.target.value)}
                 placeholder="e.g. 360 Glam Video Spinner Booth"
                 required
-                className="text-xs font-medium rounded-xl"
+                className="text-xs font-medium rounded-md"
               />
             </div>
 
@@ -263,7 +264,7 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
                   required
                   min={0}
                   step={500}
-                  className="pl-7 text-xs font-extrabold text-[#1E3A8A] rounded-xl"
+                  className="pl-7 text-xs font-extrabold text-[#1E3A8A] rounded-md"
                 />
               </div>
             </div>
@@ -277,7 +278,7 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
                 value={shortDesc}
                 onChange={e => setShortDesc(e.target.value)}
                 placeholder="Single sentence summarizing the service highlight."
-                className="text-xs rounded-xl"
+                className="text-xs rounded-md"
               />
             </div>
 
@@ -288,7 +289,7 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
                 onChange={e => setFullDesc(e.target.value)}
                 rows={3}
                 placeholder="Full operational description, technical gear standards, and staging details..."
-                className="w-full p-3 rounded-xl border border-slate-200 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
+                className="w-full p-3 rounded-md border border-slate-200 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
               />
             </div>
           </div>
@@ -301,10 +302,10 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
                 value={featuredImage}
                 onChange={e => setFeaturedImage(e.target.value)}
                 placeholder="https://images.unsplash.com/..."
-                className="text-xs rounded-xl flex-1 font-mono"
+                className="text-xs rounded-md flex-1 font-mono"
               />
               {featuredImage && (
-                <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 border border-slate-200">
+                <div className="w-10 h-10 rounded-md overflow-hidden shrink-0 border border-slate-200">
                   <img src={featuredImage} alt="Preview" className="w-full h-full object-cover" />
                 </div>
               )}
@@ -312,7 +313,7 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
           </div>
 
           {/* Key Features (Badges) */}
-          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+          <div className="p-4 rounded-md bg-slate-50 border border-slate-200 space-y-3">
             <label className="text-xs font-bold text-slate-800 flex items-center justify-between">
               <span>Key Highlights & Specs</span>
               <span className="text-[11px] text-slate-400 font-normal">{features.length} items</span>
@@ -335,16 +336,16 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
                 onChange={e => setNewFeature(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddFeature(); } }}
                 placeholder="Add highlight spec (e.g. 4K Slow Motion Camera)"
-                className="text-xs rounded-xl flex-1 bg-white"
+                className="text-xs rounded-md flex-1 bg-white"
               />
-              <Button type="button" size="sm" onClick={handleAddFeature} className="text-xs rounded-xl bg-[#1E3A8A] text-white">
+              <Button type="button" size="sm" onClick={handleAddFeature} className="text-xs rounded-md bg-[#1E3A8A] text-white">
                 <Plus className="w-3.5 h-3.5 mr-1" /> Add
               </Button>
             </div>
           </div>
 
           {/* Included Deliverables */}
-          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+          <div className="p-4 rounded-md bg-slate-50 border border-slate-200 space-y-3">
             <label className="text-xs font-bold text-slate-800 flex items-center justify-between">
               <span>Standard Operational Inclusions</span>
               <span className="text-[11px] text-slate-400 font-normal">{inclusions.length} items</span>
@@ -352,7 +353,7 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
             
             <div className="space-y-1.5">
               {inclusions.map((inc, i) => (
-                <div key={i} className="flex items-center justify-between p-2 rounded-xl bg-white border border-slate-200 text-xs">
+                <div key={i} className="flex items-center justify-between p-2 rounded-md bg-white border border-slate-200 text-xs">
                   <div className="flex items-center gap-2">
                     <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                     <span className="text-slate-800 font-medium">{inc}</span>
@@ -370,16 +371,16 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
                 onChange={e => setNewInclusion(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddInclusion(); } }}
                 placeholder="Add inclusion deliverable (e.g. 2 Uniformed Technical Operators)"
-                className="text-xs rounded-xl flex-1 bg-white"
+                className="text-xs rounded-md flex-1 bg-white"
               />
-              <Button type="button" size="sm" onClick={handleAddInclusion} className="text-xs rounded-xl bg-orange-600 hover:bg-orange-700 text-white">
+              <Button type="button" size="sm" onClick={handleAddInclusion} className="text-xs rounded-md bg-orange-600 hover:bg-orange-700 text-white">
                 <Plus className="w-3.5 h-3.5 mr-1" /> Add
               </Button>
             </div>
           </div>
 
           {/* Linked Equipment & Resources */}
-          <div className="p-4 rounded-2xl bg-blue-50/60 border border-blue-200 space-y-3">
+          <div className="p-4 rounded-md bg-blue-50/60 border border-blue-200 space-y-3">
             <label className="text-xs font-bold text-[#1E3A8A] flex items-center justify-between">
               <span>Assign Equipment & Hardware Resources</span>
               <span className="text-[11px] text-blue-700 font-semibold">{selectedResourceIds.length} Linked</span>
@@ -396,9 +397,9 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
                     type="button"
                     key={res.id}
                     onClick={() => toggleResource(res.id)}
-                    className={`flex items-start justify-between p-2.5 rounded-xl border text-left text-xs transition-all ${
+                    className={`flex items-start justify-between p-2.5 rounded-md border text-left text-xs transition-all ${
                       isSelected 
-                        ? 'bg-white border-[#1E3A8A] shadow-xs' 
+                        ? 'bg-white border-[#1E3A8A] shadow-sm' 
                         : 'bg-white/60 border-slate-200 hover:border-slate-300'
                     }`}
                   >
@@ -420,10 +421,10 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
           </div>
 
           <DialogFooter className="gap-2 pt-2 border-t border-slate-100">
-            <Button type="button" variant="outline" onClick={onClose} className="rounded-xl text-xs font-bold">
+            <Button type="button" variant="outline" onClick={onClose} className="rounded-md text-xs font-bold">
               Cancel
             </Button>
-            <Button type="submit" variant="brand" className="rounded-xl text-xs font-bold bg-orange-500 hover:bg-orange-600 text-white gap-1.5 shadow-sm">
+            <Button type="submit" variant="brand" className="rounded-md text-xs font-bold bg-orange-500 hover:bg-orange-600 text-white gap-1.5 shadow-sm">
               <Check className="w-4 h-4" />
               <span>{serviceToEdit ? 'Save Changes' : 'Create Event Service'}</span>
             </Button>

@@ -68,7 +68,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     <header className="fixed top-3 sm:top-5 left-0 right-0 z-50 flex justify-center px-3 sm:px-6 pointer-events-none">
       <div 
         id="jad-navbar"
-        className={`pointer-events-auto w-full max-w-6xl transition-all duration-300 rounded-full border ${
+        className={`pointer-events-auto w-full max-w-6xl transition-all duration-300 rounded-md border ${
           isScrolled 
             ? 'bg-white/95 backdrop-blur-2xl border-slate-200 shadow-[0_15px_35px_rgba(30,58,138,0.12)] py-2 sm:py-2.5 px-3 sm:px-5' 
             : 'bg-white/85 backdrop-blur-xl border-blue-50/80 shadow-[0_10px_30px_rgba(30,58,138,0.08)] py-2.5 sm:py-3 px-3.5 sm:px-6'
@@ -99,7 +99,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
           {/* Desktop Center Navigation */}
-          <nav className="hidden lg:flex items-center gap-1 bg-slate-100/80 p-1 rounded-full border border-slate-200/60 shadow-inner">
+          <nav className="hidden lg:flex items-center gap-1 bg-slate-100/80 p-1 rounded-md border border-slate-200/60 shadow-inner">
             {navItems.map((item) => {
               const isActive = activeSection === item.id;
               return (
@@ -107,7 +107,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   key={item.id}
                   id={`nav-item-${item.id}`}
                   onClick={() => handleNavClick(item.id)}
-                  className={`relative flex items-center px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer ${
+                  className={`relative flex items-center px-4 py-1.5 rounded-md text-xs font-semibold transition-all duration-200 cursor-pointer ${
                     isActive
                       ? 'text-white bg-[#1E3A8A] shadow-[0_2px_10px_rgba(30,58,138,0.25)]'
                       : 'text-slate-600 hover:text-[#1E3A8A] hover:bg-white/80'
@@ -126,7 +126,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <Button
                   id="nav-user-dashboard-btn"
                   variant={currentUser.role === 'admin' ? 'brand' : 'default'}
-                  size="pill-sm"
+                  size="sm"
                   onClick={onOpenDashboard}
                   className="font-bold gap-1.5 shadow-xs"
                 >
@@ -147,7 +147,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   variant="ghost"
                   size="icon"
                   onClick={onLogout}
-                  className="w-8 h-8 rounded-full text-slate-500 hover:text-red-600"
+                  className="w-8 h-8 rounded-md text-slate-500 hover:text-red-600"
                   title="Sign Out"
                 >
                   <LogOut className="w-4 h-4" />
@@ -158,7 +158,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <Button
                   id="nav-login-btn"
                   variant="secondary"
-                  size="pill-sm"
+                  size="sm"
                   onClick={() => onOpenAuthModal('login')}
                   className="text-[#1E3A8A] hover:bg-blue-50 font-bold"
                 >
@@ -169,7 +169,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <Button
                   id="nav-get-started-btn"
                   variant="brand"
-                  size="pill-sm"
+                  size="sm"
                   onClick={onOpenInquiryModal}
                   className="font-bold gap-1.5"
                 >
@@ -187,7 +187,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               variant="brand"
               size="sm"
               onClick={currentUser ? onOpenDashboard : onOpenInquiryModal}
-              className="rounded-full text-xs font-bold px-3 py-1"
+              className="rounded-md text-xs font-bold px-3 py-1"
             >
               {currentUser ? 'Dashboard' : 'Inquire'}
             </Button>
@@ -196,7 +196,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               variant="ghost"
               size="icon"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="rounded-full text-slate-700 hover:text-[#1E3A8A]"
+              className="rounded-md text-slate-700 hover:text-[#1E3A8A]"
               aria-label="Toggle mobile menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -216,7 +216,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     key={item.id}
                     id={`mobile-nav-${item.id}`}
                     onClick={() => handleNavClick(item.id)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left cursor-pointer ${
+                    className={`flex items-center gap-2 px-3 py-2 rounded-md text-xs font-semibold transition-colors text-left cursor-pointer ${
                       isActive
                         ? 'bg-blue-50 text-[#1E3A8A] border border-blue-200'
                         : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
@@ -239,7 +239,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       setMobileMenuOpen(false);
                       if (onOpenDashboard) onOpenDashboard();
                     }}
-                    className="flex-1 rounded-xl text-xs font-bold"
+                    className="flex-1 rounded-md text-xs font-bold"
                   >
                     <span>View {currentUser.role === 'admin' ? 'Admin' : 'Client'} Dashboard</span>
                   </Button>
@@ -250,7 +250,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       setMobileMenuOpen(false);
                       if (onLogout) onLogout();
                     }}
-                    className="rounded-xl text-xs text-red-600"
+                    className="rounded-md text-xs text-red-600"
                   >
                     Logout
                   </Button>
@@ -265,7 +265,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       setMobileMenuOpen(false);
                       onOpenAuthModal('login');
                     }}
-                    className="flex-1 rounded-xl text-xs font-semibold"
+                    className="flex-1 rounded-md text-xs font-semibold"
                   >
                     <LogIn className="w-3.5 h-3.5" />
                     <span>Portal Login</span>
@@ -278,7 +278,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       setMobileMenuOpen(false);
                       onOpenInquiryModal();
                     }}
-                    className="flex-1 rounded-xl text-xs font-bold"
+                    className="flex-1 rounded-md text-xs font-bold"
                   >
                     <Calendar className="w-3.5 h-3.5" />
                     <span>Start Inquiry</span>

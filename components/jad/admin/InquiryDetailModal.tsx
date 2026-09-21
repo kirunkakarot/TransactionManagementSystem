@@ -61,7 +61,7 @@ export const InquiryDetailModal: React.FC<InquiryDetailModalProps> = ({
         <DialogHeader className="pb-4 border-b border-slate-100">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-2xl bg-[#1E3A8A] text-white flex items-center justify-center font-extrabold text-sm shadow-sm">
+              <div className="w-10 h-10 rounded-md bg-[#1E3A8A] text-white flex items-center justify-center font-extrabold text-sm shadow-sm">
                 <FileText className="w-5 h-5 text-orange-400" />
               </div>
               <div>
@@ -91,7 +91,7 @@ export const InquiryDetailModal: React.FC<InquiryDetailModalProps> = ({
               <User className="w-3.5 h-3.5 text-blue-600" />
               <span>Customer Information</span>
             </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-md bg-slate-50 border border-slate-200/80">
               <div>
                 <span className="text-[10px] font-semibold uppercase text-slate-400 block">Full Name</span>
                 <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5 mt-0.5">
@@ -131,14 +131,14 @@ export const InquiryDetailModal: React.FC<InquiryDetailModalProps> = ({
               <span>Target Event Details</span>
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              <Card className="p-3.5 rounded-2xl bg-white border-slate-200 shadow-2xs">
+              <Card className="p-3.5 rounded-md bg-white border-slate-200 shadow-sm">
                 <CardContent className="p-0 space-y-1">
                   <span className="text-[10px] font-semibold uppercase text-slate-400 block">Event Type</span>
                   <span className="text-xs font-extrabold text-[#1E3A8A] block">{inquiry.eventType}</span>
                 </CardContent>
               </Card>
 
-              <Card className="p-3.5 rounded-2xl bg-white border-slate-200 shadow-2xs">
+              <Card className="p-3.5 rounded-md bg-white border-slate-200 shadow-sm">
                 <CardContent className="p-0 space-y-1">
                   <span className="text-[10px] font-semibold uppercase text-slate-400 block">Target Event Date</span>
                   <span className="text-xs font-extrabold text-slate-900 flex items-center gap-1 block">
@@ -148,7 +148,7 @@ export const InquiryDetailModal: React.FC<InquiryDetailModalProps> = ({
                 </CardContent>
               </Card>
 
-              <Card className="p-3.5 rounded-2xl bg-white border-slate-200 shadow-2xs">
+              <Card className="p-3.5 rounded-md bg-white border-slate-200 shadow-sm">
                 <CardContent className="p-0 space-y-1">
                   <span className="text-[10px] font-semibold uppercase text-slate-400 block">Target Venue</span>
                   <span className="text-xs font-bold text-slate-900 flex items-center gap-1 block truncate" title={inquiry.venue}>
@@ -158,7 +158,7 @@ export const InquiryDetailModal: React.FC<InquiryDetailModalProps> = ({
                 </CardContent>
               </Card>
 
-              <Card className="p-3.5 rounded-2xl bg-white border-slate-200 shadow-2xs">
+              <Card className="p-3.5 rounded-md bg-white border-slate-200 shadow-sm">
                 <CardContent className="p-0 space-y-1">
                   <span className="text-[10px] font-semibold uppercase text-slate-400 block">Estimated Guests</span>
                   <span className="text-xs font-extrabold text-slate-900 flex items-center gap-1 block">
@@ -177,11 +177,11 @@ export const InquiryDetailModal: React.FC<InquiryDetailModalProps> = ({
               <span>Requested Services & Packages</span>
             </h4>
 
-            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+            <div className="p-4 rounded-md bg-slate-50 border border-slate-200/80 space-y-3">
               {matchedPackage && (
-                <div className="flex items-center justify-between p-3 rounded-xl bg-purple-50 border border-purple-200">
+                <div className="flex items-center justify-between p-3 rounded-md bg-purple-50 border border-purple-200">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center font-bold">
+                    <div className="w-8 h-8 rounded-md bg-purple-600 text-white flex items-center justify-center font-bold">
                       <Package className="w-4 h-4" />
                     </div>
                     <div>
@@ -200,7 +200,7 @@ export const InquiryDetailModal: React.FC<InquiryDetailModalProps> = ({
                   <span className="text-[11px] font-semibold text-slate-600 block">Requested Production Services:</span>
                   <div className="flex flex-wrap gap-2">
                     {matchedServices.map(srv => (
-                      <Badge key={srv.id} variant="secondary" className="px-2.5 py-1 text-xs bg-white border border-slate-200 text-slate-800 font-semibold gap-1.5 shadow-2xs">
+                      <Badge key={srv.id} variant="secondary" className="px-2.5 py-1 text-xs bg-white border border-slate-200 text-slate-800 font-semibold gap-1.5 shadow-sm">
                         <Check className="w-3 h-3 text-blue-600" />
                         <span>{srv.name}</span>
                         {srv.price && (
@@ -233,7 +233,7 @@ export const InquiryDetailModal: React.FC<InquiryDetailModalProps> = ({
               <FileText className="w-3.5 h-3.5 text-blue-600" />
               <span>Event Requirements & Customer Notes</span>
             </h4>
-            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs text-slate-700 whitespace-pre-wrap min-h-[70px]">
+            <div className="p-4 rounded-md bg-slate-50 border border-slate-200/80 text-xs text-slate-700 whitespace-pre-wrap min-h-[70px]">
               {inquiry.notes || 'No additional custom requirements noted by client.'}
             </div>
           </div>
@@ -253,7 +253,7 @@ export const InquiryDetailModal: React.FC<InquiryDetailModalProps> = ({
             variant="outline"
             size="sm"
             onClick={onClose}
-            className="rounded-xl text-xs font-semibold"
+            className="rounded-md text-xs font-semibold"
           >
             Close
           </Button>
@@ -266,7 +266,7 @@ export const InquiryDetailModal: React.FC<InquiryDetailModalProps> = ({
                 onClose();
                 onCreateQuotation(inquiry);
               }}
-              className="rounded-xl text-xs font-bold gap-1.5 bg-orange-500 hover:bg-orange-600 text-white shadow-xs"
+              className="rounded-md text-xs font-bold gap-1.5 bg-orange-500 hover:bg-orange-600 text-white shadow-sm"
             >
               <Receipt className="w-4 h-4" />
               <span>Create Official Quotation</span>

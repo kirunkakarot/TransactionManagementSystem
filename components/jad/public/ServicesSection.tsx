@@ -76,17 +76,17 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
           </div>
 
           {/* Category Filter Pills */}
-          <div className="flex flex-wrap items-center gap-1.5 p-1.5 rounded-2xl bg-slate-100/90 border border-slate-200 self-start md:self-auto">
+          <div className="flex flex-wrap items-center gap-1.5 p-1.5 rounded-md bg-slate-50 border border-slate-200 self-start md:self-auto">
             {categories.map((cat) => (
               <Button
                 key={cat.id}
                 variant={activeCategory === cat.id ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setActiveCategory(cat.id)}
-                className={`rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+                className={`rounded-md text-xs sm:text-sm font-medium transition-all ${
                   activeCategory === cat.id
-                    ? 'bg-[#1E3A8A] text-white shadow-xs'
-                    : 'text-slate-600 hover:text-[#1E3A8A] hover:bg-white'
+                    ? 'bg-[#1E3A8A] text-white shadow-sm'
+                    : 'text-slate-600 hover:text-[#1E3A8A] hover:bg-slate-200/50'
                 }`}
               >
                 {cat.label}
@@ -102,7 +102,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
             return (
               <Card
                 key={service.id}
-                className="group relative rounded-2xl bg-white border border-slate-200 hover:border-slate-300 shadow-[0_4px_20px_rgba(15,23,42,0.05)] hover:shadow-[0_16px_32px_rgba(15,23,42,0.1)] transition-all duration-300 flex flex-col overflow-hidden"
+                className="group relative rounded-md bg-white border border-slate-200 hover:border-slate-300 shadow-sm transition-all duration-300 flex flex-col overflow-hidden"
               >
                 {/* Card Image Stage */}
                 <div className="relative h-52 sm:h-56 w-full overflow-hidden bg-slate-100">
@@ -119,8 +119,8 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
                   </Badge>
 
                   {/* Icon Badge */}
-                  <div className="absolute top-3 right-3 w-9 h-9 rounded-xl bg-white/95 text-[#1E3A8A] flex items-center justify-center shadow-sm">
-                    <Icon className="w-4 h-4 text-orange-500" />
+                  <div className="absolute top-3 right-3 w-9 h-9 rounded-md bg-white/95 text-[#1E3A8A] flex items-center justify-center shadow-sm">
+                    <Icon className="w-4 h-4" />
                   </div>
 
                   {/* Starting Price Banner */}
@@ -163,7 +163,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
                       variant="secondary"
                       size="sm"
                       onClick={() => onSelectService(service)}
-                      className="flex-1 rounded-xl text-xs font-bold text-slate-800 bg-slate-100 hover:bg-slate-200/80 border border-slate-200"
+                      className="flex-1 rounded-md text-xs font-medium text-slate-800 bg-slate-100 hover:bg-slate-200/80 border border-slate-200"
                     >
                       <Eye className="w-3.5 h-3.5 text-slate-700" />
                       <span>Details</span>
@@ -174,7 +174,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
                       variant="brand"
                       size="sm"
                       onClick={() => onInquireService(service.id)}
-                      className="flex-1 rounded-xl text-xs font-bold text-white bg-[#1E3A8A] hover:bg-blue-900"
+                      className="flex-1 rounded-md text-xs font-medium text-white bg-[#1E3A8A] hover:bg-blue-900"
                     >
                       <PlusCircle className="w-3.5 h-3.5 text-white" />
                       <span>Book Service</span>

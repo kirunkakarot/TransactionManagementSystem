@@ -371,7 +371,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
               variant="ghost"
               size="sm"
               onClick={onNavigateHome}
-              className="text-slate-600 hover:text-[#1E3A8A] gap-1.5 rounded-xl font-semibold text-xs"
+              className="text-slate-600 hover:text-[#1E3A8A] gap-1.5 rounded-md font-semibold text-xs"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Website</span>
@@ -380,7 +380,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
             <div className="h-4 w-px bg-slate-200 hidden sm:block"></div>
 
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-[#1E3A8A] flex items-center justify-center text-white font-extrabold text-xs shadow-xs">
+              <div className="w-8 h-8 rounded-md bg-[#1E3A8A] flex items-center justify-center text-white font-extrabold text-xs shadow-xs">
                 J
               </div>
               <div className="flex flex-col">
@@ -401,7 +401,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={onManageProfile}
-                className="text-xs font-semibold text-slate-700 hover:text-[#1E3A8A] border-slate-200 hover:border-[#1E3A8A] gap-1.5 rounded-xl h-8 px-3 bg-white shadow-2xs"
+                className="text-xs font-semibold text-slate-700 hover:text-[#1E3A8A] border-slate-200 hover:border-[#1E3A8A] gap-1.5 rounded-md h-8 px-3 bg-white shadow-2xs"
               >
                 <Settings className="w-3.5 h-3.5 text-orange-500" />
                 <span className="hidden sm:inline">Manage Profile</span>
@@ -430,7 +430,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
               variant="ghost"
               size="sm"
               onClick={onLogout}
-              className="text-slate-500 hover:text-red-600 rounded-xl h-8 w-8 p-0"
+              className="text-slate-500 hover:text-red-600 rounded-md h-8 w-8 p-0"
               title="Sign Out"
             >
               <LogOut className="w-4 h-4" />
@@ -445,9 +445,9 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 space-y-6">
         
         {/* Welcome & Context Banner */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-white border border-slate-200/90 shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-5 rounded-xl bg-white border border-slate-200 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#1E3A8A] flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-blue-50 text-[#1E3A8A] flex items-center justify-center shrink-0">
               <CalendarCheck className="w-5 h-5 text-[#1E3A8A]" />
             </div>
             <div>
@@ -462,10 +462,10 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
 
           <div className="flex items-center gap-2 shrink-0">
             <Badge 
-              variant={isCompleted ? 'success' : isConfirmed ? 'success' : isDepositPaid ? 'blue' : isAccepted ? 'blue' : effectiveQuotation ? 'warning' : 'secondary'} 
+              variant={isCompleted ? 'success' : isConfirmed ? 'success' : isDepositPaid ? 'blue' : isAccepted ? 'blue' : (effectiveQuotation?.status === 'Declined' || currentInquiry?.status === 'Cancelled' || currentInquiry?.status === 'Declined') ? 'destructive' : effectiveQuotation ? 'warning' : 'secondary'} 
               className="text-xs py-1 px-3 gap-1.5 font-bold shadow-2xs"
             >
-              <span className={`w-2 h-2 rounded-full ${isConfirmed ? 'bg-emerald-500' : 'bg-blue-600'} animate-pulse`}></span>
+              <span className={`w-2 h-2 rounded-full ${isConfirmed ? 'bg-emerald-500' : (effectiveQuotation?.status === 'Declined' || currentInquiry?.status === 'Cancelled' || currentInquiry?.status === 'Declined') ? 'bg-red-500' : 'bg-blue-600'} animate-pulse`}></span>
               Status: {activeBooking ? activeBooking.status : (effectiveQuotation ? effectiveQuotation.status : currentInquiry ? currentInquiry.status : 'Active Client')}
             </Badge>
           </div>
@@ -474,7 +474,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
         {/* ======================================================== */}
         {/* 3. RESERVATION PROGRESS STEPPER                          */}
         {/* ======================================================== */}
-        <Card className="rounded-2xl border-slate-200/90 shadow-xs bg-white p-5 sm:p-6 overflow-hidden">
+        <Card className="rounded-xl border-slate-200 shadow-sm bg-white p-5 sm:p-6 overflow-hidden">
           <div className="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
             <div>
               <h2 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
@@ -532,12 +532,12 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
               return (
                 <div 
                   key={s.step} 
-                  className={`relative flex sm:flex-col items-center sm:items-start gap-3 sm:gap-2 p-3 rounded-xl border transition-all ${
+                  className={`relative flex sm:flex-col items-center sm:items-start gap-3 sm:gap-2 p-3 rounded-lg border transition-all ${
                     isCompletedStep
-                      ? 'bg-emerald-50/50 border-emerald-200'
+                      ? 'bg-emerald-50/30 border-emerald-200'
                       : isActiveStep
-                      ? 'bg-blue-50/60 border-blue-200 shadow-xs ring-1 ring-blue-500/20'
-                      : 'bg-slate-50/60 border-slate-200/60 opacity-65'
+                      ? 'bg-blue-50/50 border-blue-200'
+                      : 'bg-transparent border-slate-200 opacity-70'
                   }`}
                 >
                   <div className="flex items-center justify-between w-full">
@@ -668,7 +668,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
           <div className="space-y-6">
             {/* Top Overview KPI Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card className="rounded-2xl border-slate-200/90 shadow-xs bg-white p-5">
+              <Card className="rounded-xl border-slate-200 shadow-sm bg-white p-5">
                 <CardContent className="p-0 space-y-1.5">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold uppercase text-slate-400">Total Contract Value</span>
@@ -685,7 +685,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                 </CardContent>
               </Card>
 
-              <Card className="rounded-2xl border-emerald-200/90 shadow-xs bg-white p-5">
+              <Card className="rounded-xl border-emerald-200 shadow-sm bg-white p-5">
                 <CardContent className="p-0 space-y-1.5">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold uppercase text-emerald-700">Verified Paid</span>
@@ -702,7 +702,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                 </CardContent>
               </Card>
 
-              <Card className="rounded-2xl border-slate-200/90 shadow-xs bg-white p-5">
+              <Card className="rounded-xl border-slate-200 shadow-sm bg-white p-5">
                 <CardContent className="p-0 space-y-1.5">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold uppercase text-slate-400">Remaining Balance</span>
@@ -719,7 +719,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                 </CardContent>
               </Card>
 
-              <Card className="rounded-2xl border-slate-200/90 shadow-xs bg-white p-5">
+              <Card className="rounded-xl border-slate-200 shadow-sm bg-white p-5">
                 <CardContent className="p-0 space-y-1.5">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold uppercase text-slate-400">Event Date</span>
@@ -739,7 +739,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
 
             {/* Active Event Showcase Card */}
             {(effectiveQuotation || currentInquiry || activeBooking) && (
-              <div className="rounded-2xl bg-white border border-slate-200/90 shadow-xs p-6 space-y-6">
+              <div className="rounded-xl bg-white border border-slate-200 shadow-sm p-6 space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
@@ -767,36 +767,10 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                         variant="outline"
                         size="sm"
                         onClick={() => handleOpenInquiryDetails()}
-                        className="rounded-xl text-xs font-semibold gap-1.5"
+                        className="rounded-md text-xs font-semibold gap-1.5"
                       >
                         <Eye className="w-3.5 h-3.5 text-blue-600" />
                         <span>View Inquiry</span>
-                      </Button>
-                    )}
-
-                    {effectiveQuotation && isQuotationSent && (
-                      <Button
-                        variant="brand"
-                        size="sm"
-                        disabled={isAccepting || isDeclining}
-                        onClick={handleAcceptQuotation}
-                        className="rounded-xl text-xs font-bold gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
-                      >
-                        <Check className="w-3.5 h-3.5" />
-                        <span>{isAccepting ? 'Accepting...' : 'Accept Quotation'}</span>
-                      </Button>
-                    )}
-
-                    {effectiveQuotation && isQuotationSent && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        disabled={isDeclining || isAccepting}
-                        onClick={handleDeclineQuotation}
-                        className="rounded-xl text-xs font-bold gap-1.5 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 shadow-xs"
-                      >
-                        <AlertTriangle className="w-3.5 h-3.5" />
-                        <span>{isDeclining ? 'Declining...' : 'Decline'}</span>
                       </Button>
                     )}
 
@@ -805,7 +779,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                         variant="brand"
                         size="sm"
                         onClick={handleOpenSubmitPaymentProof}
-                        className="rounded-xl text-xs font-bold gap-1.5 bg-orange-500 hover:bg-orange-600 text-white shadow-xs"
+                        className="rounded-md text-xs font-bold gap-1.5 bg-orange-500 hover:bg-orange-600 text-white shadow-xs"
                       >
                         <Upload className="w-3.5 h-3.5" />
                         <span>Submit Downpayment Proof</span>
@@ -817,7 +791,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                         variant="outline"
                         size="sm"
                         onClick={() => setActiveTab('quotation')}
-                        className="rounded-xl text-xs font-semibold gap-1.5"
+                        className="rounded-md text-xs font-semibold gap-1.5"
                       >
                         <Receipt className="w-3.5 h-3.5 text-orange-500" />
                         <span>View Quotation Details</span>
@@ -835,7 +809,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                             setIsFeedbackModalOpen(true);
                           }
                         }}
-                        className={`rounded-xl text-xs font-bold gap-1.5 shadow-xs ${
+                        className={`rounded-md text-xs font-bold gap-1.5 shadow-xs ${
                           activeBooking.feedback
                             ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
                             : 'bg-amber-500 hover:bg-amber-600 text-white'
@@ -850,7 +824,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
 
                 {/* Event Specifications Highlights */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80">
+                  <div className="p-4 rounded-md bg-slate-50 border border-slate-200/80">
                     <span className="text-[10px] font-bold uppercase text-slate-400 block">Event Venue</span>
                     <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5 mt-1">
                       <MapPin className="w-3.5 h-3.5 text-red-500 shrink-0" />
@@ -858,7 +832,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                     </span>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80">
+                  <div className="p-4 rounded-md bg-slate-50 border border-slate-200/80">
                     <span className="text-[10px] font-bold uppercase text-slate-400 block">Expected Attendance</span>
                     <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5 mt-1">
                       <Users className="w-3.5 h-3.5 text-blue-600 shrink-0" />
@@ -866,7 +840,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                     </span>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80">
+                  <div className="p-4 rounded-md bg-slate-50 border border-slate-200/80">
                     <span className="text-[10px] font-bold uppercase text-slate-400 block">Required 50% Downpayment</span>
                     <span className="text-xs font-bold text-emerald-700 flex items-center gap-1.5 mt-1">
                       <CreditCard className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
@@ -877,7 +851,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
 
                 {/* Action Guide Notification Box */}
                 {isQuotationSent && (
-                  <div className="p-4 rounded-xl bg-blue-50 border border-blue-200 flex items-start gap-3">
+                  <div className="p-4 rounded-md bg-blue-50 border border-blue-200 flex items-start gap-3">
                     <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
                     <div className="text-xs text-blue-950 leading-relaxed">
                       <strong>Official Quotation Available for Review:</strong> JAD Events operations has issued your itemized proposal. Please review the services and pricing, then click <strong>"Accept Quotation"</strong> to proceed with locking in your reservation.
@@ -886,7 +860,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                 )}
 
                 {isAccepted && !isDepositPaid && !pendingPayment && (
-                  <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-3">
+                  <div className="p-4 rounded-md bg-amber-50 border border-amber-200 flex items-start gap-3">
                     <Clock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                     <div className="text-xs text-amber-950 leading-relaxed">
                       <strong>Next Step: 50% Reservation Downpayment:</strong> Your quotation is accepted. To lock your calendar slot and dispatch equipment, please transfer the 50% downpayment externally via GCash or Bank Transfer, then click <strong>"Submit Downpayment Proof"</strong> below.
@@ -895,7 +869,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                 )}
 
                 {pendingPayment && (
-                  <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-3">
+                  <div className="p-4 rounded-md bg-amber-50 border border-amber-200 flex items-start gap-3">
                     <Clock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                     <div className="text-xs text-amber-950 leading-relaxed">
                       <strong>Payment Proof Under Review:</strong> Your payment submission (Ref #{pendingPayment.referenceNumber} for ₱{Number(pendingPayment.amount).toLocaleString()} PHP) has been received. Our administration will verify the transaction within business hours.
@@ -904,7 +878,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                 )}
 
                 {isConfirmed && (
-                  <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-start gap-3">
+                  <div className="p-4 rounded-md bg-emerald-50 border border-emerald-200 flex items-start gap-3">
                     <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                     <div className="text-xs text-emerald-950 leading-relaxed">
                       <strong>Booking Fully Confirmed:</strong> Your reservation is locked on the JAD Events calendar. Our production team and coordinators are assigned.
@@ -916,8 +890,8 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
 
             {/* Empty State if completely new client */}
             {!currentInquiry && inquiries.length === 0 && !effectiveQuotation && !activeBooking && (
-              <Card className="rounded-2xl border-slate-200 shadow-xs bg-white p-12 text-center flex flex-col items-center">
-                <div className="w-14 h-14 rounded-2xl bg-blue-50 text-[#1E3A8A] flex items-center justify-center mb-4">
+              <Card className="rounded-md border-slate-200 shadow-xs bg-white p-12 text-center flex flex-col items-center">
+                <div className="w-14 h-14 rounded-md bg-blue-50 text-[#1E3A8A] flex items-center justify-center mb-4">
                   <Calendar className="w-7 h-7 text-[#1E3A8A]" />
                 </div>
                 <h3 className="text-lg font-bold text-[#1E3A8A] mb-1">
@@ -930,7 +904,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                   variant="brand"
                   size="default"
                   onClick={onNavigateHome}
-                  className="font-bold gap-2 rounded-xl text-xs"
+                  className="font-bold gap-2 rounded-md text-xs"
                 >
                   <PlusCircle className="w-4 h-4" />
                   <span>Browse Services & Inquire</span>
@@ -945,7 +919,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
         {/* ======================================================== */}
         {activeTab === 'inquiries' && (
           <div className="space-y-6">
-            <Card className="rounded-2xl border-slate-200/90 shadow-xs bg-white p-6">
+            <Card className="rounded-md border-slate-200/90 shadow-xs bg-white p-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
                 <div>
                   <h3 className="text-base font-bold text-[#1E3A8A] flex items-center gap-2">
@@ -961,7 +935,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                   variant="outline"
                   size="sm"
                   onClick={onNavigateHome}
-                  className="rounded-xl text-xs font-semibold gap-1.5"
+                  className="rounded-md text-xs font-semibold gap-1.5"
                 >
                   <PlusCircle className="w-3.5 h-3.5 text-orange-500" />
                   <span>New Inquiry</span>
@@ -974,7 +948,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                   (inquiries.length > 0 ? inquiries : [currentInquiry!]).map((inq, idx) => (
                     <div 
                       key={inq.id || idx}
-                      className="flex flex-col md:flex-row md:items-center justify-between p-4 rounded-xl bg-slate-50/80 border border-slate-200/80 gap-4 hover:bg-white hover:border-blue-200 transition-all shadow-2xs"
+                      className="flex flex-col md:flex-row md:items-center justify-between p-4 rounded-md bg-slate-50/80 border border-slate-200/80 gap-4 hover:bg-white hover:border-blue-200 transition-all shadow-2xs"
                     >
                       <div className="space-y-1">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -982,7 +956,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                             #{inq.id || `INQ-${idx + 1}`}
                           </span>
                           <span className="text-xs font-bold text-slate-900">{inq.eventType}</span>
-                          <Badge variant={inq.status === 'Confirmed' ? 'success' : inq.status === 'Accepted' ? 'blue' : 'warning'} className="text-[10px]">
+                          <Badge variant={inq.status === 'Confirmed' ? 'success' : inq.status === 'Accepted' ? 'blue' : (inq.status === 'Cancelled' || inq.status === 'Declined') ? 'destructive' : 'warning'} className="text-[10px]">
                             {inq.status || 'Pending Review'}
                           </Badge>
                         </div>
@@ -1013,7 +987,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                             setSelectedInquiryId(inq.id || inq.dbId?.toString() || null);
                             setActiveTab('overview');
                           }}
-                          className="rounded-xl text-xs font-semibold gap-1.5 h-8 text-[#1E3A8A] border-blue-200 bg-blue-50/50 hover:bg-blue-100"
+                          className="rounded-md text-xs font-semibold gap-1.5 h-8 text-[#1E3A8A] border-blue-200 bg-blue-50/50 hover:bg-blue-100"
                           title="Track reservation journey for this event"
                         >
                           <Compass className="w-3.5 h-3.5 text-[#1E3A8A]" />
@@ -1024,7 +998,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                           variant="outline"
                           size="sm"
                           onClick={() => handleOpenInquiryDetails(inq)}
-                          className="rounded-xl text-xs font-semibold gap-1.5 h-8 bg-white"
+                          className="rounded-md text-xs font-semibold gap-1.5 h-8 bg-white"
                         >
                           <Eye className="w-3.5 h-3.5 text-blue-600" />
                           <span>Details</span>
@@ -1041,7 +1015,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                                   setSelectedInquiryId(inq.id || inq.dbId?.toString() || null);
                                   setActiveTab('quotation');
                                 }}
-                                className="rounded-xl text-xs font-bold gap-1.5 h-8 bg-[#1E3A8A] hover:bg-blue-900 text-white"
+                                className="rounded-md text-xs font-bold gap-1.5 h-8 bg-[#1E3A8A] hover:bg-blue-900 text-white"
                               >
                                 <Receipt className="w-3.5 h-3.5 text-orange-400" />
                                 <span>View Quote</span>
@@ -1068,7 +1042,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
         {/* ======================================================== */}
         {activeTab === 'quotation' && effectiveQuotation && (
           <div className="space-y-6">
-            <Card className="rounded-2xl border-slate-200/90 shadow-xs bg-white p-6 space-y-6">
+            <Card className="rounded-xl border-slate-200 shadow-sm bg-white p-6 space-y-6">
               {/* Header Info */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
                 <div>
@@ -1079,8 +1053,8 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                     <span className="font-mono text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md">
                       #{effectiveQuotation.id}
                     </span>
-                    <Badge variant={isDepositPaid ? 'success' : isAccepted ? 'blue' : 'warning'} className="text-xs font-bold">
-                      {isDepositPaid ? '✓ Deposit Verified' : isAccepted ? 'Accepted by Client' : 'Awaiting Approval'}
+                    <Badge variant={effectiveQuotation.status === 'Declined' ? 'destructive' : isDepositPaid ? 'success' : isAccepted ? 'blue' : 'warning'} className="text-xs font-bold">
+                      {effectiveQuotation.status === 'Declined' ? 'Declined' : isDepositPaid ? '✓ Deposit Verified' : isAccepted ? 'Accepted by Client' : 'Awaiting Approval'}
                     </Badge>
                   </div>
                   <p className="text-xs text-slate-500 mt-1">
@@ -1093,7 +1067,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                     variant="outline"
                     size="sm"
                     onClick={handlePrintQuotation}
-                    className="rounded-xl text-xs font-semibold gap-1.5"
+                    className="rounded-md text-xs font-semibold gap-1.5"
                   >
                     <Printer className="w-3.5 h-3.5 text-slate-600" />
                     <span>Print Quotation</span>
@@ -1103,21 +1077,21 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
 
               {/* Quotation Summary Meta Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                <div className="p-3.5 rounded-md bg-slate-50 border border-slate-200/80">
                   <span className="text-[10px] font-bold uppercase text-slate-400 block">Event Type</span>
                   <span className="text-xs font-bold text-[#1E3A8A] block mt-0.5">{effectiveQuotation.eventType}</span>
                 </div>
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                <div className="p-3.5 rounded-md bg-slate-50 border border-slate-200/80">
                   <span className="text-[10px] font-bold uppercase text-slate-400 block">Event Date</span>
                   <span className="text-xs font-bold text-slate-900 block mt-0.5">{effectiveQuotation.eventDate}</span>
                 </div>
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                <div className="p-3.5 rounded-md bg-slate-50 border border-slate-200/80">
                   <span className="text-[10px] font-bold uppercase text-slate-400 block">Venue Location</span>
                   <span className="text-xs font-bold text-slate-900 block mt-0.5 truncate" title={effectiveQuotation.venue}>
                     {effectiveQuotation.venue}
                   </span>
                 </div>
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                <div className="p-3.5 rounded-md bg-slate-50 border border-slate-200/80">
                   <span className="text-[10px] font-bold uppercase text-slate-400 block">Quotation Validity</span>
                   <span className="text-xs font-bold text-emerald-700 block mt-0.5">
                     Until {effectiveQuotation.validUntil}
@@ -1131,7 +1105,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                   Itemized Scope & Specifications
                 </h4>
 
-                <div className="overflow-x-auto rounded-xl border border-slate-200">
+                <div className="overflow-x-auto rounded-md border border-slate-200">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
                       <tr className="bg-slate-100/75 text-slate-700 font-bold border-b border-slate-200">
@@ -1171,7 +1145,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
               </div>
 
               {/* Financial Calculation Box */}
-              <div className="p-5 rounded-2xl bg-blue-50/60 border border-blue-200 space-y-2.5">
+              <div className="p-5 rounded-md bg-blue-50/60 border border-blue-200 space-y-2.5">
                 <div className="flex justify-between text-xs text-slate-600">
                   <span>Subtotal:</span>
                   <span className="font-semibold">₱{effectiveQuotation.subtotal.toLocaleString()} PHP</span>
@@ -1205,16 +1179,28 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                   {/* Actions according to workflow */}
                   <div className="flex items-center gap-2 flex-wrap">
                     {isQuotationSent && (
-                      <Button
-                        variant="brand"
-                        size="default"
-                        disabled={isAccepting}
-                        onClick={handleAcceptQuotation}
-                        className="rounded-xl text-xs font-bold gap-2 bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
-                      >
-                        <Check className="w-4 h-4" />
-                        <span>{isAccepting ? 'Accepting...' : 'Accept Official Quotation'}</span>
-                      </Button>
+                      <>
+                        <Button
+                          variant="brand"
+                          size="default"
+                          disabled={isAccepting || isDeclining}
+                          onClick={handleAcceptQuotation}
+                          className="rounded-lg text-xs font-bold gap-2 bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+                        >
+                          <Check className="w-4 h-4" />
+                          <span>{isAccepting ? 'Accepting...' : 'Accept Official Quotation'}</span>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="default"
+                          disabled={isDeclining || isAccepting}
+                          onClick={handleDeclineQuotation}
+                          className="rounded-lg text-xs font-bold gap-2 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 shadow-xs"
+                        >
+                          <AlertTriangle className="w-4 h-4" />
+                          <span>{isDeclining ? 'Declining...' : 'Decline Quotation'}</span>
+                        </Button>
+                      </>
                     )}
 
                     {isAccepted && !isDepositPaid && (
@@ -1222,7 +1208,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                         variant="brand"
                         size="default"
                         onClick={handleOpenSubmitPaymentProof}
-                        className="rounded-xl text-xs font-bold gap-2 bg-orange-500 hover:bg-orange-600 text-white shadow-xs"
+                        className="rounded-md text-xs font-bold gap-2 bg-orange-500 hover:bg-orange-600 text-white shadow-xs"
                       >
                         <Upload className="w-4 h-4" />
                         <span>Submit Downpayment Proof</span>
@@ -1234,7 +1220,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                         variant="outline"
                         size="default"
                         onClick={handleDownloadBookingDetails}
-                        className="rounded-xl text-xs font-semibold gap-2 bg-white text-[#1E3A8A] border-blue-200"
+                        className="rounded-md text-xs font-semibold gap-2 bg-white text-[#1E3A8A] border-blue-200"
                       >
                         <Download className="w-4 h-4 text-orange-500" />
                         <span>Download Booking Voucher</span>
@@ -1246,7 +1232,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
 
               {/* Quotation Terms */}
               {effectiveQuotation.terms && effectiveQuotation.terms.length > 0 && (
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-600 space-y-1.5">
+                <div className="p-4 rounded-md bg-slate-50 border border-slate-200/80 text-xs text-slate-600 space-y-1.5">
                   <div className="font-bold text-slate-800 flex items-center gap-1.5">
                     <Shield className="w-3.5 h-3.5 text-blue-600" />
                     <span>Quotation Terms & Policies</span>
@@ -1264,8 +1250,8 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
 
         {/* Tab 3 Empty State: Quotation in Preparation */}
         {activeTab === 'quotation' && !effectiveQuotation && (
-          <Card className="rounded-2xl border-slate-200/90 shadow-xs bg-white p-8 text-center space-y-4">
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
+          <Card className="rounded-xl border-slate-200 shadow-sm bg-white p-8 text-center space-y-4">
+            <div className="w-12 h-12 rounded-md bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
               <Clock className="w-6 h-6" />
             </div>
             <div className="space-y-1">
@@ -1281,7 +1267,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={() => setActiveTab('inquiries')}
-                className="rounded-xl text-xs font-semibold"
+                className="rounded-md text-xs font-semibold"
               >
                 View Submitted Inquiries
               </Button>
@@ -1294,7 +1280,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
         {/* ======================================================== */}
         {activeTab === 'payments' && (
           <div className="space-y-6">
-            <Card className="rounded-2xl border-slate-200/90 shadow-xs bg-white p-6 space-y-6">
+            <Card className="rounded-xl border-slate-200 shadow-sm bg-white p-6 space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
                 <div>
                   <h3 className="text-base font-bold text-[#1E3A8A] flex items-center gap-2">
@@ -1311,7 +1297,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                     variant="brand"
                     size="sm"
                     onClick={handleOpenSubmitPaymentProof}
-                    className="rounded-xl text-xs font-bold gap-1.5 bg-orange-500 hover:bg-orange-600 text-white shadow-xs"
+                    className="rounded-md text-xs font-bold gap-1.5 bg-orange-500 hover:bg-orange-600 text-white shadow-xs"
                   >
                     <Upload className="w-3.5 h-3.5" />
                     <span>Submit Payment Proof</span>
@@ -1320,7 +1306,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
               </div>
 
               {/* Instructional Banner for External Payment */}
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 space-y-2">
+              <div className="p-4 rounded-md bg-slate-50 border border-slate-200 text-xs text-slate-700 space-y-2">
                 <div className="font-bold text-[#1E3A8A] flex items-center gap-2">
                   <Info className="w-4 h-4 text-blue-600" />
                   <span>How to Settle Your Payment (Manual Verification Process):</span>
@@ -1342,7 +1328,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
               </div>
 
               {/* Verified Progress Bar */}
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5">
+              <div className="p-4 rounded-md bg-slate-50 border border-slate-200 space-y-2.5">
                 <div className="flex items-center justify-between text-xs font-bold">
                   <span className="text-slate-700">Verified Payment Progress</span>
                   <span className="text-[#1E3A8A]">
@@ -1354,7 +1340,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
 
               {/* Rejection Alert if payment was rejected */}
               {rejectedPayment && (
-                <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="p-4 rounded-md bg-red-50 border border-red-200 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <AlertTriangle className="w-5 h-5 text-red-600 shrink-0" />
                     <div>
@@ -1376,7 +1362,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
 
               {/* Pending Verification Banner */}
               {pendingPayment && (
-                <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="p-4 rounded-md bg-amber-50 border border-amber-200 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <Clock className="w-5 h-5 text-amber-600 shrink-0" />
                     <div>
@@ -1408,7 +1394,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
 
                 <div className="space-y-2.5">
                   {/* Milestone 1: 50% Deposit */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl bg-white border border-slate-200 gap-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-md bg-white border border-slate-200 gap-2">
                     <div className="flex items-center gap-3">
                       <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
                         isDepositPaid ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-600'
@@ -1431,7 +1417,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                   </div>
 
                   {/* Milestone 2: Remaining Balance */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl bg-white border border-slate-200 gap-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-md bg-white border border-slate-200 gap-2">
                     <div className="flex items-center gap-3">
                       <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
                         isFullyPaid ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-600'
@@ -1463,7 +1449,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
         {/* ======================================================== */}
         {activeTab === 'booking' && activeBooking && (
           <div className="space-y-6">
-            <Card className="rounded-2xl border-slate-200/90 shadow-xs bg-white p-6 space-y-6">
+            <Card className="rounded-xl border-slate-200 shadow-sm bg-white p-6 space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
@@ -1487,7 +1473,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                     variant="outline"
                     size="sm"
                     onClick={handleDownloadBookingDetails}
-                    className="rounded-xl text-xs font-semibold gap-1.5"
+                    className="rounded-md text-xs font-semibold gap-1.5"
                   >
                     <Printer className="w-3.5 h-3.5 text-slate-600" />
                     <span>Print Booking Voucher</span>
@@ -1497,21 +1483,21 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
 
               {/* Booking Specifications Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80">
+                <div className="p-4 rounded-md bg-slate-50 border border-slate-200/80">
                   <span className="text-[10px] font-bold uppercase text-slate-400 block">Event Title</span>
                   <span className="text-xs font-bold text-[#1E3A8A] block mt-1">{activeBooking.eventTitle}</span>
                 </div>
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80">
+                <div className="p-4 rounded-md bg-slate-50 border border-slate-200/80">
                   <span className="text-[10px] font-bold uppercase text-slate-400 block">Event Date</span>
                   <span className="text-xs font-bold text-slate-900 block mt-1">{activeBooking.eventDate}</span>
                 </div>
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80">
+                <div className="p-4 rounded-md bg-slate-50 border border-slate-200/80">
                   <span className="text-[10px] font-bold uppercase text-slate-400 block">Venue</span>
                   <span className="text-xs font-bold text-slate-900 block mt-1 truncate" title={activeBooking.venue}>
                     {activeBooking.venue}
                   </span>
                 </div>
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80">
+                <div className="p-4 rounded-md bg-slate-50 border border-slate-200/80">
                   <span className="text-[10px] font-bold uppercase text-slate-400 block">Guest Count</span>
                   <span className="text-xs font-bold text-slate-900 block mt-1">{activeBooking.guestCount} Pax</span>
                 </div>
@@ -1519,7 +1505,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
 
               {/* Operational Team & Crew */}
               {activeBooking.assignedStaff && activeBooking.assignedStaff.length > 0 && (
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+                <div className="p-4 rounded-md bg-slate-50 border border-slate-200/80 space-y-2">
                   <span className="text-xs font-bold text-slate-800 block">Assigned Event Coordination & Crew:</span>
                   <div className="flex flex-wrap gap-2">
                     {activeBooking.assignedStaff.map(st => (
@@ -1539,10 +1525,10 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                 {activeBooking.status === 'Completed' ? (
                   activeBooking.feedback ? (
                     /* State: Completed & Feedback Already Submitted */
-                    <div className="p-5 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-3">
+                    <div className="p-5 rounded-md bg-emerald-50/70 border border-emerald-200 space-y-3">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-md bg-emerald-100 text-emerald-700 flex items-center justify-center">
                             <CheckCircle2 className="w-4 h-4" />
                           </div>
                           <div>
@@ -1559,7 +1545,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                         </div>
 
                         {/* Overall Rating Display */}
-                        <div className="flex items-center gap-1 bg-white px-3 py-1.5 rounded-xl border border-emerald-200 self-start sm:self-center">
+                        <div className="flex items-center gap-1 bg-white px-3 py-1.5 rounded-md border border-emerald-200 self-start sm:self-center">
                           <span className="text-[11px] font-bold text-slate-600 mr-1">Overall:</span>
                           {[1, 2, 3, 4, 5].map((star) => (
                             <Star
@@ -1579,28 +1565,28 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
 
                       {/* Detailed Ratings Summary Grid */}
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-emerald-100/80">
-                        <div className="p-2.5 rounded-xl bg-white border border-emerald-100 text-center">
+                        <div className="p-2.5 rounded-md bg-white border border-emerald-100 text-center">
                           <span className="text-[10px] font-medium text-slate-500 block">Service Quality</span>
                           <span className="text-xs font-bold text-[#1E3A8A] flex items-center justify-center gap-1 mt-0.5">
                             <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                             {activeBooking.feedback.serviceRating}/5
                           </span>
                         </div>
-                        <div className="p-2.5 rounded-xl bg-white border border-emerald-100 text-center">
+                        <div className="p-2.5 rounded-md bg-white border border-emerald-100 text-center">
                           <span className="text-[10px] font-medium text-slate-500 block">Staff Performance</span>
                           <span className="text-xs font-bold text-[#1E3A8A] flex items-center justify-center gap-1 mt-0.5">
                             <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                             {activeBooking.feedback.staffRating}/5
                           </span>
                         </div>
-                        <div className="p-2.5 rounded-xl bg-white border border-emerald-100 text-center">
+                        <div className="p-2.5 rounded-md bg-white border border-emerald-100 text-center">
                           <span className="text-[10px] font-medium text-slate-500 block">Event Execution</span>
                           <span className="text-xs font-bold text-[#1E3A8A] flex items-center justify-center gap-1 mt-0.5">
                             <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                             {activeBooking.feedback.executionRating}/5
                           </span>
                         </div>
-                        <div className="p-2.5 rounded-xl bg-white border border-emerald-100 text-center">
+                        <div className="p-2.5 rounded-md bg-white border border-emerald-100 text-center">
                           <span className="text-[10px] font-medium text-slate-500 block">Submitted On</span>
                           <span className="text-[11px] font-semibold text-slate-700 block mt-1">
                             {activeBooking.feedback.createdAt ? new Date(activeBooking.feedback.createdAt).toLocaleDateString() : 'Recent'}
@@ -1609,7 +1595,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                       </div>
 
                       {activeBooking.feedback.comments && (
-                        <div className="p-3 rounded-xl bg-white border border-emerald-100 text-xs">
+                        <div className="p-3 rounded-md bg-white border border-emerald-100 text-xs">
                           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Your Comments</span>
                           <p className="text-slate-700 italic">"{activeBooking.feedback.comments}"</p>
                         </div>
@@ -1617,10 +1603,10 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                     </div>
                   ) : (
                     /* State: Completed & Feedback Pending Submission */
-                    <div className="p-5 rounded-2xl bg-amber-50/80 border border-amber-200 space-y-3">
+                    <div className="p-5 rounded-md bg-amber-50/80 border border-amber-200 space-y-3">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div className="flex items-start gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 mt-0.5">
+                          <div className="w-9 h-9 rounded-md bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 mt-0.5">
                             <Star className="w-5 h-5 fill-amber-500 text-amber-500" />
                           </div>
                           <div>
@@ -1643,7 +1629,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                           variant="brand"
                           size="sm"
                           onClick={() => setIsFeedbackModalOpen(true)}
-                          className="rounded-xl text-xs font-bold gap-1.5 bg-[#1E3A8A] hover:bg-blue-900 text-white shadow-xs shrink-0 self-start sm:self-center"
+                          className="rounded-md text-xs font-bold gap-1.5 bg-[#1E3A8A] hover:bg-blue-900 text-white shadow-xs shrink-0 self-start sm:self-center"
                         >
                           <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                           <span>Submit Evaluation / Feedback</span>
@@ -1653,7 +1639,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                   )
                 ) : (
                   /* State: Event Not Yet Completed */
-                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-500 flex items-center gap-2.5">
+                  <div className="p-4 rounded-md bg-slate-50 border border-slate-200 text-xs text-slate-500 flex items-center gap-2.5">
                     <Info className="w-4 h-4 text-slate-400 shrink-0" />
                     <span>
                       Feedback will become available once your event has been marked as completed by JAD Events.
@@ -1667,8 +1653,8 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
 
         {/* Tab 5 Empty State: Booking Not Yet Confirmed */}
         {activeTab === 'booking' && !activeBooking && (
-          <Card className="rounded-2xl border-slate-200/90 shadow-xs bg-white p-8 text-center space-y-4">
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#1E3A8A] flex items-center justify-center mx-auto">
+          <Card className="rounded-xl border-slate-200 shadow-sm bg-white p-8 text-center space-y-4">
+            <div className="w-12 h-12 rounded-md bg-blue-50 text-[#1E3A8A] flex items-center justify-center mx-auto">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div className="space-y-1">
@@ -1683,7 +1669,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                   variant="brand"
                   size="sm"
                   onClick={() => setActiveTab('quotation')}
-                  className="rounded-xl text-xs font-bold bg-[#1E3A8A] text-white"
+                  className="rounded-md text-xs font-bold bg-[#1E3A8A] text-white"
                 >
                   Review & Accept Quotation
                 </Button>
@@ -1693,13 +1679,13 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                   variant="brand"
                   size="sm"
                   onClick={handleOpenSubmitPaymentProof}
-                  className="rounded-xl text-xs font-bold bg-orange-500 hover:bg-orange-600 text-white"
+                  className="rounded-md text-xs font-bold bg-orange-500 hover:bg-orange-600 text-white"
                 >
                   Submit Downpayment Proof
                 </Button>
               )}
               {isDepositPaid && (
-                <div className="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200 flex items-center gap-1.5">
+                <div className="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-md border border-emerald-200 flex items-center gap-1.5">
                   <CheckCircle2 className="w-4 h-4" />
                   <span>Downpayment cleared! Our team is finalizing your booking voucher.</span>
                 </div>

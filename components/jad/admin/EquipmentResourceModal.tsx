@@ -109,10 +109,10 @@ export const EquipmentResourceModal: React.FC<EquipmentResourceModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
-      <DialogContent className="max-w-lg p-6 sm:p-8 rounded-3xl">
+      <DialogContent className="max-w-lg p-6 sm:p-8 rounded-md">
         <DialogHeader>
           <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100">
-            <div className="w-10 h-10 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-md bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
               <Boxes className="w-5 h-5" />
             </div>
             <div>
@@ -134,7 +134,7 @@ export const EquipmentResourceModal: React.FC<EquipmentResourceModalProps> = ({
               onChange={e => setName(e.target.value)}
               placeholder="e.g. NovaStar P3 LED Processor & Panels"
               required
-              className="text-xs font-semibold rounded-xl"
+              className="text-xs font-semibold rounded-md"
             />
           </div>
 
@@ -144,7 +144,7 @@ export const EquipmentResourceModal: React.FC<EquipmentResourceModalProps> = ({
               <select
                 value={category}
                 onChange={e => setCategory(e.target.value)}
-                className="w-full h-10 px-3 rounded-xl border border-slate-200 text-xs font-semibold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
+                className="w-full h-10 px-3 rounded-md border border-slate-200 text-xs font-semibold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
               >
                 {EQUIPMENT_CATEGORIES.map(cat => (
                   <option key={cat} value={cat}>{cat}</option>
@@ -157,7 +157,7 @@ export const EquipmentResourceModal: React.FC<EquipmentResourceModalProps> = ({
               <select
                 value={condition}
                 onChange={e => setCondition(e.target.value as any)}
-                className="w-full h-10 px-3 rounded-xl border border-slate-200 text-xs font-semibold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
+                className="w-full h-10 px-3 rounded-md border border-slate-200 text-xs font-semibold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
               >
                 <option value="Excellent">â­ Excellent (Showcase Ready)</option>
                 <option value="Good">✓ Good (Operational)</option>
@@ -179,7 +179,7 @@ export const EquipmentResourceModal: React.FC<EquipmentResourceModalProps> = ({
                 }}
                 required
                 min={0}
-                className="text-xs font-bold rounded-xl"
+                className="text-xs font-bold rounded-md"
               />
             </div>
 
@@ -192,7 +192,7 @@ export const EquipmentResourceModal: React.FC<EquipmentResourceModalProps> = ({
                 required
                 min={0}
                 max={quantity}
-                className="text-xs font-extrabold text-emerald-700 rounded-xl"
+                className="text-xs font-extrabold text-emerald-700 rounded-md"
               />
             </div>
 
@@ -202,7 +202,7 @@ export const EquipmentResourceModal: React.FC<EquipmentResourceModalProps> = ({
                 value={unit}
                 onChange={e => setUnit(e.target.value)}
                 placeholder="sets / units / rigs"
-                className="text-xs rounded-xl"
+                className="text-xs rounded-md"
               />
             </div>
           </div>
@@ -212,7 +212,7 @@ export const EquipmentResourceModal: React.FC<EquipmentResourceModalProps> = ({
             <select
               value={assignedServiceId}
               onChange={e => setAssignedServiceId(e.target.value)}
-              className="w-full h-10 px-3 rounded-xl border border-slate-200 text-xs font-semibold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
+              className="w-full h-10 px-3 rounded-md border border-slate-200 text-xs font-semibold text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
             >
               <option value="">-- Unassigned (General Inventory) --</option>
               {availableServices.map(srv => (
@@ -229,15 +229,15 @@ export const EquipmentResourceModal: React.FC<EquipmentResourceModalProps> = ({
               value={notes}
               onChange={e => setNotes(e.target.value)}
               placeholder="e.g. Flight-cased in pairs, flight battery firmware updated."
-              className="text-xs rounded-xl"
+              className="text-xs rounded-md"
             />
           </div>
 
           <DialogFooter className="gap-2 pt-3 border-t border-slate-100">
-            <Button type="button" variant="outline" onClick={onClose} className="rounded-xl text-xs font-bold">
+            <Button type="button" variant="outline" onClick={onClose} className="rounded-md text-xs font-bold">
               Cancel
             </Button>
-            <Button type="submit" variant="brand" className="rounded-xl text-xs font-bold bg-[#1E3A8A] hover:bg-blue-900 text-white gap-1.5">
+            <Button type="submit" variant="brand" className="rounded-md text-xs font-bold bg-[#1E3A8A] hover:bg-blue-900 text-white gap-1.5">
               <Check className="w-4 h-4" />
               <span>{resourceToEdit ? 'Save Inventory Specs' : 'Add to Inventory'}</span>
             </Button>

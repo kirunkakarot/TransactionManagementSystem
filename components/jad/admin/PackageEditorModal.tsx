@@ -153,11 +153,11 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
-      <DialogContent className="max-w-2xl max-h-[92vh] overflow-y-auto p-6 sm:p-8 rounded-3xl">
+      <DialogContent className="max-w-2xl max-h-[92vh] overflow-y-auto p-6 sm:p-8 rounded-md">
         <DialogHeader>
           <div className="flex items-center justify-between pb-2 border-b border-slate-100">
             <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-2xl bg-blue-100 text-[#1E3A8A] flex items-center justify-center font-bold">
+              <div className="w-10 h-10 rounded-md bg-blue-100 text-[#1E3A8A] flex items-center justify-center font-bold">
                 <Package className="w-5 h-5" />
               </div>
               <div>
@@ -177,7 +177,7 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-6 pt-2">
           {/* Status & Popularity Controls */}
-          <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200">
+          <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-md bg-slate-50 border border-slate-200">
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-slate-700">Catalog Visibility:</span>
               <Button
@@ -185,7 +185,7 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
                 variant={isActive ? 'brand' : 'outline'}
                 size="sm"
                 onClick={() => setIsActive(!isActive)}
-                className={`text-xs h-7 px-3 rounded-lg font-bold ${isActive ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'text-slate-500'}`}
+                className={`text-xs h-7 px-3 rounded-md font-bold ${isActive ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'text-slate-500'}`}
               >
                 <Power className="w-3.5 h-3.5 mr-1" />
                 {isActive ? 'Active in Showcase' : 'Deactivated'}
@@ -198,7 +198,7 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
                 variant={isPopular ? 'brand' : 'outline'}
                 size="sm"
                 onClick={() => setIsPopular(!isPopular)}
-                className={`text-xs h-7 px-3 rounded-lg font-bold ${isPopular ? 'bg-orange-500 hover:bg-orange-600 text-white' : 'text-slate-600'}`}
+                className={`text-xs h-7 px-3 rounded-md font-bold ${isPopular ? 'bg-orange-500 hover:bg-orange-600 text-white' : 'text-slate-600'}`}
               >
                 <Star className="w-3.5 h-3.5 mr-1" />
                 {isPopular ? 'â­ Featured Most Popular' : 'Mark as Popular'}
@@ -215,7 +215,7 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
                 onChange={e => setName(e.target.value)}
                 placeholder="e.g. Diamond Jubilee All-In Suite"
                 required
-                className="text-xs font-semibold rounded-xl"
+                className="text-xs font-semibold rounded-md"
               />
             </div>
 
@@ -226,7 +226,7 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
                 onChange={e => setIdealFor(e.target.value)}
                 placeholder="e.g. Grand Weddings, Milestone 18th Debuts"
                 required
-                className="text-xs rounded-xl"
+                className="text-xs rounded-md"
               />
             </div>
           </div>
@@ -238,7 +238,7 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
               value={tagline}
               onChange={e => setTagline(e.target.value)}
               placeholder="e.g. All-inclusive luxury production and complete guest entertainment."
-              className="text-xs rounded-xl"
+              className="text-xs rounded-md"
             />
           </div>
 
@@ -256,7 +256,7 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
                   required
                   min={0}
                   step={500}
-                  className="pl-7 text-xs font-extrabold text-[#1E3A8A] rounded-xl"
+                  className="pl-7 text-xs font-extrabold text-[#1E3A8A] rounded-md"
                 />
               </div>
             </div>
@@ -272,7 +272,7 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
                   placeholder="80000"
                   min={0}
                   step={500}
-                  className="pl-7 text-xs font-medium text-slate-500 rounded-xl"
+                  className="pl-7 text-xs font-medium text-slate-500 rounded-md"
                 />
               </div>
             </div>
@@ -286,14 +286,14 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
                   onChange={e => setCapacity(e.target.value)}
                   placeholder="100 - 200 Guests"
                   required
-                  className="pl-8 text-xs font-semibold rounded-xl"
+                  className="pl-8 text-xs font-semibold rounded-md"
                 />
               </div>
             </div>
           </div>
 
           {/* Add Services to Package */}
-          <div className="p-4 rounded-2xl bg-blue-50/70 border border-blue-200 space-y-3">
+          <div className="p-4 rounded-md bg-blue-50/70 border border-blue-200 space-y-3">
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-[#1E3A8A]">
                 Add Event Services to this Bundle
@@ -314,9 +314,9 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
                     type="button"
                     key={srv.id}
                     onClick={() => toggleService(srv.id)}
-                    className={`flex items-center justify-between p-2.5 rounded-xl border text-left text-xs transition-all ${
+                    className={`flex items-center justify-between p-2.5 rounded-md border text-left text-xs transition-all ${
                       isSelected 
-                        ? 'bg-white border-[#1E3A8A] shadow-xs' 
+                        ? 'bg-white border-[#1E3A8A] shadow-sm' 
                         : 'bg-white/60 border-slate-200 hover:border-slate-300'
                     }`}
                   >
@@ -338,7 +338,7 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
           </div>
 
           {/* Package Inclusions (Line item deliverables) */}
-          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+          <div className="p-4 rounded-md bg-slate-50 border border-slate-200 space-y-3">
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-slate-800">
                 Package Deliverable Inclusions (Displayed on Customer Card)
@@ -348,7 +348,7 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
 
             <div className="space-y-1.5">
               {inclusions.map((inc, i) => (
-                <div key={i} className="flex items-center justify-between p-2 rounded-xl bg-white border border-slate-200 text-xs">
+                <div key={i} className="flex items-center justify-between p-2 rounded-md bg-white border border-slate-200 text-xs">
                   <div className="flex items-center gap-2">
                     <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                     <span className="text-slate-800 font-medium">{inc}</span>
@@ -366,16 +366,16 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
                 onChange={e => setNewInclusion(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddInclusion(); } }}
                 placeholder="e.g. 5-Hour High-Definition LED Wall (9x12 ft)"
-                className="text-xs rounded-xl flex-1 bg-white"
+                className="text-xs rounded-md flex-1 bg-white"
               />
-              <Button type="button" size="sm" onClick={handleAddInclusion} className="text-xs rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold">
+              <Button type="button" size="sm" onClick={handleAddInclusion} className="text-xs rounded-md bg-orange-600 hover:bg-orange-700 text-white font-bold">
                 <Plus className="w-3.5 h-3.5 mr-1" /> Add
               </Button>
             </div>
           </div>
 
           {/* Value Features & Digital Management Perks */}
-          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+          <div className="p-4 rounded-md bg-slate-50 border border-slate-200 space-y-3">
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-slate-800">
                 Digital & Portal Perks (Badges)
@@ -400,19 +400,19 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
                 onChange={e => setNewFeature(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddFeature(); } }}
                 placeholder="e.g. Real-Time Rehearsal Script Sync"
-                className="text-xs rounded-xl flex-1 bg-white"
+                className="text-xs rounded-md flex-1 bg-white"
               />
-              <Button type="button" size="sm" onClick={handleAddFeature} className="text-xs rounded-xl bg-[#1E3A8A] text-white font-bold">
+              <Button type="button" size="sm" onClick={handleAddFeature} className="text-xs rounded-md bg-[#1E3A8A] text-white font-bold">
                 <Plus className="w-3.5 h-3.5 mr-1" /> Add
               </Button>
             </div>
           </div>
 
           <DialogFooter className="gap-2 pt-2 border-t border-slate-100">
-            <Button type="button" variant="outline" onClick={onClose} className="rounded-xl text-xs font-bold">
+            <Button type="button" variant="outline" onClick={onClose} className="rounded-md text-xs font-bold">
               Cancel
             </Button>
-            <Button type="submit" variant="brand" className="rounded-xl text-xs font-bold bg-orange-500 hover:bg-orange-600 text-white gap-1.5 shadow-sm">
+            <Button type="submit" variant="brand" className="rounded-md text-xs font-bold bg-orange-500 hover:bg-orange-600 text-white gap-1.5 shadow-sm">
               <Check className="w-4 h-4" />
               <span>{packageToEdit ? 'Update Package' : 'Create Package Bundle'}</span>
             </Button>

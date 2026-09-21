@@ -95,6 +95,7 @@ export const InquiryModal: React.FC<InquiryModalProps> = ({
     if (initialServiceId && !selectedServices.includes(initialServiceId)) {
       setSelectedServices(prev => [...prev, initialServiceId]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialPackage, initialDate, initialEventType, initialVenue, initialServiceId]);
 
   const toggleService = (serviceId: string) => {
@@ -194,8 +195,6 @@ export const InquiryModal: React.FC<InquiryModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleResetAndClose()}>
       <DialogContent className="max-w-3xl p-6 sm:p-8 max-h-[92vh]">
-        {/* Ambient Top Glow */}
-        <div className="absolute top-0 right-0 w-80 h-80 bg-blue-100/50 rounded-full blur-[80px] pointer-events-none"></div>
 
         {isSuccess ? (
           /* Success Screen */
@@ -216,7 +215,7 @@ export const InquiryModal: React.FC<InquiryModalProps> = ({
               Thank you, <strong className="text-[#1E3A8A]">{fullName || currentUser?.email}</strong>! Your event inquiry is now queued in our admin portal.
             </DialogDescription>
 
-            <div className="w-full max-w-md p-5 rounded-2xl bg-slate-50 border border-slate-200 text-left mb-6 space-y-2.5">
+            <div className="w-full max-w-md p-5 rounded-md bg-slate-50 border border-slate-200 text-left mb-6 space-y-2.5">
               <div className="flex items-center justify-between text-xs pb-2 border-b border-slate-200">
                 <span className="text-slate-500">Inquiry Reference:</span>
                 <span className="font-mono font-bold text-[#1E3A8A] text-sm">{generatedRef}</span>
@@ -245,7 +244,7 @@ export const InquiryModal: React.FC<InquiryModalProps> = ({
 
             <Button
               variant="brand"
-              size="pill"
+              size="lg"
               onClick={handleResetAndClose}
               className="px-8 font-bold"
             >
@@ -268,9 +267,8 @@ export const InquiryModal: React.FC<InquiryModalProps> = ({
               </DialogDescription>
             </DialogHeader>
 
-            {/* GUEST WARNING & LOGIN GATE */}
             {!currentUser ? (
-              <div className="mb-4 p-4 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+              <div className="mb-4 p-4 rounded-md bg-amber-50 border border-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
                 <div className="flex items-start gap-2.5">
                   <Lock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                   <div>
@@ -286,14 +284,14 @@ export const InquiryModal: React.FC<InquiryModalProps> = ({
                   variant="brand"
                   size="sm"
                   onClick={onRequireAuth}
-                  className="shrink-0 rounded-xl font-bold text-xs gap-1.5 shadow-sm"
+                  className="shrink-0 rounded-md font-bold text-xs gap-1.5 shadow-sm"
                 >
                   <LogIn className="w-3.5 h-3.5" />
                   <span>Sign In / Register</span>
                 </Button>
               </div>
             ) : (
-              <div className="mb-4 p-2.5 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-between text-xs">
+              <div className="mb-4 p-2.5 rounded-md bg-blue-50 border border-blue-200 flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2 text-[#1E3A8A] font-semibold">
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />
                   <span>Authenticated Client: <strong>{currentUser.email}</strong></span>
@@ -358,7 +356,7 @@ export const InquiryModal: React.FC<InquiryModalProps> = ({
                   <select
                     value={eventType}
                     onChange={(e) => setEventType(e.target.value)}
-                    className="flex h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:bg-white"
+                    className="flex h-10 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:bg-white"
                   >
                     <option value="Birthday Celebration">Birthday Celebration</option>
                     <option value="Grand Wedding">Grand Wedding & Reception</option>
@@ -419,7 +417,7 @@ export const InquiryModal: React.FC<InquiryModalProps> = ({
                         type="button"
                         key={srv.id}
                         onClick={() => toggleService(srv.id)}
-                        className={`flex items-center gap-2 p-2.5 rounded-xl text-left text-xs transition-all cursor-pointer ${
+                        className={`flex items-center gap-2 p-2.5 rounded-md text-left text-xs transition-all cursor-pointer ${
                           isChecked
                             ? 'bg-blue-50 border-2 border-[#1E3A8A] text-[#1E3A8A] font-bold'
                             : 'bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100'
@@ -457,7 +455,7 @@ export const InquiryModal: React.FC<InquiryModalProps> = ({
               </div>
 
               {/* Instant Calculated Estimated Bar */}
-              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-2">
+              <div className="p-3.5 rounded-md bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-2">
                 <div className="text-xs">
                   <span className="text-slate-600">Estimated Base Quotation: </span>
                   <span className="text-base font-extrabold text-[#1E3A8A]">
@@ -479,7 +477,7 @@ export const InquiryModal: React.FC<InquiryModalProps> = ({
                     type="submit"
                     disabled={isSubmitting}
                     variant="brand"
-                    size="pill"
+                    size="lg"
                     className="w-full font-bold group"
                   >
                     {isSubmitting ? (
@@ -499,7 +497,7 @@ export const InquiryModal: React.FC<InquiryModalProps> = ({
                     type="button"
                     onClick={onRequireAuth}
                     variant="brand"
-                    size="pill"
+                    size="lg"
                     className="w-full font-bold group gap-2"
                   >
                     <Lock className="w-4 h-4 text-white" />

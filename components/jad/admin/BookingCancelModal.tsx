@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import React, { useState } from 'react';
 import { 
   X, 
@@ -25,10 +25,10 @@ export const BookingCancelModal: React.FC<BookingCancelModalProps> = ({
   booking,
   onConfirmCancel
 }) => {
-  if (!isOpen || !booking) return null;
-
   const [reasonCategory, setReasonCategory] = useState('Client Request / Personal Emergency');
   const [customNotes, setCustomNotes] = useState('');
+
+  if (!isOpen || !booking) return null;
 
   const handleCancelSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,12 +42,12 @@ export const BookingCancelModal: React.FC<BookingCancelModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-      <div className="bg-white rounded-3xl shadow-2xl border border-red-200 w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-white rounded-md shadow-2xl border border-red-200 w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         
         {/* Header */}
         <div className="px-6 py-4.5 bg-red-50 border-b border-red-100 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-red-600 text-white flex items-center justify-center font-extrabold shadow-sm">
+            <div className="w-10 h-10 rounded-md bg-red-600 text-white flex items-center justify-center font-extrabold shadow-sm">
               <ShieldAlert className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -71,7 +71,7 @@ export const BookingCancelModal: React.FC<BookingCancelModalProps> = ({
 
         {/* Warning Details */}
         <form onSubmit={handleCancelSubmit} className="p-6 space-y-4 text-xs">
-          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+          <div className="p-3.5 rounded-md bg-slate-50 border border-slate-200 space-y-1">
             <div className="font-bold text-slate-900">{booking.clientName}</div>
             <div className="text-slate-500">{booking.eventType} • {booking.eventDate}</div>
             <div className="text-slate-500">{booking.venue}</div>
@@ -85,7 +85,7 @@ export const BookingCancelModal: React.FC<BookingCancelModalProps> = ({
             <select
               value={reasonCategory}
               onChange={e => setReasonCategory(e.target.value)}
-              className="w-full h-9 rounded-xl border border-slate-200 bg-white px-3 text-xs focus:ring-2 focus:ring-red-600"
+              className="w-full h-9 rounded-md border border-slate-200 bg-white px-3 text-xs focus:ring-2 focus:ring-red-600"
             >
               <option value="Client Request / Personal Emergency">Client Request / Personal Emergency</option>
               <option value="Severe Weather Disturbance / Typhoon Protocol">Severe Weather Disturbance / Typhoon Protocol</option>
@@ -104,11 +104,11 @@ export const BookingCancelModal: React.FC<BookingCancelModalProps> = ({
               onChange={e => setCustomNotes(e.target.value)}
               placeholder="Additional notes, refund eligibility, or formal client letter reference..."
               rows={3}
-              className="w-full rounded-xl border border-slate-200 p-2.5 text-xs focus:ring-2 focus:ring-red-600 focus:outline-none"
+              className="w-full rounded-md border border-slate-200 p-2.5 text-xs focus:ring-2 focus:ring-red-600 focus:outline-none"
             />
           </div>
 
-          <div className="p-3 rounded-xl bg-red-50/70 border border-red-200 text-red-800 text-[11px] flex items-start gap-2">
+          <div className="p-3 rounded-md bg-red-50/70 border border-red-200 text-red-800 text-[11px] flex items-start gap-2">
             <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
             <span>
               This will update the booking status to <strong>Cancelled</strong>, release all assigned crew members, and free the calendar slot.
@@ -122,7 +122,7 @@ export const BookingCancelModal: React.FC<BookingCancelModalProps> = ({
               variant="outline"
               size="sm"
               onClick={onClose}
-              className="rounded-xl text-xs font-semibold"
+              className="rounded-md text-xs font-semibold"
             >
               Keep Active
             </Button>
@@ -130,7 +130,7 @@ export const BookingCancelModal: React.FC<BookingCancelModalProps> = ({
               type="submit"
               variant="destructive"
               size="sm"
-              className="rounded-xl text-xs font-bold bg-red-600 hover:bg-red-700 text-white"
+              className="rounded-md text-xs font-bold bg-red-600 hover:bg-red-700 text-white"
             >
               <Trash2 className="w-3.5 h-3.5 mr-1" />
               <span>Confirm Cancellation</span>

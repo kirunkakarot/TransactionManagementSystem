@@ -337,12 +337,12 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="flex items-center p-1 rounded-xl bg-slate-100 border border-slate-200">
+            <div className="flex items-center p-1 rounded-md bg-slate-100 border border-slate-200">
               <Button
                 variant={activeView === 'editor' ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setActiveView('editor')}
-                className="h-7 px-2.5 rounded-lg text-xs font-bold"
+                className="h-7 px-2.5 rounded-md text-xs font-bold"
               >
                 Quote Builder
               </Button>
@@ -350,7 +350,7 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
                 variant={activeView === 'printable' ? 'brand' : 'ghost'}
                 size="sm"
                 onClick={() => setActiveView('printable')}
-                className="h-7 px-2.5 rounded-lg text-xs font-bold gap-1"
+                className="h-7 px-2.5 rounded-md text-xs font-bold gap-1"
               >
                 <Printer className="w-3 h-3" />
                 <span>Printable Letterhead</span>
@@ -362,7 +362,7 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
         {activeView === 'editor' ? (
           <div className="space-y-6 pt-2">
             {/* 1. Client & Event Info Summary */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-md bg-slate-50 border border-slate-200 text-xs">
               <div className="space-y-1">
                 <span className="text-[10px] uppercase font-bold text-slate-500">Client Info</span>
                 <div className="font-bold text-slate-900">{clientName || 'Unspecified'}</div>
@@ -397,7 +397,7 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
                     variant="outline"
                     size="sm"
                     onClick={() => handleAddItem('package', pkg.name, Number(pkg.price) || 0, `All-inclusive (${pkg.capacity || 'Complete'})`)}
-                    className="h-7 px-2.5 rounded-lg text-[11px] font-bold text-[#1E3A8A] bg-blue-50/50 hover:bg-blue-100/70 border-blue-200"
+                    className="h-7 px-2.5 rounded-md text-[11px] font-bold text-[#1E3A8A] bg-blue-50/50 hover:bg-blue-100/70 border-blue-200"
                   >
                     <Package className="w-3 h-3 text-orange-500 mr-1" />
                     + {pkg.name.split(' ')[0]} Pkg (₱{(Number(pkg.price) || 0).toLocaleString()})
@@ -411,7 +411,7 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
                     variant="outline"
                     size="sm"
                     onClick={() => handleAddItem('service', srv.name, Number(srv.startingPrice) || 0, srv.shortDesc || srv.description || '')}
-                    className="h-7 px-2 rounded-lg text-[11px] font-semibold text-slate-700 hover:bg-slate-100 border-slate-200"
+                    className="h-7 px-2 rounded-md text-[11px] font-semibold text-slate-700 hover:bg-slate-100 border-slate-200"
                   >
                     <Plus className="w-2.5 h-2.5 text-slate-400 mr-1" />
                     {srv.name}
@@ -423,7 +423,7 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
                   variant="secondary"
                   size="sm"
                   onClick={() => handleAddItem('custom', 'Custom Specialized Service', 10000, 'Custom client requirement')}
-                  className="h-7 px-2 rounded-lg text-[11px] font-bold text-orange-700 bg-orange-50 border border-orange-200 hover:bg-orange-100"
+                  className="h-7 px-2 rounded-md text-[11px] font-bold text-orange-700 bg-orange-50 border border-orange-200 hover:bg-orange-100"
                 >
                   <Plus className="w-3 h-3 text-orange-500 mr-1" />
                   + Custom Item
@@ -444,7 +444,7 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
 
               <div className="space-y-2">
                 {items.map((item, idx) => (
-                  <div key={item.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-200 gap-2 text-xs">
+                  <div key={item.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 rounded-md bg-slate-50 border border-slate-200 gap-2 text-xs">
                     <div className="flex-1 w-full sm:w-auto grid grid-cols-1 sm:grid-cols-12 gap-2 items-center">
                       <div className="sm:col-span-5 font-bold">
                         <Input
@@ -484,7 +484,7 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
                         variant="ghost"
                         size="icon"
                         onClick={() => handleRemoveItem(item.id)}
-                        className="h-7 w-7 text-slate-400 hover:text-red-600 rounded-lg"
+                        className="h-7 w-7 text-slate-400 hover:text-red-600 rounded-md"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </Button>
@@ -493,7 +493,7 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
                 ))}
 
                 {items.length === 0 && (
-                  <div className="p-6 rounded-2xl bg-slate-50 border border-dashed border-slate-300 text-center text-xs text-slate-500">
+                  <div className="p-6 rounded-md bg-slate-50 border border-dashed border-slate-300 text-center text-xs text-slate-500">
                     No items in this quotation yet. Use the quick-add buttons above to add services.
                   </div>
                 )}
@@ -503,7 +503,7 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
             {/* 4. Discounts & Additional Charges Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Discounts Box */}
-              <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-2.5">
+              <div className="p-4 rounded-md bg-white border border-slate-200 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-emerald-800 flex items-center gap-1.5">
                     <Percent className="w-3.5 h-3.5 text-emerald-600" />
@@ -514,7 +514,7 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
                     variant="outline"
                     size="sm"
                     onClick={handleAddDiscount}
-                    className="h-6 px-2 text-[10px] rounded-lg text-emerald-700 font-bold border-emerald-200"
+                    className="h-6 px-2 text-[10px] rounded-md text-emerald-700 font-bold border-emerald-200"
                   >
                     + Discount
                   </Button>
@@ -522,7 +522,7 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
 
                 <div className="space-y-2">
                   {calculatedDiscounts.map(d => (
-                    <div key={d.id} className="flex items-center gap-2 p-2 rounded-xl bg-emerald-50/50 border border-emerald-200 text-xs">
+                    <div key={d.id} className="flex items-center gap-2 p-2 rounded-md bg-emerald-50/50 border border-emerald-200 text-xs">
                       <Input
                         value={d.label}
                         onChange={(e) => handleUpdateDiscount(d.id, 'label', e.target.value)}
@@ -560,7 +560,7 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
               </div>
 
               {/* Additional Charges Box */}
-              <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-2.5">
+              <div className="p-4 rounded-md bg-white border border-slate-200 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-orange-800 flex items-center gap-1.5">
                     <Receipt className="w-3.5 h-3.5 text-orange-600" />
@@ -571,7 +571,7 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
                     variant="outline"
                     size="sm"
                     onClick={handleAddCharge}
-                    className="h-6 px-2 text-[10px] rounded-lg text-orange-700 font-bold border-orange-200"
+                    className="h-6 px-2 text-[10px] rounded-md text-orange-700 font-bold border-orange-200"
                   >
                     + Add Charge
                   </Button>
@@ -579,7 +579,7 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
 
                 <div className="space-y-2">
                   {additionalCharges.map(c => (
-                    <div key={c.id} className="flex items-center gap-2 p-2 rounded-xl bg-orange-50/50 border border-orange-200 text-xs">
+                    <div key={c.id} className="flex items-center gap-2 p-2 rounded-md bg-orange-50/50 border border-orange-200 text-xs">
                       <Input
                         value={c.label}
                         onChange={(e) => handleUpdateCharge(c.id, 'label', e.target.value)}
@@ -617,7 +617,7 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
             </div>
 
             {/* 5. Validity & Total Milestone Summary */}
-            <div className="p-5 rounded-2xl bg-gradient-to-r from-blue-50 via-slate-50 to-orange-50 border border-blue-200 space-y-4">
+            <div className="p-5 rounded-md bg-gradient-to-r from-blue-50 via-slate-50 to-orange-50 border border-blue-200 space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="space-y-1">
                   <Label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
@@ -630,7 +630,7 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
                         key={d}
                         type="button"
                         onClick={() => handleValidityChange(d)}
-                        className={`px-2.5 py-1 rounded-lg text-xs font-bold cursor-pointer transition-colors ${
+                        className={`px-2.5 py-1 rounded-md text-xs font-bold cursor-pointer transition-colors ${
                           validityDays === d ? 'bg-[#1E3A8A] text-white' : 'bg-white text-slate-600 border border-slate-200'
                         }`}
                       >
@@ -664,7 +664,7 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
               <Button
                 variant="outline"
-                size="pill"
+                size="default"
                 onClick={onClose}
                 className="w-full sm:w-auto font-semibold"
               >
@@ -674,9 +674,9 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
               <div className="flex items-center gap-2 w-full sm:w-auto">
                 <Button
                   variant="outline"
-                  size="pill"
+                  size="default"
                   onClick={() => setActiveView('printable')}
-                  className="font-bold text-[#1E3A8A] gap-1.5"
+                  className="font-bold text-[#1E3A8A] gap-1.5 rounded-lg"
                 >
                   <Printer className="w-4 h-4 text-orange-500" />
                   <span>Preview Print</span>
@@ -684,9 +684,9 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
 
                 <Button
                   variant="brand"
-                  size="pill"
+                  size="default"
                   onClick={handleSendToCustomer}
-                  className="w-full sm:w-auto font-bold shadow-md gap-2"
+                  className="w-full sm:w-auto font-bold shadow-md gap-2 rounded-lg"
                 >
                   <Send className="w-4 h-4 text-white" />
                   <span>Send Quotation to Client</span>
@@ -697,11 +697,11 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
         ) : (
           /* PRINTABLE LETTERHEAD VIEW */
           <div className="space-y-6 pt-2">
-            <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-6 print:m-0 print:border-none print:shadow-none">
+            <div className="p-6 sm:p-8 rounded-md bg-white border border-slate-200 shadow-sm space-y-6 print:m-0 print:border-none print:shadow-none">
               {/* Header Letterhead */}
               <div className="flex items-start justify-between border-b pb-6 border-slate-200">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-[#1E3A8A] flex items-center justify-center text-white font-extrabold text-xl shadow-sm">
+                  <div className="w-12 h-12 rounded-md bg-[#1E3A8A] flex items-center justify-center text-white font-extrabold text-xl shadow-sm">
                     J
                   </div>
                   <div>
@@ -789,14 +789,14 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
                   <span>₱{grandTotal.toLocaleString()} PHP</span>
                 </div>
 
-                <div className="flex justify-between text-xs font-bold text-emerald-700 bg-emerald-50 p-2.5 rounded-xl border border-emerald-200">
+                <div className="flex justify-between text-xs font-bold text-emerald-700 bg-emerald-50 p-2.5 rounded-md border border-emerald-200">
                   <span>Required 50% Booking Downpayment:</span>
                   <span>₱{requiredDownpayment.toLocaleString()} PHP</span>
                 </div>
               </div>
 
               {/* Terms & Payment Instructions */}
-              <div className="text-[11px] text-slate-500 space-y-1.5 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+              <div className="text-[11px] text-slate-500 space-y-1.5 bg-slate-50 p-4 rounded-md border border-slate-200">
                 <div className="font-bold text-slate-800">Standard Booking Terms:</div>
                 <ul className="list-disc pl-4 space-y-0.5">
                   {terms.map((t, idx) => (
@@ -824,7 +824,7 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
             <div className="flex items-center justify-between gap-3 pt-2">
               <Button
                 variant="outline"
-                size="pill"
+                size="default"
                 onClick={() => setActiveView('editor')}
                 className="font-semibold"
               >
@@ -834,7 +834,7 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
-                  size="pill"
+                  size="default"
                   onClick={handlePrint}
                   className="font-bold text-[#1E3A8A] gap-1.5"
                 >
@@ -844,7 +844,7 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
 
                 <Button
                   variant="brand"
-                  size="pill"
+                  size="default"
                   onClick={handleSendToCustomer}
                   className="font-bold shadow-md gap-2"
                 >

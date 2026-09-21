@@ -121,7 +121,7 @@ export const AvailabilitySection: React.FC<AvailabilitySectionProps> = ({
         {/* 2-Column Grid: Left (Form) & Right (Interactive Calendar Matrix) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left Column: Form (5 Cols) - White Card */}
-          <Card className="lg:col-span-5 rounded-3xl p-6 sm:p-8 bg-white border border-slate-200 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
+          <Card className="lg:col-span-5 rounded-md p-6 sm:p-8 bg-white border border-slate-200 shadow-sm">
             <CardContent className="p-0">
               <h3 className="text-xl font-bold text-slate-900 mb-1">
                 Live Date & Crew Radar
@@ -192,7 +192,7 @@ export const AvailabilitySection: React.FC<AvailabilitySectionProps> = ({
                     type="submit"
                     id="availability-check-btn"
                     variant="default"
-                    size="pill"
+                    size="lg"
                     className="w-full font-bold shadow-sm bg-[#1E3A8A] hover:bg-blue-900 text-white"
                   >
                     Verify Date Availability
@@ -202,7 +202,7 @@ export const AvailabilitySection: React.FC<AvailabilitySectionProps> = ({
 
               {/* Check Result Card */}
               {checkedState && (
-                <div className="mt-5 p-4 rounded-2xl bg-blue-50/80 border border-blue-200 animate-in fade-in duration-300">
+                <div className="mt-5 p-4 rounded-md bg-blue-50/80 border border-blue-200 animate-in fade-in duration-300">
                   {checkedState.available ? (
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 text-emerald-700 font-bold text-sm">
@@ -214,7 +214,7 @@ export const AvailabilitySection: React.FC<AvailabilitySectionProps> = ({
                       </p>
                       <Button
                         variant="brand"
-                        size="pill-sm"
+                        size="sm"
                         onClick={() => onDirectInquireWithDate(selectedDate, eventType, venue, guestCount)}
                         className="mt-2 w-full font-bold bg-orange-600 hover:bg-orange-700 text-white"
                       >
@@ -239,7 +239,7 @@ export const AvailabilitySection: React.FC<AvailabilitySectionProps> = ({
           </Card>
 
           {/* Right Column: Interactive Calendar Component (7 Cols) - Clean White Card */}
-          <Card className="lg:col-span-7 rounded-3xl p-6 sm:p-8 bg-white border border-slate-200 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
+          <Card className="lg:col-span-7 rounded-md p-6 sm:p-8 bg-white border border-slate-200 shadow-sm">
             <CardContent className="p-0">
               <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
                 <div className="flex items-center gap-2">
@@ -282,7 +282,7 @@ export const AvailabilitySection: React.FC<AvailabilitySectionProps> = ({
                       key={day.date}
                       type="button"
                       onClick={() => handleDayClick(day.date)}
-                      className={`min-h-[58px] sm:min-h-[64px] p-1.5 rounded-2xl border flex flex-col items-center justify-between text-xs transition-all cursor-pointer ${statusClasses}`}
+                      className={`min-h-[58px] sm:min-h-[64px] p-1.5 rounded-md border flex flex-col items-center justify-between text-xs transition-all cursor-pointer ${statusClasses}`}
                     >
                       <span className="font-bold text-xs">{day.dayNumber}</span>
 

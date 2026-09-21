@@ -626,7 +626,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       {/* ======================================================== */}
       {/* TOP COMMAND HEADER                                       */}
       {/* ======================================================== */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-xs h-16 flex items-center justify-between px-4 sm:px-6">
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-sm h-16 flex items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-3">
           {/* Mobile Sidebar Hamburger */}
           <Button
@@ -643,7 +643,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             variant="ghost"
             size="sm"
             onClick={onNavigateHome}
-            className="hidden sm:flex text-slate-600 hover:text-[#1E3A8A] gap-1.5 rounded-xl font-semibold text-xs"
+            className="hidden sm:flex text-slate-600 hover:text-[#1E3A8A] gap-1.5 rounded-md font-semibold text-xs"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Website</span>
@@ -652,18 +652,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <div className="h-4 w-px bg-slate-200 hidden sm:block"></div>
 
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-orange-500 flex items-center justify-center text-white font-extrabold text-xs shadow-xs">
-              <Building2 className="w-4 h-4 text-white" />
+            <div className="w-8 h-8 rounded-lg bg-[#1E3A8A] flex items-center justify-center text-white font-extrabold text-sm shadow-sm">
+              J
             </div>
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-xs sm:text-sm tracking-wider text-[#1E3A8A]">JAD EVENTS</span>
-                <Badge variant="brand" className="text-[9px] px-1.5 py-0 uppercase tracking-wider font-bold">
-                  Command Center
-                </Badge>
+                <span className="font-bold text-sm text-slate-900">JAD Events</span>
               </div>
-              <span className="text-[10px] text-slate-400 font-medium hidden md:inline">
-                Operations, Reservations & Escrow Verification Portal
+              <span className="text-[10px] text-slate-500 font-medium hidden md:inline">
+                Event Operations
               </span>
             </div>
           </div>
@@ -675,7 +672,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <Button
               size="sm"
               onClick={() => setActiveSection('payments')}
-              className="text-xs h-8 px-2.5 rounded-xl font-bold bg-orange-50 text-orange-800 border border-orange-200 hover:bg-orange-100 flex items-center gap-1.5 shadow-2xs"
+              className="text-xs h-8 px-2.5 rounded-md font-bold bg-orange-50 text-orange-800 border border-orange-200 hover:bg-orange-100 flex items-center gap-1.5 shadow-sm"
             >
               <AlertCircle className="w-3.5 h-3.5 text-orange-600 animate-pulse" />
               <span className="hidden sm:inline">{pendingVerificationPaymentsList.length} Payment Verification Pending</span>
@@ -696,7 +693,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             variant="ghost"
             size="sm"
             onClick={onLogout}
-            className="text-slate-500 hover:text-red-600 rounded-xl h-8 w-8 p-0"
+            className="text-slate-500 hover:text-red-600 rounded-md h-8 w-8 p-0"
             title="Sign Out"
           >
             <LogOut className="w-4 h-4" />
@@ -723,13 +720,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <button
                       key={item.id}
                       onClick={() => setActiveSection(item.id as any)}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${isActive
-                          ? 'bg-blue-50 text-[#1E3A8A] font-bold shadow-2xs'
-                          : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-md text-xs font-semibold transition-all cursor-pointer ${isActive
+                          ? 'bg-[#1E3A8A] text-white font-bold'
+                          : 'text-slate-600 bg-white hover:bg-slate-100 hover:text-slate-900'
                         }`}
                     >
                       <div className="flex items-center gap-2.5 truncate">
-                        <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#1E3A8A]' : 'text-slate-400'}`} />
+                        <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
                         <span className="truncate">{item.label}</span>
                       </div>
                       {item.badge && (
@@ -759,7 +756,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   variant="ghost"
                   size="icon"
                   onClick={() => setIsMobileSidebarOpen(false)}
-                  className="h-7 w-7 rounded-lg"
+                  className="h-7 w-7 rounded-md"
                 >
                   <X className="w-4 h-4" />
                 </Button>
@@ -781,13 +778,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             setActiveSection(item.id as any);
                             setIsMobileSidebarOpen(false);
                           }}
-                          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${isActive
-                              ? 'bg-blue-50 text-[#1E3A8A] font-bold'
-                              : 'text-slate-600 hover:bg-slate-50'
+                          className={`w-full flex items-center justify-between px-3 py-2 rounded-md text-xs font-semibold transition-all cursor-pointer ${isActive
+                              ? 'bg-[#1E3A8A] text-white font-bold'
+                              : 'text-slate-600 bg-white hover:bg-slate-100'
                             }`}
                         >
                           <div className="flex items-center gap-2.5 truncate">
-                            <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#1E3A8A]' : 'text-slate-400'}`} />
+                            <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
                             <span className="truncate">{item.label}</span>
                           </div>
                           {item.badge && (
@@ -813,9 +810,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           {/* ======================================================== */}
           {activeSection === 'overview' && (
             <div className="space-y-6">
+              <div className="mb-2">
+                <h1 className="text-xl sm:text-2xl font-bold text-slate-900">
+                  Good morning{userEmail ? `, ${userEmail.split('@')[0]}` : ''}
+                </h1>
+                <p className="text-sm text-slate-500 mt-1">Overview of your JAD Events operations for today.</p>
+              </div>
+
               {/* Conflict Banner if detected */}
               {detectedConflicts.length > 0 && (
-                <div className="p-4 rounded-2xl bg-red-50 border border-red-200 space-y-2">
+                <div className="p-4 rounded-xl bg-red-50 border border-red-200 space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 font-bold text-red-950 text-xs sm:text-sm">
                       <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
@@ -825,7 +829,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </div>
                   <div className="space-y-1 text-xs text-red-800">
                     {detectedConflicts.slice(0, 2).map(c => (
-                      <div key={c.id} className="flex items-center justify-between bg-white/80 p-2.5 rounded-xl border border-red-100">
+                      <div key={c.id} className="flex items-center justify-between bg-white/80 p-2.5 rounded-lg border border-red-100">
                         <span>{c.message}</span>
                         <Button
                           size="sm"
@@ -843,189 +847,171 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               {/* Compact Operational KPI Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card className="rounded-2xl border-slate-200/90 shadow-xs bg-white p-5 cursor-pointer hover:border-blue-300 transition-colors" onClick={() => setActiveSection('bookings')}>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Active Bookings</span>
-                    <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#1E3A8A] flex items-center justify-center">
-                      <CalendarCheck className="w-4 h-4" />
+                <Card className="rounded-xl border-slate-200 shadow-sm bg-white p-5 cursor-pointer hover:border-slate-300 transition-colors" onClick={() => setActiveSection('bookings')}>
+                  <div className="flex flex-col gap-2">
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Active Bookings</span>
+                    <div className="flex items-baseline justify-between mt-1">
+                      <span className="text-3xl font-bold text-slate-900">
+                        {bookings.filter(b => b.status === 'Confirmed' || b.status === 'Tentative' || b.status === 'In Progress').length}
+                      </span>
+                      <span className="text-xs text-emerald-600 font-semibold">
+                        {bookings.filter(b => b.status === 'Confirmed').length} Confirmed
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between mt-2 pt-3 border-t border-slate-100">
+                      <span className="text-[11px] text-slate-400">Calendar slots reserved</span>
+                      <span className="text-[11px] font-semibold text-[#1E3A8A]">View bookings &rarr;</span>
                     </div>
                   </div>
-                  <div className="mt-2 flex items-baseline gap-2">
-                    <span className="text-2xl font-extrabold text-[#1E3A8A]">
-                      {bookings.filter(b => b.status === 'Confirmed' || b.status === 'Tentative' || b.status === 'In Progress').length}
-                    </span>
-                    <span className="text-xs text-emerald-600 font-bold">
-                      {bookings.filter(b => b.status === 'Confirmed').length} Confirmed
-                    </span>
-                  </div>
-                  <span className="text-[11px] text-slate-500 block mt-1">Calendar slots reserved</span>
                 </Card>
 
-                <Card className="rounded-2xl border-slate-200/90 shadow-xs bg-white p-5 cursor-pointer hover:border-orange-300 transition-colors" onClick={() => setActiveSection('payments')}>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Pending Verification</span>
-                    <div className="w-8 h-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center">
-                      <CreditCard className="w-4 h-4" />
+                <Card className="rounded-xl border-slate-200 shadow-sm bg-white p-5 cursor-pointer hover:border-slate-300 transition-colors" onClick={() => setActiveSection('payments')}>
+                  <div className="flex flex-col gap-2">
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pending Verification</span>
+                    <div className="flex items-baseline justify-between mt-1">
+                      <span className="text-3xl font-bold text-slate-900">
+                        {pendingVerificationPaymentsList.length}
+                      </span>
+                      <span className="text-xs text-orange-600 font-semibold">
+                        Awaiting Review
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between mt-2 pt-3 border-t border-slate-100">
+                      <span className="text-[11px] text-slate-400">Customer payments</span>
+                      <span className="text-[11px] font-semibold text-[#1E3A8A]">Verify &rarr;</span>
                     </div>
                   </div>
-                  <div className="mt-2 flex items-baseline gap-2">
-                    <span className="text-2xl font-extrabold text-orange-600">
-                      {pendingVerificationPaymentsList.length}
-                    </span>
-                    <span className="text-xs text-slate-500 font-medium">Awaiting Review</span>
-                  </div>
-                  <span className="text-[11px] text-orange-700 font-semibold block mt-1">Customer payment proofs submitted</span>
                 </Card>
 
-                <Card className="rounded-2xl border-slate-200/90 shadow-xs bg-white p-5 cursor-pointer hover:border-amber-300 transition-colors" onClick={() => setActiveSection('inquiries')}>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Pending Inquiries</span>
-                    <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
-                      <Clock className="w-4 h-4" />
+                <Card className="rounded-xl border-slate-200 shadow-sm bg-white p-5 cursor-pointer hover:border-slate-300 transition-colors" onClick={() => setActiveSection('inquiries')}>
+                  <div className="flex flex-col gap-2">
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pending Inquiries</span>
+                    <div className="flex items-baseline justify-between mt-1">
+                      <span className="text-3xl font-bold text-slate-900">
+                        {pendingInquiriesList.length}
+                      </span>
+                      <span className="text-xs text-amber-600 font-semibold">
+                        Awaiting Quote
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between mt-2 pt-3 border-t border-slate-100">
+                      <span className="text-[11px] text-slate-400">Total inquiries: {inquiries.length}</span>
+                      <span className="text-[11px] font-semibold text-[#1E3A8A]">View &rarr;</span>
                     </div>
                   </div>
-                  <div className="mt-2 flex items-baseline gap-2">
-                    <span className="text-2xl font-extrabold text-slate-900">
-                      {pendingInquiriesList.length}
-                    </span>
-                    <span className="text-xs text-amber-700 font-bold">Awaiting Quote</span>
-                  </div>
-                  <span className="text-[11px] text-slate-500 block mt-1">Total inquiries: {inquiries.length}</span>
                 </Card>
 
-                <Card className="rounded-2xl border-slate-200/90 shadow-xs bg-white p-5 cursor-pointer hover:border-emerald-300 transition-colors" onClick={() => setActiveSection('payments')}>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Verified Cleared Revenue</span>
-                    <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                      <CheckCircle2 className="w-4 h-4" />
+                <Card className="rounded-xl border-slate-200 shadow-sm bg-white p-5 cursor-pointer hover:border-slate-300 transition-colors" onClick={() => setActiveSection('payments')}>
+                  <div className="flex flex-col gap-2">
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Cleared Revenue</span>
+                    <div className="flex items-baseline justify-between mt-1">
+                      <span className="text-3xl font-bold text-slate-900">
+                        ₱{(totalVerifiedPayments / 1000).toFixed(0)}k
+                      </span>
+                      <span className="text-xs text-emerald-600 font-semibold">
+                        PHP
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between mt-2 pt-3 border-t border-slate-100">
+                      <span className="text-[11px] text-slate-400">Out: ₱{(totalOutstandingReceivables / 1000).toFixed(0)}k</span>
+                      <span className="text-[11px] font-semibold text-[#1E3A8A]">Ledger &rarr;</span>
                     </div>
                   </div>
-                  <div className="mt-2 flex items-baseline gap-2">
-                    <span className="text-2xl font-extrabold text-emerald-700">
-                      ₱{(totalVerifiedPayments / 1000).toFixed(0)}k
-                    </span>
-                    <span className="text-xs text-slate-500 font-medium">PHP Cleared</span>
-                  </div>
-                  <span className="text-[11px] text-slate-500 block mt-1">Outstanding: ₱{(totalOutstandingReceivables / 1000).toFixed(0)}k PHP</span>
                 </Card>
               </div>
 
-              {/* Quick Actions Bar */}
-              <div className="flex items-center gap-2 flex-wrap p-4 rounded-2xl bg-white border border-slate-200/90 shadow-xs">
-                <span className="text-xs font-bold text-slate-600 mr-2">Quick Actions:</span>
-                <Button
-                  size="sm"
-                  variant="brand"
-                  onClick={handleOpenNewBooking}
-                  className="rounded-xl text-xs font-bold gap-1.5 bg-[#1E3A8A] text-white shadow-xs"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Create Booking</span>
-                </Button>
+              {/* Needs Your Attention / Quick Actions Bar */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-xl bg-white border border-slate-200 shadow-sm">
+                <span className="text-xs font-bold text-slate-900 tracking-wider">NEEDS YOUR ATTENTION</span>
+                <div className="hidden sm:block h-5 w-px bg-slate-200"></div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setActiveSection('payments')}
+                    className="rounded-lg text-xs font-semibold gap-1.5 border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
+                    <span>Payment Proof ({pendingVerificationPaymentsList.length})</span>
+                  </Button>
 
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => {
-                    setSelectedInquiryForQuote(null);
-                    setSelectedExistingQuote(null);
-                    setIsQuoteModalOpen(true);
-                  }}
-                  className="rounded-xl text-xs font-semibold gap-1.5 border-slate-200 text-slate-700"
-                >
-                  <Receipt className="w-3.5 h-3.5 text-orange-500" />
-                  <span>New Quotation</span>
-                </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setActiveSection('inquiries')}
+                    className="rounded-lg text-xs font-semibold gap-1.5 border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                    <span>New Inquiries ({pendingInquiriesList.length})</span>
+                  </Button>
 
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setActiveSection('payments')}
-                  className="rounded-xl text-xs font-semibold gap-1.5 border-slate-200 text-slate-700"
-                >
-                  <CreditCard className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Verify Payments ({pendingVerificationPaymentsList.length})</span>
-                </Button>
-
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setActiveSection('scheduling')}
-                  className="rounded-xl text-xs font-semibold gap-1.5 border-slate-200 text-slate-700"
-                >
-                  <Calendar className="w-3.5 h-3.5 text-blue-600" />
-                  <span>View Schedule</span>
-                </Button>
+                  <Button
+                    size="sm"
+                    variant="brand"
+                    onClick={handleOpenNewBooking}
+                    className="rounded-lg text-xs font-bold gap-1.5 shadow-sm"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Create Booking</span>
+                  </Button>
+                </div>
               </div>
 
               {/* Today's & Upcoming Events Queue */}
-              <Card className="rounded-2xl border-slate-200/90 shadow-xs bg-white p-6 space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <Card className="rounded-xl border-slate-200 shadow-sm bg-white p-6 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-4">
                   <div>
-                    <h3 className="text-sm font-extrabold text-[#1E3A8A] flex items-center gap-2">
-                      <CalendarCheck className="w-4 h-4 text-blue-600" />
-                      <span>Upcoming Confirmed Events & Production Schedule</span>
+                    <h3 className="text-sm font-bold text-slate-900">
+                      Upcoming Confirmed Events
                     </h3>
-                    <p className="text-xs text-slate-500">
-                      Confirmed events scheduled on the production calendar.
+                    <p className="text-[11px] text-slate-500 mt-1">
+                      Production schedule for confirmed and in-progress events.
                     </p>
                   </div>
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
                     onClick={() => setActiveSection('bookings')}
-                    className="text-xs font-bold text-[#1E3A8A] hover:underline"
+                    className="text-[11px] font-semibold text-slate-700 rounded-lg shrink-0"
                   >
-                    View All Bookings ({bookings.length}) →
+                    View Calendar &rarr;
                   </Button>
                 </div>
 
                 <div className="divide-y divide-slate-100">
                   {upcomingBookings.slice(0, 5).map(b => (
-                    <div key={b.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/60 p-2 rounded-xl transition-colors">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#1E3A8A] font-bold text-xs flex flex-col items-center justify-center shrink-0 border border-blue-100">
-                          <span className="text-[10px] text-slate-500 uppercase">{b.eventDate.slice(5, 7)}</span>
-                          <span className="text-sm font-extrabold leading-none">{b.eventDate.slice(8, 10)}</span>
+                    <div key={b.id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-lg bg-slate-50 text-slate-700 flex flex-col items-center justify-center shrink-0 border border-slate-200">
+                          <span className="text-[10px] uppercase font-semibold">{new Date(b.eventDate).toLocaleString('default', { month: 'short' })}</span>
+                          <span className="text-sm font-bold leading-none">{new Date(b.eventDate).getDate()}</span>
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="font-bold text-xs text-slate-900">{b.eventTitle}</span>
-                            <Badge variant={b.status === 'Confirmed' ? 'success' : 'blue'} className="text-[10px] py-0">
+                            <span className="font-bold text-sm text-slate-900">{b.eventTitle}</span>
+                            <Badge variant={b.status === 'Confirmed' ? 'success' : 'blue'} className="text-[10px] py-0 px-1.5">
                               {b.status}
                             </Badge>
                           </div>
-                          <div className="text-[11px] text-slate-500 flex items-center gap-3 mt-0.5">
-                            <span className="flex items-center gap-1">
-                              <MapPin className="w-3 h-3 text-red-500" />
-                              <span className="truncate max-w-[180px]">{b.venue}</span>
-                            </span>
+                          <div className="text-[11px] text-slate-500 flex items-center gap-2 mt-1">
+                            <span className="truncate max-w-[200px]">{b.venue}</span>
                             <span>•</span>
-                            <span>Client: {b.clientName}</span>
+                            <span>{b.clientName}</span>
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 self-end sm:self-center">
-                        <span className="font-mono font-bold text-xs text-[#1E3A8A] mr-2">
-                          ₱{b.totalAmount.toLocaleString()} PHP
+                      <div className="flex items-center gap-3 self-end sm:self-center">
+                        <span className="font-mono font-medium text-[11px] text-slate-500 mr-2 hidden sm:inline">
+                          ₱{b.totalAmount.toLocaleString()}
                         </span>
                         <Button
                           size="sm"
-                          variant="outline"
+                          variant="ghost"
                           onClick={() => handleViewBookingDetails(b)}
-                          className="h-7 px-2 text-xs rounded-lg font-bold text-[#1E3A8A] border-blue-200 bg-blue-50/50 hover:bg-blue-100"
+                          className="h-8 px-3 text-xs font-semibold text-[#1E3A8A] hover:bg-blue-50"
                         >
-                          <Eye className="w-3 h-3 mr-1" />
-                          <span>View</span>
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEditBooking(b)}
-                          className="h-7 px-2 text-xs rounded-lg font-semibold"
-                        >
-                          Edit
+                          View Details
                         </Button>
                       </div>
                     </div>
@@ -1045,7 +1031,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           {/* SECTION 2: INQUIRIES MODULE                              */}
           {/* ======================================================== */}
           {activeSection === 'inquiries' && (
-            <Card className="rounded-2xl border-slate-200/90 shadow-xs bg-white p-6 space-y-4">
+            <Card className="rounded-md border-slate-200/90 shadow-sm bg-white p-6 space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
                 <div>
                   <h3 className="text-sm font-extrabold text-[#1E3A8A] flex items-center gap-2">
@@ -1064,14 +1050,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       placeholder="Search inquiries..."
                       value={inquirySearch}
                       onChange={e => setInquirySearch(e.target.value)}
-                      className="pl-8 text-xs rounded-xl h-9 bg-slate-50 border-slate-200"
+                      className="pl-8 text-xs rounded-md h-9 bg-slate-50 border-slate-200"
                     />
                   </div>
 
                   <select
                     value={inquiryStatusFilter}
                     onChange={e => setInquiryStatusFilter(e.target.value)}
-                    className="text-xs h-9 px-3 rounded-xl border border-slate-200 bg-slate-50 font-semibold text-slate-700"
+                    className="text-xs h-9 px-3 rounded-md border border-slate-200 bg-slate-50 font-semibold text-slate-700"
                   >
                     <option value="ALL">All Statuses</option>
                     <option value="Pending Review">Pending Review</option>
@@ -1084,7 +1070,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
 
               {/* Inquiries Table */}
-              <div className="overflow-x-auto rounded-xl border border-slate-200">
+              <div className="overflow-x-auto rounded-md border border-slate-200">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
                     <tr className="bg-slate-100/75 text-slate-700 font-bold border-b border-slate-200">
@@ -1134,7 +1120,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                   setSelectedInquiryForDetails(inq);
                                   setIsDetailModalOpen(true);
                                 }}
-                                className="h-7 px-2 text-xs rounded-lg font-semibold"
+                                className="h-7 px-2 text-xs rounded-md font-semibold"
                                 title="View details"
                               >
                                 View
@@ -1149,7 +1135,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                     setSelectedExistingQuote(null);
                                     setIsQuoteModalOpen(true);
                                   }}
-                                  className="h-7 px-2 text-xs rounded-lg font-bold bg-[#1E3A8A] text-white"
+                                  className="h-7 px-2 text-xs rounded-md font-bold bg-[#1E3A8A] text-white"
                                 >
                                   Quote
                                 </Button>
@@ -1159,7 +1145,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                   size="sm"
                                   variant="outline"
                                   disabled
-                                  className="h-7 px-2 text-xs rounded-lg font-bold text-slate-400 bg-slate-100 cursor-not-allowed"
+                                  className="h-7 px-2 text-xs rounded-md font-bold text-slate-400 bg-slate-100 cursor-not-allowed"
                                 >
                                   Quote
                                 </Button>
@@ -1169,7 +1155,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                   size="sm"
                                   variant="default"
                                   onClick={() => handleConvertInquiryToBooking(inq)}
-                                  className="h-7 px-2 text-xs rounded-lg font-bold bg-emerald-600 hover:bg-emerald-700 text-white"
+                                  className="h-7 px-2 text-xs rounded-md font-bold bg-emerald-600 hover:bg-emerald-700 text-white"
                                   title="Convert inquiry to confirmed booking"
                                 >
                                   Book
@@ -1185,7 +1171,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                       onDeleteInquiry(inq.id || inq.dbId?.toString() || '');
                                     }
                                   }}
-                                  className="h-7 w-7 p-0 rounded-lg text-slate-400 hover:text-red-600"
+                                  className="h-7 w-7 p-0 rounded-md text-slate-400 hover:text-red-600"
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
                                 </Button>
@@ -1205,7 +1191,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           {/* SECTION 3: QUOTATIONS MODULE                             */}
           {/* ======================================================== */}
           {activeSection === 'quotations' && (
-            <Card className="rounded-2xl border-slate-200/90 shadow-xs bg-white p-6 space-y-4">
+            <Card className="rounded-md border-slate-200/90 shadow-sm bg-white p-6 space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
                 <div>
                   <h3 className="text-sm font-extrabold text-[#1E3A8A] flex items-center gap-2">
@@ -1224,7 +1210,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       placeholder="Search quotations..."
                       value={quotationSearch}
                       onChange={e => setQuotationSearch(e.target.value)}
-                      className="pl-8 text-xs rounded-xl h-9 bg-slate-50 border-slate-200"
+                      className="pl-8 text-xs rounded-md h-9 bg-slate-50 border-slate-200"
                     />
                   </div>
 
@@ -1236,7 +1222,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       setSelectedExistingQuote(null);
                       setIsQuoteModalOpen(true);
                     }}
-                    className="rounded-xl text-xs font-bold gap-1.5 bg-orange-500 hover:bg-orange-600 text-white"
+                    className="rounded-md text-xs font-bold gap-1.5 bg-orange-500 hover:bg-orange-600 text-white"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>New Quote</span>
@@ -1245,7 +1231,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
 
               {/* Quotations Table */}
-              <div className="overflow-x-auto rounded-xl border border-slate-200">
+              <div className="overflow-x-auto rounded-md border border-slate-200">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
                     <tr className="bg-slate-100/75 text-slate-700 font-bold border-b border-slate-200">
@@ -1295,7 +1281,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 setSelectedExistingQuote(quote);
                                 setIsQuoteModalOpen(true);
                               }}
-                              className="h-7 px-2 text-xs rounded-lg font-semibold"
+                              className="h-7 px-2 text-xs rounded-md font-semibold"
                             >
                               Edit / Preview
                             </Button>
@@ -1309,7 +1295,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                     onDeleteQuotation(quote.id);
                                   }
                                 }}
-                                className="h-7 w-7 p-0 rounded-lg text-slate-400 hover:text-red-600"
+                                className="h-7 w-7 p-0 rounded-md text-slate-400 hover:text-red-600"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </Button>
@@ -1328,7 +1314,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           {/* SECTION 4: BOOKINGS MANAGEMENT MODULE                    */}
           {/* ======================================================== */}
           {activeSection === 'bookings' && (
-            <Card className="rounded-2xl border-slate-200/90 shadow-xs bg-white p-6 space-y-4">
+            <Card className="rounded-md border-slate-200/90 shadow-sm bg-white p-6 space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
                 <div>
                   <h3 className="text-sm font-extrabold text-[#1E3A8A] flex items-center gap-2">
@@ -1347,14 +1333,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       placeholder="Search bookings..."
                       value={bookingSearch}
                       onChange={e => setBookingSearch(e.target.value)}
-                      className="pl-8 text-xs rounded-xl h-9 bg-slate-50 border-slate-200"
+                      className="pl-8 text-xs rounded-md h-9 bg-slate-50 border-slate-200"
                     />
                   </div>
 
                   <select
                     value={bookingStatusFilter}
                     onChange={e => setBookingStatusFilter(e.target.value)}
-                    className="text-xs h-9 px-3 rounded-xl border border-slate-200 bg-slate-50 font-semibold text-slate-700"
+                    className="text-xs h-9 px-3 rounded-md border border-slate-200 bg-slate-50 font-semibold text-slate-700"
                   >
                     <option value="ALL">All Bookings</option>
                     <option value="Confirmed">Confirmed</option>
@@ -1369,7 +1355,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     size="sm"
                     variant="brand"
                     onClick={handleOpenNewBooking}
-                    className="rounded-xl text-xs font-bold gap-1.5 bg-[#1E3A8A] text-white"
+                    className="rounded-md text-xs font-bold gap-1.5 bg-[#1E3A8A] text-white"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>New Booking</span>
@@ -1378,7 +1364,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
 
               {/* Bookings Table */}
-              <div className="overflow-x-auto rounded-xl border border-slate-200">
+              <div className="overflow-x-auto rounded-md border border-slate-200">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
                     <tr className="bg-slate-100/75 text-slate-700 font-bold border-b border-slate-200">
@@ -1463,7 +1449,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                     onUpdateBookingStatus(b.id, 'Completed');
                                   }
                                 }}
-                                className="h-7 px-2 text-xs rounded-lg font-bold text-emerald-700 border-emerald-300 bg-emerald-50 hover:bg-emerald-100 flex items-center gap-1"
+                                className="h-7 px-2 text-xs rounded-md font-bold text-emerald-700 border-emerald-300 bg-emerald-50 hover:bg-emerald-100 flex items-center gap-1"
                                 title="Mark event as Completed"
                               >
                                 <CheckCircle2 className="w-3.5 h-3.5" />
@@ -1475,7 +1461,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               variant="outline"
                               size="sm"
                               onClick={() => handleViewBookingDetails(b)}
-                              className="h-7 px-2 text-xs rounded-lg font-bold text-[#1E3A8A] border-blue-200 bg-blue-50/50 hover:bg-blue-100 flex items-center gap-1"
+                              className="h-7 px-2 text-xs rounded-md font-bold text-[#1E3A8A] border-blue-200 bg-blue-50/50 hover:bg-blue-100 flex items-center gap-1"
                               title="View full booking details, finances, and crew"
                             >
                               <Eye className="w-3.5 h-3.5" />
@@ -1486,7 +1472,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               variant="outline"
                               size="sm"
                               onClick={() => handleEditBooking(b)}
-                              className="h-7 px-2 text-xs rounded-lg font-semibold"
+                              className="h-7 px-2 text-xs rounded-md font-semibold"
                             >
                               Edit
                             </Button>
@@ -1495,7 +1481,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               variant="ghost"
                               size="sm"
                               onClick={() => handleOpenRecordPaymentForBooking(b.id)}
-                              className="h-7 px-2 text-xs rounded-lg text-emerald-700 hover:bg-emerald-50"
+                              className="h-7 px-2 text-xs rounded-md text-emerald-700 hover:bg-emerald-50"
                               title="Record payment"
                             >
                               <CreditCard className="w-3.5 h-3.5" />
@@ -1505,7 +1491,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               variant="ghost"
                               size="sm"
                               onClick={() => handleOpenReschedule(b)}
-                              className="h-7 w-7 p-0 rounded-lg text-slate-400 hover:text-blue-600"
+                              className="h-7 w-7 p-0 rounded-md text-slate-400 hover:text-blue-600"
                               title="Reschedule"
                             >
                               <RefreshCw className="w-3 h-3" />
@@ -1515,7 +1501,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               variant="ghost"
                               size="sm"
                               onClick={() => handleOpenCancel(b)}
-                              className="h-7 w-7 p-0 rounded-lg text-slate-400 hover:text-red-600"
+                              className="h-7 w-7 p-0 rounded-md text-slate-400 hover:text-red-600"
                               title="Cancel booking"
                             >
                               <Ban className="w-3 h-3" />
@@ -1530,7 +1516,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                     onDeleteBooking(b.id);
                                   }
                                 }}
-                                className="h-7 w-7 p-0 rounded-lg text-slate-400 hover:text-red-600"
+                                className="h-7 w-7 p-0 rounded-md text-slate-400 hover:text-red-600"
                                 title="Permanently delete booking"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -1551,7 +1537,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           {/* ======================================================== */}
           {activeSection === 'scheduling' && (
             <div className="space-y-6">
-              <Card className="rounded-2xl border-slate-200/90 shadow-xs bg-white p-6 space-y-6">
+              <Card className="rounded-md border-slate-200/90 shadow-sm bg-white p-6 space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
                   <div>
                     <h3 className="text-sm font-extrabold text-[#1E3A8A] flex items-center gap-2">
@@ -1568,7 +1554,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       variant="outline"
                       size="sm"
                       onClick={() => setCurrentCalendarDate(new Date(calendarYear, calendarMonth - 1, 1))}
-                      className="h-8 w-8 p-0 rounded-lg"
+                      className="h-8 w-8 p-0 rounded-md"
                     >
                       <ChevronLeft className="w-4 h-4" />
                     </Button>
@@ -1579,7 +1565,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       variant="outline"
                       size="sm"
                       onClick={() => setCurrentCalendarDate(new Date(calendarYear, calendarMonth + 1, 1))}
-                      className="h-8 w-8 p-0 rounded-lg"
+                      className="h-8 w-8 p-0 rounded-md"
                     >
                       <ChevronRight className="w-4 h-4" />
                     </Button>
@@ -1587,7 +1573,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
 
                 {/* Conflict Status Banner */}
-                <div className={`p-4 rounded-xl border flex items-center justify-between text-xs ${detectedConflicts.length > 0 ? 'bg-red-50 border-red-200 text-red-900' : 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                <div className={`p-4 rounded-md border flex items-center justify-between text-xs ${detectedConflicts.length > 0 ? 'bg-red-50 border-red-200 text-red-900' : 'bg-emerald-50 border-emerald-200 text-emerald-900'
                   }`}>
                   <div className="flex items-center gap-2 font-bold">
                     {detectedConflicts.length > 0 ? <AlertTriangle className="w-4 h-4 text-red-600" /> : <CheckCircle2 className="w-4 h-4 text-emerald-600" />}
@@ -1618,7 +1604,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       <div
                         key={day}
                         onClick={() => setSelectedCalendarDay(dateStr)}
-                        className={`min-h-[70px] p-1.5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between text-left ${isSelected
+                        className={`min-h-[70px] p-1.5 rounded-md border transition-all cursor-pointer flex flex-col justify-between text-left ${isSelected
                             ? 'ring-2 ring-[#1E3A8A] bg-blue-50/50 border-blue-300'
                             : hasConflict
                               ? 'bg-red-50/60 border-red-200'
@@ -1652,7 +1638,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </h4>
                   <div className="space-y-2">
                     {bookings.filter(b => b.eventDate === selectedCalendarDay).map(b => (
-                      <div key={b.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+                      <div key={b.id} className="flex items-center justify-between p-3 rounded-md bg-slate-50 border border-slate-200 text-xs">
                         <div>
                           <span className="font-bold text-slate-900">{b.eventTitle}</span>
                           <span className="text-slate-500 ml-2">({b.venue})</span>
@@ -1675,7 +1661,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           {activeSection === 'payments' && (
             <div className="space-y-6">
               {/* Prioritized Pending Verification Queue */}
-              <Card className="rounded-2xl border-orange-200 bg-orange-50/30 shadow-xs p-6 space-y-4">
+              <Card className="rounded-md border-orange-200 bg-orange-50/30 shadow-sm p-6 space-y-4">
                 <div className="flex items-center justify-between pb-3 border-b border-orange-200/80">
                   <div className="flex items-center gap-2">
                     <AlertCircle className="w-5 h-5 text-orange-600" />
@@ -1695,7 +1681,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                 <div className="space-y-2.5">
                   {pendingVerificationPaymentsList.map((p) => (
-                    <div key={p.id} className="p-4 rounded-xl bg-white border border-orange-200 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div key={p.id} className="p-4 rounded-md bg-white border border-orange-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="font-bold text-xs text-slate-900">{p.clientName}</span>
@@ -1711,7 +1697,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         <Button
                           size="sm"
                           onClick={() => handleViewReceipt(p)}
-                          className="rounded-lg text-xs font-bold bg-orange-500 hover:bg-orange-600 text-white shadow-xs gap-1.5"
+                          className="rounded-md text-xs font-bold bg-orange-500 hover:bg-orange-600 text-white shadow-sm gap-1.5"
                         >
                           <Eye className="w-3.5 h-3.5" />
                           <span>Review Proof & Verify</span>
@@ -1721,7 +1707,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   ))}
 
                   {pendingVerificationPaymentsList.length === 0 && (
-                    <div className="p-6 text-center text-xs text-slate-500 bg-white rounded-xl border border-slate-200">
+                    <div className="p-6 text-center text-xs text-slate-500 bg-white rounded-md border border-slate-200">
                       All customer payment submissions have been reviewed and verified.
                     </div>
                   )}
@@ -1729,7 +1715,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </Card>
 
               {/* All Transactions History Table */}
-              <Card className="rounded-2xl border-slate-200/90 shadow-xs bg-white p-6 space-y-4">
+              <Card className="rounded-md border-slate-200/90 shadow-sm bg-white p-6 space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
                   <div>
                     <h3 className="text-sm font-extrabold text-[#1E3A8A] flex items-center gap-2">
@@ -1746,14 +1732,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         placeholder="Search payments..."
                         value={paymentSearch}
                         onChange={e => setPaymentSearch(e.target.value)}
-                        className="pl-8 text-xs rounded-xl h-9 bg-slate-50 border-slate-200"
+                        className="pl-8 text-xs rounded-md h-9 bg-slate-50 border-slate-200"
                       />
                     </div>
 
                     <select
                       value={paymentFilter}
                       onChange={e => setPaymentFilter(e.target.value)}
-                      className="text-xs h-9 px-3 rounded-xl border border-slate-200 bg-slate-50 font-semibold text-slate-700"
+                      className="text-xs h-9 px-3 rounded-md border border-slate-200 bg-slate-50 font-semibold text-slate-700"
                     >
                       <option value="ALL">All Records</option>
                       <option value="VERIFIED">Verified</option>
@@ -1763,7 +1749,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </div>
                 </div>
 
-                <div className="overflow-x-auto rounded-xl border border-slate-200">
+                <div className="overflow-x-auto rounded-md border border-slate-200">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
                       <tr className="bg-slate-100/75 text-slate-700 font-bold border-b border-slate-200">
@@ -1802,7 +1788,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               variant="outline"
                               size="sm"
                               onClick={() => handleViewReceipt(p)}
-                              className="h-7 px-2 text-xs rounded-lg font-semibold"
+                              className="h-7 px-2 text-xs rounded-md font-semibold"
                             >
                               Inspect
                             </Button>
@@ -1820,7 +1806,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           {/* SECTION 7: SERVICES CATALOG MODULE                       */}
           {/* ======================================================== */}
           {activeSection === 'services' && (
-            <Card className="rounded-2xl border-slate-200/90 shadow-xs bg-white p-6 space-y-4">
+            <Card className="rounded-md border-slate-200/90 shadow-sm bg-white p-6 space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
                 <div>
                   <h3 className="text-sm font-extrabold text-[#1E3A8A] flex items-center gap-2">
@@ -1837,7 +1823,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       placeholder="Search services..."
                       value={serviceSearch}
                       onChange={e => setServiceSearch(e.target.value)}
-                      className="pl-8 text-xs rounded-xl h-9 bg-slate-50 border-slate-200"
+                      className="pl-8 text-xs rounded-md h-9 bg-slate-50 border-slate-200"
                     />
                   </div>
 
@@ -1848,7 +1834,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       setServiceToEdit(null);
                       setIsServiceModalOpen(true);
                     }}
-                    className="rounded-xl text-xs font-bold gap-1.5 bg-[#1E3A8A] text-white"
+                    className="rounded-md text-xs font-bold gap-1.5 bg-[#1E3A8A] text-white"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>Add Service</span>
@@ -1862,7 +1848,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   return (
                     <div
                       key={srv.id}
-                      className={`p-5 rounded-2xl border flex flex-col justify-between space-y-3 transition-all ${isDisabled ? 'bg-slate-50/85 border-dashed border-red-200 shadow-2xs' : 'bg-white border-slate-200 hover:border-blue-300 shadow-xs'
+                      className={`p-5 rounded-md border flex flex-col justify-between space-y-3 transition-all ${isDisabled ? 'bg-slate-50/85 border-dashed border-red-200 shadow-sm' : 'bg-white border-slate-200 hover:border-blue-300 shadow-sm'
                         }`}
                     >
                       <div className="space-y-2">
@@ -1890,7 +1876,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           </div>
                         </div>
                         <p className={`text-xs ${isDisabled ? 'text-slate-400' : 'text-slate-600'} line-clamp-2`}>{srv.shortDesc}</p>
-                        <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between text-xs">
+                        <div className="p-2.5 rounded-md bg-slate-50 border border-slate-100 flex items-center justify-between text-xs">
                           <span className="text-slate-500">Starting Price:</span>
                           <span className="font-extrabold text-[#1E3A8A]">₱{srv.startingPrice.toLocaleString()} PHP</span>
                         </div>
@@ -1901,7 +1887,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         <Button
                           size="sm"
                           onClick={() => onToggleServiceActive(srv.id)}
-                          className={`text-xs h-7.5 px-3 rounded-xl font-bold transition-all duration-200 flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 ${!isDisabled
+                          className={`text-xs h-7.5 px-3 rounded-md font-bold transition-all duration-200 flex items-center gap-1.5 shadow-sm cursor-pointer active:scale-95 ${!isDisabled
                               ? 'bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-700 hover:shadow-emerald-200'
                               : 'bg-red-600 hover:bg-red-700 text-white border border-red-700 hover:shadow-red-200'
                             }`}
@@ -1928,7 +1914,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               setServiceToEdit(srv);
                               setIsServiceModalOpen(true);
                             }}
-                            className="text-xs h-7.5 px-2.5 font-bold text-[#1E3A8A] rounded-xl border-slate-200"
+                            className="text-xs h-7.5 px-2.5 font-bold text-[#1E3A8A] rounded-md border-slate-200"
                           >
                             <Edit3 className="w-3 h-3 mr-1" />
                             <span>Edit</span>
@@ -1937,7 +1923,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             variant="ghost"
                             size="sm"
                             onClick={() => onDeleteService(srv.id)}
-                            className="text-xs h-7.5 w-7.5 p-0 text-slate-400 hover:text-red-600 rounded-xl"
+                            className="text-xs h-7.5 w-7.5 p-0 text-slate-400 hover:text-red-600 rounded-md"
                             title="Delete service"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -1955,7 +1941,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           {/* SECTION 8: PACKAGES MODULE                               */}
           {/* ======================================================== */}
           {activeSection === 'packages' && (
-            <Card className="rounded-2xl border-slate-200/90 shadow-xs bg-white p-6 space-y-4">
+            <Card className="rounded-md border-slate-200/90 shadow-sm bg-white p-6 space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
                 <div>
                   <h3 className="text-sm font-extrabold text-[#1E3A8A] flex items-center gap-2">
@@ -1972,7 +1958,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     setPackageToEdit(null);
                     setIsPackageModalOpen(true);
                   }}
-                  className="rounded-xl text-xs font-bold gap-1.5 bg-orange-500 hover:bg-orange-600 text-white"
+                  className="rounded-md text-xs font-bold gap-1.5 bg-orange-500 hover:bg-orange-600 text-white"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Create Package</span>
@@ -1985,7 +1971,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   return (
                     <div
                       key={pkg.id}
-                      className={`p-5 rounded-2xl border flex flex-col justify-between space-y-3 transition-all ${isDisabled ? 'bg-slate-50/85 border-dashed border-red-200 shadow-2xs' : 'bg-white border-slate-200 hover:border-blue-300 shadow-xs'
+                      className={`p-5 rounded-md border flex flex-col justify-between space-y-3 transition-all ${isDisabled ? 'bg-slate-50/85 border-dashed border-red-200 shadow-sm' : 'bg-white border-slate-200 hover:border-blue-300 shadow-sm'
                         }`}
                     >
                       <div className="space-y-2">
@@ -2010,7 +1996,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           <Badge variant="blue" className="text-[10px] shrink-0">{pkg.capacity}</Badge>
                         </div>
 
-                        <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs flex justify-between items-center">
+                        <div className="p-3 rounded-md bg-slate-50 border border-slate-100 text-xs flex justify-between items-center">
                           <span className="text-slate-500">Package Rate:</span>
                           <span className="font-extrabold text-base text-[#1E3A8A]">₱{pkg.price.toLocaleString()} PHP</span>
                         </div>
@@ -2021,7 +2007,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         <Button
                           size="sm"
                           onClick={() => onTogglePackageActive(pkg.id)}
-                          className={`text-xs h-7.5 px-3 rounded-xl font-bold transition-all duration-200 flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 ${!isDisabled
+                          className={`text-xs h-7.5 px-3 rounded-md font-bold transition-all duration-200 flex items-center gap-1.5 shadow-sm cursor-pointer active:scale-95 ${!isDisabled
                               ? 'bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-700 hover:shadow-emerald-200'
                               : 'bg-red-600 hover:bg-red-700 text-white border border-red-700 hover:shadow-red-200'
                             }`}
@@ -2048,7 +2034,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               setPackageToEdit(pkg);
                               setIsPackageModalOpen(true);
                             }}
-                            className="text-xs h-7.5 px-2.5 font-bold text-[#1E3A8A] rounded-xl border-slate-200"
+                            className="text-xs h-7.5 px-2.5 font-bold text-[#1E3A8A] rounded-md border-slate-200"
                           >
                             <Edit3 className="w-3 h-3 mr-1" />
                             <span>Edit</span>
@@ -2057,7 +2043,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             variant="ghost"
                             size="sm"
                             onClick={() => onDeletePackage(pkg.id)}
-                            className="text-xs h-7.5 w-7.5 p-0 text-slate-400 hover:text-red-600 rounded-xl"
+                            className="text-xs h-7.5 w-7.5 p-0 text-slate-400 hover:text-red-600 rounded-md"
                             title="Delete package"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -2075,7 +2061,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           {/* SECTION 9: EQUIPMENT & INVENTORY MODULE                  */}
           {/* ======================================================== */}
           {activeSection === 'equipment' && (
-            <Card className="rounded-2xl border-slate-200/90 shadow-xs bg-white p-6 space-y-4">
+            <Card className="rounded-md border-slate-200/90 shadow-sm bg-white p-6 space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
                 <div>
                   <h3 className="text-sm font-extrabold text-[#1E3A8A] flex items-center gap-2">
@@ -2092,7 +2078,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     setEquipmentToEdit(null);
                     setIsEquipmentModalOpen(true);
                   }}
-                  className="rounded-xl text-xs font-bold gap-1.5 bg-[#1E3A8A] text-white"
+                  className="rounded-md text-xs font-bold gap-1.5 bg-[#1E3A8A] text-white"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Add Equipment</span>
@@ -2101,7 +2087,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredEquipment.map(eq => (
-                  <div key={eq.id} className="p-4 rounded-xl border border-slate-200 bg-white shadow-2xs space-y-2">
+                  <div key={eq.id} className="p-4 rounded-md border border-slate-200 bg-white shadow-sm space-y-2">
                     <div className="flex items-start justify-between">
                       <div>
                         <h4 className="font-bold text-xs text-slate-900">{eq.name}</h4>
@@ -2112,7 +2098,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       </Badge>
                     </div>
 
-                    <div className="p-2 rounded-lg bg-slate-50 flex items-center justify-between text-xs">
+                    <div className="p-2 rounded-md bg-slate-50 flex items-center justify-between text-xs">
                       <span className="text-slate-500 text-[11px]">Available:</span>
                       <span className="font-bold text-slate-800">{eq.availableUnits} / {eq.quantity} {eq.unit}</span>
                     </div>
@@ -2148,7 +2134,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           {/* SECTION 10: STAFF ROSTER MODULE                          */}
           {/* ======================================================== */}
           {activeSection === 'staff' && (
-            <Card className="rounded-2xl border-slate-200/90 shadow-xs bg-white p-6 space-y-4">
+            <Card className="rounded-md border-slate-200/90 shadow-sm bg-white p-6 space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
                 <div>
                   <h3 className="text-sm font-extrabold text-[#1E3A8A] flex items-center gap-2">
@@ -2165,14 +2151,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       placeholder="Search crew & staff..."
                       value={staffSearch}
                       onChange={e => setStaffSearch(e.target.value)}
-                      className="pl-8 text-xs rounded-xl h-9 bg-slate-50 border-slate-200"
+                      className="pl-8 text-xs rounded-md h-9 bg-slate-50 border-slate-200"
                     />
                   </div>
 
                   <Button
                     size="sm"
                     onClick={() => setIsCreateAccountModalOpen(true)}
-                    className="rounded-xl text-xs font-bold gap-1.5 bg-[#1E3A8A] hover:bg-[#1E3A8A]/90 text-white shrink-0 shadow-xs cursor-pointer"
+                    className="rounded-md text-xs font-bold gap-1.5 bg-[#1E3A8A] hover:bg-[#1E3A8A]/90 text-white shrink-0 shadow-sm cursor-pointer"
                   >
                     <ShieldCheck className="w-3.5 h-3.5" />
                     <span>Add Staff / Admin</span>
@@ -2182,7 +2168,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredStaff.map(st => (
-                  <div key={st.id} className="p-4 rounded-xl border border-slate-200 bg-white shadow-2xs space-y-3">
+                  <div key={st.id} className="p-4 rounded-md border border-slate-200 bg-white shadow-sm space-y-3">
                     <div className="flex items-center gap-3">
                       <Avatar className="w-10 h-10 bg-blue-50 text-[#1E3A8A] text-xs font-extrabold border border-blue-100">
                         <AvatarFallback>{st.name.slice(0, 2).toUpperCase()}</AvatarFallback>
@@ -2259,11 +2245,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                 return (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <Card className="rounded-2xl border-slate-200/90 shadow-xs bg-white p-5">
+                    <Card className="rounded-md border-slate-200/90 shadow-sm bg-white p-5">
                       <CardContent className="p-0 space-y-1.5">
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] font-bold uppercase text-slate-400">Average Overall Rating</span>
-                          <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-md bg-amber-50 text-amber-600 flex items-center justify-center">
                             <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
                           </div>
                         </div>
@@ -2277,11 +2263,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       </CardContent>
                     </Card>
 
-                    <Card className="rounded-2xl border-slate-200/90 shadow-xs bg-white p-5">
+                    <Card className="rounded-md border-slate-200/90 shadow-sm bg-white p-5">
                       <CardContent className="p-0 space-y-1.5">
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] font-bold uppercase text-slate-400">Service Quality</span>
-                          <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#1E3A8A] flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-md bg-blue-50 text-[#1E3A8A] flex items-center justify-center">
                             <Wrench className="w-4 h-4" />
                           </div>
                         </div>
@@ -2295,11 +2281,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       </CardContent>
                     </Card>
 
-                    <Card className="rounded-2xl border-slate-200/90 shadow-xs bg-white p-5">
+                    <Card className="rounded-md border-slate-200/90 shadow-sm bg-white p-5">
                       <CardContent className="p-0 space-y-1.5">
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] font-bold uppercase text-slate-400">Staff Performance</span>
-                          <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center">
                             <Users className="w-4 h-4" />
                           </div>
                         </div>
@@ -2313,11 +2299,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       </CardContent>
                     </Card>
 
-                    <Card className="rounded-2xl border-slate-200/90 shadow-xs bg-white p-5">
+                    <Card className="rounded-md border-slate-200/90 shadow-sm bg-white p-5">
                       <CardContent className="p-0 space-y-1.5">
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] font-bold uppercase text-slate-400">Completion & Feedback</span>
-                          <div className="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-md bg-purple-50 text-purple-600 flex items-center justify-center">
                             <CheckCircle2 className="w-4 h-4" />
                           </div>
                         </div>
@@ -2336,7 +2322,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               })()}
 
               {/* Evaluations List Card */}
-              <Card className="rounded-2xl border-slate-200/90 shadow-xs bg-white p-6 space-y-4">
+              <Card className="rounded-md border-slate-200/90 shadow-sm bg-white p-6 space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
                   <div>
                     <h3 className="text-sm font-extrabold text-[#1E3A8A] flex items-center gap-2">
@@ -2357,7 +2343,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       return (
                         <div
                           key={fb.id}
-                          className="p-5 rounded-2xl border border-slate-200/90 bg-white hover:border-amber-200 transition-colors space-y-3"
+                          className="p-5 rounded-md border border-slate-200/90 bg-white hover:border-amber-200 transition-colors space-y-3"
                         >
                           <div className="flex items-start justify-between gap-2 pb-2 border-b border-slate-100">
                             <div>
@@ -2376,7 +2362,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               </span>
                             </div>
 
-                            <div className="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-xl border border-amber-200 shrink-0">
+                            <div className="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200 shrink-0">
                               <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                               <span className="font-mono text-xs font-extrabold text-amber-900">
                                 {fb.overallRating}/5
@@ -2386,15 +2372,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                           {/* Ratings Matrix */}
                           <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                            <div className="p-2 rounded-xl bg-slate-50 border border-slate-100">
+                            <div className="p-2 rounded-md bg-slate-50 border border-slate-100">
                               <span className="text-[10px] text-slate-400 block font-medium">Service</span>
                               <span className="font-bold text-slate-800">{fb.serviceRating}/5</span>
                             </div>
-                            <div className="p-2 rounded-xl bg-slate-50 border border-slate-100">
+                            <div className="p-2 rounded-md bg-slate-50 border border-slate-100">
                               <span className="text-[10px] text-slate-400 block font-medium">Staff</span>
                               <span className="font-bold text-slate-800">{fb.staffRating}/5</span>
                             </div>
-                            <div className="p-2 rounded-xl bg-slate-50 border border-slate-100">
+                            <div className="p-2 rounded-md bg-slate-50 border border-slate-100">
                               <span className="text-[10px] text-slate-400 block font-medium">Execution</span>
                               <span className="font-bold text-slate-800">{fb.executionRating}/5</span>
                             </div>
@@ -2402,7 +2388,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                           {/* Written Feedback Comments */}
                           {fb.comments && (
-                            <div className="p-3 rounded-xl bg-slate-50/70 text-xs text-slate-700 italic border border-slate-100">
+                            <div className="p-3 rounded-md bg-slate-50/70 text-xs text-slate-700 italic border border-slate-100">
                               "{fb.comments}"
                             </div>
                           )}
@@ -2430,8 +2416,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     })}
                   </div>
                 ) : (
-                  <div className="p-8 rounded-2xl bg-slate-50 border border-slate-200/80 text-center space-y-2">
-                    <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
+                  <div className="p-8 rounded-md bg-slate-50 border border-slate-200/80 text-center space-y-2">
+                    <div className="w-10 h-10 rounded-md bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
                       <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
                     </div>
                     <div className="text-xs font-bold text-slate-800">No Customer Evaluations Yet</div>

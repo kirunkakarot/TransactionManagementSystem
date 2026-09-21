@@ -228,12 +228,12 @@ export const BookingEditorModal: React.FC<BookingEditorModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-white rounded-md shadow-2xl border border-slate-200 w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         
         {/* Header */}
         <div className="px-6 py-4.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#1E3A8A] text-white flex items-center justify-center font-extrabold shadow-sm">
+            <div className="w-10 h-10 rounded-md bg-[#1E3A8A] text-white flex items-center justify-center font-extrabold shadow-sm">
               <Calendar className="w-5 h-5 text-orange-400" />
             </div>
             <div>
@@ -308,7 +308,7 @@ export const BookingEditorModal: React.FC<BookingEditorModalProps> = ({
                   onChange={e => setBookingId(e.target.value)}
                   placeholder="BK-2026-XXXX"
                   required
-                  className="rounded-xl font-mono text-xs font-bold text-[#1E3A8A] bg-blue-50/50 border-blue-200"
+                  className="rounded-md font-mono text-xs font-bold text-[#1E3A8A] bg-blue-50/50 border-blue-200"
                 />
               </div>
 
@@ -321,7 +321,7 @@ export const BookingEditorModal: React.FC<BookingEditorModalProps> = ({
                   onChange={e => setClientName(e.target.value)}
                   placeholder="e.g. Aria Ramos / Ayala Corp"
                   required
-                  className="rounded-xl text-xs"
+                  className="rounded-md text-xs"
                 />
               </div>
 
@@ -334,7 +334,7 @@ export const BookingEditorModal: React.FC<BookingEditorModalProps> = ({
                   value={clientEmail}
                   onChange={e => setClientEmail(e.target.value)}
                   placeholder="client@example.com"
-                  className="rounded-xl text-xs"
+                  className="rounded-md text-xs"
                 />
               </div>
             </div>
@@ -348,7 +348,7 @@ export const BookingEditorModal: React.FC<BookingEditorModalProps> = ({
                   value={clientPhone}
                   onChange={e => setClientPhone(e.target.value)}
                   placeholder="0917-000-0000"
-                  className="rounded-xl text-xs"
+                  className="rounded-md text-xs"
                 />
               </div>
 
@@ -361,7 +361,7 @@ export const BookingEditorModal: React.FC<BookingEditorModalProps> = ({
                   onChange={e => setEventTitle(e.target.value)}
                   placeholder="e.g. Kenzo & Camille Grand Wedding"
                   required
-                  className="rounded-xl text-xs font-semibold"
+                  className="rounded-md text-xs font-semibold"
                 />
               </div>
 
@@ -372,7 +372,7 @@ export const BookingEditorModal: React.FC<BookingEditorModalProps> = ({
                 <select
                   value={eventType}
                   onChange={e => setEventType(e.target.value)}
-                  className="w-full h-9 rounded-xl border border-slate-200 bg-white px-3 text-xs focus:ring-2 focus:ring-[#1E3A8A]"
+                  className="w-full h-9 rounded-md border border-slate-200 bg-white px-3 text-xs focus:ring-2 focus:ring-[#1E3A8A]"
                 >
                   <option value="Grand Wedding">Grand Wedding</option>
                   <option value="18th Debut Milestone Celebration">18th Debut Milestone Celebration</option>
@@ -402,7 +402,7 @@ export const BookingEditorModal: React.FC<BookingEditorModalProps> = ({
                   value={eventDate}
                   onChange={e => setEventDate(e.target.value)}
                   required
-                  className="rounded-xl text-xs font-bold text-[#1E3A8A]"
+                  className="rounded-md text-xs font-bold text-[#1E3A8A]"
                 />
               </div>
 
@@ -414,7 +414,7 @@ export const BookingEditorModal: React.FC<BookingEditorModalProps> = ({
                   type="time"
                   value={startTime}
                   onChange={e => setStartTime(e.target.value)}
-                  className="rounded-xl text-xs"
+                  className="rounded-md text-xs"
                 />
               </div>
 
@@ -426,7 +426,7 @@ export const BookingEditorModal: React.FC<BookingEditorModalProps> = ({
                   type="time"
                   value={endTime}
                   onChange={e => setEndTime(e.target.value)}
-                  className="rounded-xl text-xs"
+                  className="rounded-md text-xs"
                 />
               </div>
 
@@ -441,7 +441,7 @@ export const BookingEditorModal: React.FC<BookingEditorModalProps> = ({
                   value={guestCount}
                   onChange={e => setGuestCount(Number(e.target.value))}
                   required
-                  className="rounded-xl text-xs"
+                  className="rounded-md text-xs"
                 />
               </div>
             </div>
@@ -456,7 +456,7 @@ export const BookingEditorModal: React.FC<BookingEditorModalProps> = ({
                   onChange={e => setVenue(e.target.value)}
                   placeholder="e.g. Grand Palazzo Royale, Ballroom A"
                   required
-                  className="rounded-xl text-xs"
+                  className="rounded-md text-xs"
                 />
               </div>
 
@@ -467,7 +467,7 @@ export const BookingEditorModal: React.FC<BookingEditorModalProps> = ({
                 <select
                   value={status}
                   onChange={e => setStatus(e.target.value as Booking['status'])}
-                  className="w-full h-9 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-[#1E3A8A]"
+                  className="w-full h-9 rounded-md border border-slate-200 bg-white px-3 text-xs font-bold text-[#1E3A8A]"
                 >
                   <option value="Tentative">Tentative (Slot Held)</option>
                   <option value="Confirmed">Confirmed (Deposit Received)</option>
@@ -499,9 +499,9 @@ export const BookingEditorModal: React.FC<BookingEditorModalProps> = ({
                   <div
                     key={staff.id}
                     onClick={() => handleToggleStaff(staff.id)}
-                    className={`p-2.5 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
+                    className={`p-2.5 rounded-md border cursor-pointer transition-all flex flex-col justify-between ${
                       isSelected 
-                        ? 'bg-purple-50 border-purple-300 shadow-xs' 
+                        ? 'bg-purple-50 border-purple-300 shadow-sm' 
                         : 'bg-white border-slate-200 hover:border-slate-300'
                     }`}
                   >
@@ -546,7 +546,7 @@ export const BookingEditorModal: React.FC<BookingEditorModalProps> = ({
                     <div
                       key={pkg.id}
                       onClick={() => handleTogglePackage(pkg.id)}
-                      className={`p-2.5 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
+                      className={`p-2.5 rounded-md border cursor-pointer transition-all flex items-center justify-between ${
                         isSelected ? 'bg-indigo-50 border-indigo-300' : 'bg-white border-slate-200'
                       }`}
                     >
@@ -575,7 +575,7 @@ export const BookingEditorModal: React.FC<BookingEditorModalProps> = ({
                     <div
                       key={srv.id}
                       onClick={() => handleToggleService(srv.id)}
-                      className={`p-2 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
+                      className={`p-2 rounded-md border cursor-pointer transition-all flex items-center justify-between ${
                         isSelected ? 'bg-blue-50 border-blue-300' : 'bg-white border-slate-200'
                       }`}
                     >
@@ -608,7 +608,7 @@ export const BookingEditorModal: React.FC<BookingEditorModalProps> = ({
                 value={totalAmount}
                 onChange={e => setTotalAmount(Number(e.target.value))}
                 required
-                className="rounded-xl text-sm font-extrabold text-[#1E3A8A]"
+                className="rounded-md text-sm font-extrabold text-[#1E3A8A]"
               />
             </div>
 
@@ -620,7 +620,7 @@ export const BookingEditorModal: React.FC<BookingEditorModalProps> = ({
                 value={notes}
                 onChange={e => setNotes(e.target.value)}
                 placeholder="Ingress call time, special stage requests, client preferences..."
-                className="rounded-xl text-xs"
+                className="rounded-md text-xs"
               />
             </div>
           </div>
@@ -639,7 +639,7 @@ export const BookingEditorModal: React.FC<BookingEditorModalProps> = ({
               variant="outline"
               size="sm"
               onClick={onClose}
-              className="rounded-xl text-xs font-semibold"
+              className="rounded-md text-xs font-semibold"
             >
               Cancel
             </Button>
@@ -648,7 +648,7 @@ export const BookingEditorModal: React.FC<BookingEditorModalProps> = ({
               variant="brand"
               size="sm"
               onClick={handleSubmit}
-              className="rounded-xl text-xs font-bold bg-orange-500 hover:bg-orange-600 text-white shadow-xs"
+              className="rounded-md text-xs font-bold bg-orange-500 hover:bg-orange-600 text-white shadow-sm"
             >
               <ShieldCheck className="w-4 h-4 mr-1" />
               <span>{isEditing ? 'Update Booking Record' : 'Confirm & Save Booking'}</span>

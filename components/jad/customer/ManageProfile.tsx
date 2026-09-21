@@ -158,6 +158,7 @@ export const ManageProfile: React.FC<ManageProfileProps> = ({
 
   useEffect(() => {
     loadProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle Personal Info Update
