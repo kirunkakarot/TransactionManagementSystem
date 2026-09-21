@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { checkAuth } from '../../../../lib/auth';
-import { writeFile, mkdir } from 'fs/promises';
+import { put } from '@vercel/blob';
 import path from 'path';
 import crypto from 'crypto';
 
@@ -66,13 +66,13 @@ export async function POST(req: Request) {
 
     // 5. Generate Safe Unique Filename
     const randomName = `${Date.now()}_${crypto.randomBytes(12).toString('hex')}${ext}`;
-    const storageDir = path.join(process.cwd(), 'storage', 'payments');
-    await mkdir(storageDir, { recursive: true });
 
-    const filePath = path.join(storageDir, randomName);
-    await writeFile(filePath, buffer);
+    // Upload directly to Vercel Blob
+    const blob = await put(`payments/${randomName}`, file, {
+      access: 'public',
+    });
 
-    const secureProofUrl = `/api/payments/proof/${randomName}`;
+    const secureProofUrl = blob.url;
 
     return NextResponse.json({
       success: true,
