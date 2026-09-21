@@ -6,6 +6,7 @@ import {
   linkGoogleIdentity, 
   createGoogleUser 
 } from '../../../../../models/userModel';
+import { getOAuthRedirectUri } from '../../../../../lib/auth';
 
 const generateToken = (id: number | string, role: string = 'Customer') => {
   const secret = process.env.JWT_SECRET;
@@ -49,9 +50,8 @@ export async function GET(req: Request) {
       return NextResponse.json({ message: 'Server configuration error' }, { status: 500 });
     }
 
-    // Determine redirect URI
-    const origin = process.env.NEXT_PUBLIC_APP_URL || `${url.protocol}//${url.host}`;
-    const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${origin}/api/auth/google/callback`;
+    // Determine redirect URI using trusted configuration
+    const redirectUri = getOAuthRedirectUri();
 
     // Exchange code for tokens
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
@@ -122,7 +122,9 @@ export async function GET(req: Request) {
     // Generate session tokens
     const token = generateToken(user.id, user.role || 'Customer');
 
-    const response = NextResponse.redirect(new URL('/customer', origin));
+    // Extract base origin from redirectUri for the final redirect
+    const trustedOrigin = new URL(redirectUri).origin;
+    const response = NextResponse.redirect(new URL('/customer', trustedOrigin));
     
     // Clear oauth_state cookie
     response.cookies.delete('oauth_state');
