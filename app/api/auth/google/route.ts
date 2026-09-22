@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { getOAuthRedirectUri } from '../../../../lib/auth';
 
 export async function GET(req: Request) {
   try {
@@ -9,10 +10,8 @@ export async function GET(req: Request) {
       return NextResponse.json({ message: 'Server configuration error' }, { status: 500 });
     }
 
-    // Determine base URL dynamically if possible, fallback to env or localhost
-    const url = new URL(req.url);
-    const origin = process.env.NEXT_PUBLIC_APP_URL || `${url.protocol}//${url.host}`;
-    const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${origin}/api/auth/google/callback`;
+    // Determine redirect URI using trusted configuration
+    const redirectUri = getOAuthRedirectUri();
 
     const state = crypto.randomBytes(32).toString('hex');
 

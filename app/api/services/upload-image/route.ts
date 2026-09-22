@@ -9,15 +9,16 @@ const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
 export async function POST(req: Request) {
-  const auth = await checkAuth(req, false);
+  // Ensure the user is authenticated and authorized (admin/staff)
+  const auth = await checkAuth(req, true);
   if (auth.error) return auth.error;
 
   try {
     const formData = await req.formData();
-    const file = formData.get('proof') as File | null;
+    const file = formData.get('image') as File | null;
 
     if (!file) {
-      return NextResponse.json({ message: 'No proof file provided in request' }, { status: 400 });
+      return NextResponse.json({ message: 'No image file provided in request' }, { status: 400 });
     }
 
     // 1. File Size Validation
@@ -67,17 +68,17 @@ export async function POST(req: Request) {
     // 5. Generate Safe Unique Filename
     const randomName = `${Date.now()}_${crypto.randomBytes(12).toString('hex')}${ext}`;
 
-    // Upload directly to Vercel Blob
-    const blob = await put(`payments/${randomName}`, file, {
+    // Upload directly to Vercel Blob under the 'services' folder
+    const blob = await put(`services/${randomName}`, file, {
       access: 'public',
     });
 
-    const secureProofUrl = blob.url;
+    const secureImageUrl = blob.url;
 
     return NextResponse.json({
       success: true,
-      message: 'Payment proof screenshot uploaded successfully. Pending administrator verification.',
-      proofUrl: secureProofUrl,
+      message: 'Service image uploaded successfully.',
+      imageUrl: secureImageUrl,
       fileName: randomName,
       fileSize: file.size,
     });
