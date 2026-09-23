@@ -1,3 +1,12 @@
+export interface EventType {
+  id: number;
+  name: string;
+  description?: string;
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface EquipmentResource {
   id: string;
   name: string;
@@ -24,6 +33,7 @@ export interface ServiceItem {
   inclusions: string[];
   isActive?: boolean;
   equipmentResources?: EquipmentResource[];
+  eventTypes?: EventType[] | number[];
 }
 
 export interface PackageItem {
@@ -39,6 +49,7 @@ export interface PackageItem {
   inclusions: string[];
   features: string[];
   servicesIncluded?: string[];
+  eventTypes?: EventType[] | number[];
 }
 
 export interface WorkflowStep {
@@ -58,6 +69,8 @@ export interface InquiryFormData {
   email: string;
   phone: string;
   eventType: string;
+  eventTypeId?: number | null;
+  customEventDescription?: string | null;
   eventDate: string;
   venue: string;
   guestCount: number;
@@ -116,6 +129,7 @@ export interface Quotation {
   validUntil: string;
   validityDays: number;
   status: 'Draft' | 'Quotation Sent' | 'Accepted' | 'Deposit Paid' | 'Confirmed' | 'Expired' | 'Declined';
+  adminComment?: string | null;
   notes: string;
   terms: string[];
   createdAt: string;

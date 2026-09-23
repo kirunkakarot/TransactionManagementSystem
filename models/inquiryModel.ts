@@ -8,6 +8,8 @@ export interface InquiryInput {
   clientEmail?: string | null;
   clientPhone?: string | null;
   eventType: string;
+  eventTypeId?: number | null;
+  customEventDescription?: string | null;
   eventDate: string | Date;
   eventVenue: string;
   guestsCount: number;
@@ -55,6 +57,8 @@ export const createInquiry = async (data: InquiryInput) => {
       clientEmail: data.clientEmail || null,
       clientPhone: data.clientPhone || null,
       eventType: data.eventType,
+      eventTypeId: data.eventTypeId || null,
+      customEventDescription: data.customEventDescription || null,
       eventDate: eventDateParsed,
       eventVenue: data.eventVenue,
       guestsCount: Number(data.guestsCount) || 100,
@@ -145,6 +149,29 @@ export const getInquiriesByCustomerEmail = async (email: string) => {
     include: {
       quotations: true,
       bookings: true,
+    },
+  });
+};
+
+export const updateInquiryClassification = async (id: number | string, eventTypeId: number, eventTypeName: string) => {
+  const inquiryId = typeof id === 'string' ? parseInt(id, 10) : id;
+  let existing;
+
+  if (isNaN(inquiryId)) {
+    existing = await getInquiryByTrackingId(String(id));
+  } else {
+    existing = await prisma.inquiry.findUnique({ where: { id: inquiryId } });
+  }
+
+  if (!existing) {
+    throw new Error('Inquiry not found');
+  }
+
+  return await prisma.inquiry.update({
+    where: { id: existing.id },
+    data: { 
+      eventTypeId,
+      eventType: eventTypeName
     },
   });
 };

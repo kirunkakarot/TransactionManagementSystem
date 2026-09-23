@@ -858,10 +858,6 @@ export type PaymentTransactionUncheckedUpdateManyWithoutBookingNestedInput = {
   deleteMany?: Prisma.PaymentTransactionScalarWhereInput | Prisma.PaymentTransactionScalarWhereInput[]
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type PaymentTransactionCreateWithoutQuotationInput = {
   paymentRef: string
   receiptNumber: string

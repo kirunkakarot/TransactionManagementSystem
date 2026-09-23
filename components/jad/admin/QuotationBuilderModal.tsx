@@ -82,6 +82,7 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
 
   // Status & Notes
   const [status, setStatus] = useState<Quotation['status']>('Draft');
+  const [adminComment, setAdminComment] = useState('');
   const [notes, setNotes] = useState('Standard equipment setup and professional event management included.');
   const [terms, setTerms] = useState<string[]>([
     'A 50% reservation downpayment is required to lock production crews and calendar slots.',
@@ -106,6 +107,7 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
       setValidityDays(existingQuotation.validityDays || 14);
       setValidUntil(existingQuotation.validUntil);
       setStatus(existingQuotation.status);
+      setAdminComment(existingQuotation.adminComment || '');
       setNotes(existingQuotation.notes);
       setTerms(existingQuotation.terms);
     } else if (inquiry) {
@@ -294,6 +296,7 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
       validUntil,
       validityDays,
       status: 'Quotation Sent',
+      adminComment,
       notes,
       terms,
       createdAt: existingQuotation?.createdAt || new Date().toISOString().split('T')[0],
@@ -660,7 +663,22 @@ export const QuotationBuilderModal: React.FC<QuotationBuilderModalProps> = ({
               </div>
             </div>
 
-            {/* 6. Footer Actions */}
+            {/* 6. Admin Comment / Suggestion */}
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-5">
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2 mb-3">
+                <FileText className="w-4 h-4 text-[#1E3A8A]" />
+                Admin Comment / Suggestion
+              </Label>
+              <textarea
+                value={adminComment}
+                onChange={(e) => setAdminComment(e.target.value)}
+                placeholder="Example: The event can be accommodated, but minor adjustments to the requested setup may be necessary depending on venue space and available equipment."
+                className="w-full min-h-[80px] p-3 text-sm text-slate-900 bg-white rounded-md border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent resize-y"
+              />
+              <p className="text-[11px] text-slate-500 mt-1">Optional. This message will be visible to the customer with the quotation.</p>
+            </div>
+
+            {/* 7. Footer Actions */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
               <Button
                 variant="outline"

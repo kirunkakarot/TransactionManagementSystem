@@ -19,11 +19,12 @@ import { toast } from 'sonner';
 import { 
   ServiceItem, 
   PackageItem, 
-  InquiryFormData, 
+  InquiryFormData,
+  EventType
 } from '@/components/jad/types';
 
 import Cookies from 'js-cookie';
-import { fetchServices, fetchPackages } from '@/services/api';
+import { fetchServices, fetchPackages, fetchEventTypes } from '@/services/api';
 
 export default function Homepage() {
   const router = useRouter();
@@ -36,6 +37,7 @@ export default function Homepage() {
   // Centralized Dynamic Services & Packages State
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [packages, setPackages] = useState<PackageItem[]>([]);
+  const [eventTypes, setEventTypes] = useState<EventType[]>([]);
 
   // Modal States
   const [isInquiryModalOpen, setIsInquiryModalOpen] = useState(false);
@@ -94,9 +96,10 @@ export default function Homepage() {
     // Fetch dynamic services and packages from backend
     async function loadData() {
       try {
-        const [servicesRes, packagesRes] = await Promise.all([
+        const [servicesRes, packagesRes, eventTypesRes] = await Promise.all([
           fetchServices('', 100),
           fetchPackages('', 100),
+          fetchEventTypes('', 100)
         ]);
         if (servicesRes.services && servicesRes.services.length > 0) {
           const mappedServices: ServiceItem[] = servicesRes.services.map((s: any) => ({
@@ -292,6 +295,7 @@ export default function Homepage() {
         currentUser={currentUser}
         services={services}
         packages={packages}
+        eventTypes={eventTypes}
         onRequireAuth={() => {
           setIsInquiryModalOpen(false);
           handleOpenAuth('login');

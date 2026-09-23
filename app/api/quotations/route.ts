@@ -56,6 +56,7 @@ export async function POST(req: Request) {
       validUntil: body.validUntil,
       validityDays: body.validityDays,
       status: body.status || 'Quotation Sent',
+      adminComment: body.adminComment,
       notes: body.notes,
       terms: body.terms,
     });

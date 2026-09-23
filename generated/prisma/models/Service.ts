@@ -285,6 +285,7 @@ export type ServiceWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Service"> | Date | string
   updatedAt?: Prisma.DateTimeNullableFilter<"Service"> | Date | string | null
   bookingServices?: Prisma.BookingServiceListRelationFilter
+  eventTypes?: Prisma.EventTypeListRelationFilter
 }
 
 export type ServiceOrderByWithRelationInput = {
@@ -303,6 +304,7 @@ export type ServiceOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   bookingServices?: Prisma.BookingServiceOrderByRelationAggregateInput
+  eventTypes?: Prisma.EventTypeOrderByRelationAggregateInput
 }
 
 export type ServiceWhereUniqueInput = Prisma.AtLeast<{
@@ -324,6 +326,7 @@ export type ServiceWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Service"> | Date | string
   updatedAt?: Prisma.DateTimeNullableFilter<"Service"> | Date | string | null
   bookingServices?: Prisma.BookingServiceListRelationFilter
+  eventTypes?: Prisma.EventTypeListRelationFilter
 }, "id">
 
 export type ServiceOrderByWithAggregationInput = {
@@ -383,6 +386,7 @@ export type ServiceCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   bookingServices?: Prisma.BookingServiceCreateNestedManyWithoutServiceInput
+  eventTypes?: Prisma.EventTypeCreateNestedManyWithoutServicesInput
 }
 
 export type ServiceUncheckedCreateInput = {
@@ -401,6 +405,7 @@ export type ServiceUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   bookingServices?: Prisma.BookingServiceUncheckedCreateNestedManyWithoutServiceInput
+  eventTypes?: Prisma.EventTypeUncheckedCreateNestedManyWithoutServicesInput
 }
 
 export type ServiceUpdateInput = {
@@ -418,6 +423,7 @@ export type ServiceUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bookingServices?: Prisma.BookingServiceUpdateManyWithoutServiceNestedInput
+  eventTypes?: Prisma.EventTypeUpdateManyWithoutServicesNestedInput
 }
 
 export type ServiceUncheckedUpdateInput = {
@@ -436,6 +442,7 @@ export type ServiceUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bookingServices?: Prisma.BookingServiceUncheckedUpdateManyWithoutServiceNestedInput
+  eventTypes?: Prisma.EventTypeUncheckedUpdateManyWithoutServicesNestedInput
 }
 
 export type ServiceCreateManyInput = {
@@ -486,6 +493,16 @@ export type ServiceUncheckedUpdateManyInput = {
   isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type ServiceListRelationFilter = {
+  every?: Prisma.ServiceWhereInput
+  some?: Prisma.ServiceWhereInput
+  none?: Prisma.ServiceWhereInput
+}
+
+export type ServiceOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type ServiceCountOrderByAggregateInput = {
@@ -550,6 +567,44 @@ export type ServiceNullableScalarRelationFilter = {
   isNot?: Prisma.ServiceWhereInput | null
 }
 
+export type ServiceCreateNestedManyWithoutEventTypesInput = {
+  create?: Prisma.XOR<Prisma.ServiceCreateWithoutEventTypesInput, Prisma.ServiceUncheckedCreateWithoutEventTypesInput> | Prisma.ServiceCreateWithoutEventTypesInput[] | Prisma.ServiceUncheckedCreateWithoutEventTypesInput[]
+  connectOrCreate?: Prisma.ServiceCreateOrConnectWithoutEventTypesInput | Prisma.ServiceCreateOrConnectWithoutEventTypesInput[]
+  connect?: Prisma.ServiceWhereUniqueInput | Prisma.ServiceWhereUniqueInput[]
+}
+
+export type ServiceUncheckedCreateNestedManyWithoutEventTypesInput = {
+  create?: Prisma.XOR<Prisma.ServiceCreateWithoutEventTypesInput, Prisma.ServiceUncheckedCreateWithoutEventTypesInput> | Prisma.ServiceCreateWithoutEventTypesInput[] | Prisma.ServiceUncheckedCreateWithoutEventTypesInput[]
+  connectOrCreate?: Prisma.ServiceCreateOrConnectWithoutEventTypesInput | Prisma.ServiceCreateOrConnectWithoutEventTypesInput[]
+  connect?: Prisma.ServiceWhereUniqueInput | Prisma.ServiceWhereUniqueInput[]
+}
+
+export type ServiceUpdateManyWithoutEventTypesNestedInput = {
+  create?: Prisma.XOR<Prisma.ServiceCreateWithoutEventTypesInput, Prisma.ServiceUncheckedCreateWithoutEventTypesInput> | Prisma.ServiceCreateWithoutEventTypesInput[] | Prisma.ServiceUncheckedCreateWithoutEventTypesInput[]
+  connectOrCreate?: Prisma.ServiceCreateOrConnectWithoutEventTypesInput | Prisma.ServiceCreateOrConnectWithoutEventTypesInput[]
+  upsert?: Prisma.ServiceUpsertWithWhereUniqueWithoutEventTypesInput | Prisma.ServiceUpsertWithWhereUniqueWithoutEventTypesInput[]
+  set?: Prisma.ServiceWhereUniqueInput | Prisma.ServiceWhereUniqueInput[]
+  disconnect?: Prisma.ServiceWhereUniqueInput | Prisma.ServiceWhereUniqueInput[]
+  delete?: Prisma.ServiceWhereUniqueInput | Prisma.ServiceWhereUniqueInput[]
+  connect?: Prisma.ServiceWhereUniqueInput | Prisma.ServiceWhereUniqueInput[]
+  update?: Prisma.ServiceUpdateWithWhereUniqueWithoutEventTypesInput | Prisma.ServiceUpdateWithWhereUniqueWithoutEventTypesInput[]
+  updateMany?: Prisma.ServiceUpdateManyWithWhereWithoutEventTypesInput | Prisma.ServiceUpdateManyWithWhereWithoutEventTypesInput[]
+  deleteMany?: Prisma.ServiceScalarWhereInput | Prisma.ServiceScalarWhereInput[]
+}
+
+export type ServiceUncheckedUpdateManyWithoutEventTypesNestedInput = {
+  create?: Prisma.XOR<Prisma.ServiceCreateWithoutEventTypesInput, Prisma.ServiceUncheckedCreateWithoutEventTypesInput> | Prisma.ServiceCreateWithoutEventTypesInput[] | Prisma.ServiceUncheckedCreateWithoutEventTypesInput[]
+  connectOrCreate?: Prisma.ServiceCreateOrConnectWithoutEventTypesInput | Prisma.ServiceCreateOrConnectWithoutEventTypesInput[]
+  upsert?: Prisma.ServiceUpsertWithWhereUniqueWithoutEventTypesInput | Prisma.ServiceUpsertWithWhereUniqueWithoutEventTypesInput[]
+  set?: Prisma.ServiceWhereUniqueInput | Prisma.ServiceWhereUniqueInput[]
+  disconnect?: Prisma.ServiceWhereUniqueInput | Prisma.ServiceWhereUniqueInput[]
+  delete?: Prisma.ServiceWhereUniqueInput | Prisma.ServiceWhereUniqueInput[]
+  connect?: Prisma.ServiceWhereUniqueInput | Prisma.ServiceWhereUniqueInput[]
+  update?: Prisma.ServiceUpdateWithWhereUniqueWithoutEventTypesInput | Prisma.ServiceUpdateWithWhereUniqueWithoutEventTypesInput[]
+  updateMany?: Prisma.ServiceUpdateManyWithWhereWithoutEventTypesInput | Prisma.ServiceUpdateManyWithWhereWithoutEventTypesInput[]
+  deleteMany?: Prisma.ServiceScalarWhereInput | Prisma.ServiceScalarWhereInput[]
+}
+
 export type DecimalFieldUpdateOperationsInput = {
   set?: runtime.Decimal | runtime.DecimalJsLike | number | string
   increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -578,6 +633,82 @@ export type ServiceUpdateOneWithoutBookingServicesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ServiceUpdateToOneWithWhereWithoutBookingServicesInput, Prisma.ServiceUpdateWithoutBookingServicesInput>, Prisma.ServiceUncheckedUpdateWithoutBookingServicesInput>
 }
 
+export type ServiceCreateWithoutEventTypesInput = {
+  name: string
+  category?: string | null
+  shortDesc?: string | null
+  fullDesc?: string | null
+  description?: string | null
+  price: runtime.Decimal | runtime.DecimalJsLike | number | string
+  featuredImage?: string | null
+  iconName?: string | null
+  features?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  inclusions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isActive?: boolean | null
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  bookingServices?: Prisma.BookingServiceCreateNestedManyWithoutServiceInput
+}
+
+export type ServiceUncheckedCreateWithoutEventTypesInput = {
+  id?: number
+  name: string
+  category?: string | null
+  shortDesc?: string | null
+  fullDesc?: string | null
+  description?: string | null
+  price: runtime.Decimal | runtime.DecimalJsLike | number | string
+  featuredImage?: string | null
+  iconName?: string | null
+  features?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  inclusions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isActive?: boolean | null
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  bookingServices?: Prisma.BookingServiceUncheckedCreateNestedManyWithoutServiceInput
+}
+
+export type ServiceCreateOrConnectWithoutEventTypesInput = {
+  where: Prisma.ServiceWhereUniqueInput
+  create: Prisma.XOR<Prisma.ServiceCreateWithoutEventTypesInput, Prisma.ServiceUncheckedCreateWithoutEventTypesInput>
+}
+
+export type ServiceUpsertWithWhereUniqueWithoutEventTypesInput = {
+  where: Prisma.ServiceWhereUniqueInput
+  update: Prisma.XOR<Prisma.ServiceUpdateWithoutEventTypesInput, Prisma.ServiceUncheckedUpdateWithoutEventTypesInput>
+  create: Prisma.XOR<Prisma.ServiceCreateWithoutEventTypesInput, Prisma.ServiceUncheckedCreateWithoutEventTypesInput>
+}
+
+export type ServiceUpdateWithWhereUniqueWithoutEventTypesInput = {
+  where: Prisma.ServiceWhereUniqueInput
+  data: Prisma.XOR<Prisma.ServiceUpdateWithoutEventTypesInput, Prisma.ServiceUncheckedUpdateWithoutEventTypesInput>
+}
+
+export type ServiceUpdateManyWithWhereWithoutEventTypesInput = {
+  where: Prisma.ServiceScalarWhereInput
+  data: Prisma.XOR<Prisma.ServiceUpdateManyMutationInput, Prisma.ServiceUncheckedUpdateManyWithoutEventTypesInput>
+}
+
+export type ServiceScalarWhereInput = {
+  AND?: Prisma.ServiceScalarWhereInput | Prisma.ServiceScalarWhereInput[]
+  OR?: Prisma.ServiceScalarWhereInput[]
+  NOT?: Prisma.ServiceScalarWhereInput | Prisma.ServiceScalarWhereInput[]
+  id?: Prisma.IntFilter<"Service"> | number
+  name?: Prisma.StringFilter<"Service"> | string
+  category?: Prisma.StringNullableFilter<"Service"> | string | null
+  shortDesc?: Prisma.StringNullableFilter<"Service"> | string | null
+  fullDesc?: Prisma.StringNullableFilter<"Service"> | string | null
+  description?: Prisma.StringNullableFilter<"Service"> | string | null
+  price?: Prisma.DecimalFilter<"Service"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  featuredImage?: Prisma.StringNullableFilter<"Service"> | string | null
+  iconName?: Prisma.StringNullableFilter<"Service"> | string | null
+  features?: Prisma.JsonNullableFilter<"Service">
+  inclusions?: Prisma.JsonNullableFilter<"Service">
+  isActive?: Prisma.BoolNullableFilter<"Service"> | boolean | null
+  createdAt?: Prisma.DateTimeFilter<"Service"> | Date | string
+  updatedAt?: Prisma.DateTimeNullableFilter<"Service"> | Date | string | null
+}
+
 export type ServiceCreateWithoutBookingServicesInput = {
   name: string
   category?: string | null
@@ -592,6 +723,7 @@ export type ServiceCreateWithoutBookingServicesInput = {
   isActive?: boolean | null
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  eventTypes?: Prisma.EventTypeCreateNestedManyWithoutServicesInput
 }
 
 export type ServiceUncheckedCreateWithoutBookingServicesInput = {
@@ -609,6 +741,7 @@ export type ServiceUncheckedCreateWithoutBookingServicesInput = {
   isActive?: boolean | null
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  eventTypes?: Prisma.EventTypeUncheckedCreateNestedManyWithoutServicesInput
 }
 
 export type ServiceCreateOrConnectWithoutBookingServicesInput = {
@@ -641,9 +774,63 @@ export type ServiceUpdateWithoutBookingServicesInput = {
   isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  eventTypes?: Prisma.EventTypeUpdateManyWithoutServicesNestedInput
 }
 
 export type ServiceUncheckedUpdateWithoutBookingServicesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortDesc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullDesc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  featuredImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  features?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  inclusions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  eventTypes?: Prisma.EventTypeUncheckedUpdateManyWithoutServicesNestedInput
+}
+
+export type ServiceUpdateWithoutEventTypesInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortDesc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullDesc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  featuredImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  features?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  inclusions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bookingServices?: Prisma.BookingServiceUpdateManyWithoutServiceNestedInput
+}
+
+export type ServiceUncheckedUpdateWithoutEventTypesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortDesc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullDesc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  featuredImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  features?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  inclusions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bookingServices?: Prisma.BookingServiceUncheckedUpdateManyWithoutServiceNestedInput
+}
+
+export type ServiceUncheckedUpdateManyWithoutEventTypesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -667,10 +854,12 @@ export type ServiceUncheckedUpdateWithoutBookingServicesInput = {
 
 export type ServiceCountOutputType = {
   bookingServices: number
+  eventTypes: number
 }
 
 export type ServiceCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   bookingServices?: boolean | ServiceCountOutputTypeCountBookingServicesArgs
+  eventTypes?: boolean | ServiceCountOutputTypeCountEventTypesArgs
 }
 
 /**
@@ -690,6 +879,13 @@ export type ServiceCountOutputTypeCountBookingServicesArgs<ExtArgs extends runti
   where?: Prisma.BookingServiceWhereInput
 }
 
+/**
+ * ServiceCountOutputType without action
+ */
+export type ServiceCountOutputTypeCountEventTypesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EventTypeWhereInput
+}
+
 
 export type ServiceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -707,6 +903,7 @@ export type ServiceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   createdAt?: boolean
   updatedAt?: boolean
   bookingServices?: boolean | Prisma.Service$bookingServicesArgs<ExtArgs>
+  eventTypes?: boolean | Prisma.Service$eventTypesArgs<ExtArgs>
   _count?: boolean | Prisma.ServiceCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["service"]>
 
@@ -764,6 +961,7 @@ export type ServiceSelectScalar = {
 export type ServiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "category" | "shortDesc" | "fullDesc" | "description" | "price" | "featuredImage" | "iconName" | "features" | "inclusions" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["service"]>
 export type ServiceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   bookingServices?: boolean | Prisma.Service$bookingServicesArgs<ExtArgs>
+  eventTypes?: boolean | Prisma.Service$eventTypesArgs<ExtArgs>
   _count?: boolean | Prisma.ServiceCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ServiceIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -773,6 +971,7 @@ export type $ServicePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   name: "Service"
   objects: {
     bookingServices: Prisma.$BookingServicePayload<ExtArgs>[]
+    eventTypes: Prisma.$EventTypePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1184,6 +1383,7 @@ readonly fields: ServiceFieldRefs;
 export interface Prisma__ServiceClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   bookingServices<T extends Prisma.Service$bookingServicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Service$bookingServicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BookingServicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  eventTypes<T extends Prisma.Service$eventTypesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Service$eventTypesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EventTypePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1641,6 +1841,30 @@ export type Service$bookingServicesArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.BookingServiceScalarFieldEnum | Prisma.BookingServiceScalarFieldEnum[]
+}
+
+/**
+ * Service.eventTypes
+ */
+export type Service$eventTypesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EventType
+   */
+  select?: Prisma.EventTypeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EventType
+   */
+  omit?: Prisma.EventTypeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EventTypeInclude<ExtArgs> | null
+  where?: Prisma.EventTypeWhereInput
+  orderBy?: Prisma.EventTypeOrderByWithRelationInput | Prisma.EventTypeOrderByWithRelationInput[]
+  cursor?: Prisma.EventTypeWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EventTypeScalarFieldEnum | Prisma.EventTypeScalarFieldEnum[]
 }
 
 /**

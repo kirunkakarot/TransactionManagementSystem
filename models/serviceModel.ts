@@ -13,6 +13,7 @@ export interface ServiceInput {
   features?: any;
   inclusions?: any;
   isActive?: boolean;
+  eventTypes?: number[];
 }
 
 export const createServicesTable = async () => {
@@ -36,7 +37,11 @@ export const createService = async (data: ServiceInput | { name: string; descrip
       features: d.features ? d.features : [],
       inclusions: d.inclusions ? d.inclusions : [],
       isActive: d.isActive !== undefined ? Boolean(d.isActive) : true,
+      eventTypes: d.eventTypes?.length ? { connect: d.eventTypes.map(id => ({ id })) } : undefined,
     },
+    include: {
+      eventTypes: true,
+    }
   });
 };
 
@@ -59,6 +64,9 @@ export const getServices = async (limit = 100, offset = 0, search = '') => {
       orderBy: {
         id: 'asc',
       },
+      include: {
+        eventTypes: true,
+      }
     }),
     prisma.service.count({ where }),
   ]);
@@ -74,6 +82,7 @@ export const getServiceById = async (id: number | string) => {
   if (isNaN(serviceId)) return null;
   return await prisma.service.findUnique({
     where: { id: serviceId },
+    include: { eventTypes: true },
   });
 };
 
@@ -101,10 +110,12 @@ export const updateService = async (
   if (d.features !== undefined) updatePayload.features = d.features;
   if (d.inclusions !== undefined) updatePayload.inclusions = d.inclusions;
   if (d.isActive !== undefined) updatePayload.isActive = Boolean(d.isActive);
+  if (d.eventTypes !== undefined) updatePayload.eventTypes = { set: d.eventTypes.map(id => ({ id })) };
 
   return await prisma.service.update({
     where: { id: serviceId },
     data: updatePayload,
+    include: { eventTypes: true },
   });
 };
 

@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState } from 'react';
-import { 
-  ShieldCheck, 
-  User, 
-  Mail, 
-  Phone, 
-  Lock, 
-  Building2, 
+import {
+  ShieldCheck,
+  User,
+  Mail,
+  Phone,
+  Lock,
+  Building2,
   UserCheck,
   AlertCircle
 } from 'lucide-react';
@@ -133,11 +133,10 @@ export const CreateAccountModal: React.FC<CreateAccountModalProps> = ({
               <button
                 type="button"
                 onClick={() => setRole('Staff')}
-                className={`flex flex-col items-start p-3 rounded-md border text-left cursor-pointer transition-all ${
-                  role === 'Staff'
+                className={`flex flex-col items-start p-3 rounded-md border text-left cursor-pointer transition-all ${role === 'Staff'
                     ? 'bg-blue-50/80 border-[#1E3A8A] text-[#1E3A8A] shadow-sm'
                     : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-1.5 font-bold text-xs">
                   <UserCheck className="w-3.5 h-3.5 text-blue-600" />
@@ -149,11 +148,10 @@ export const CreateAccountModal: React.FC<CreateAccountModalProps> = ({
               <button
                 type="button"
                 onClick={() => setRole('Administrator')}
-                className={`flex flex-col items-start p-3 rounded-md border text-left cursor-pointer transition-all ${
-                  role === 'Administrator'
+                className={`flex flex-col items-start p-3 rounded-md border text-left cursor-pointer transition-all ${role === 'Administrator'
                     ? 'bg-orange-50/80 border-orange-500 text-orange-700 shadow-sm'
                     : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-1.5 font-bold text-xs">
                   <Building2 className="w-3.5 h-3.5 text-orange-600" />

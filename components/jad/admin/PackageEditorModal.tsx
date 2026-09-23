@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { PackageItem, ServiceItem } from '../types';
+import { PackageItem, ServiceItem, EventType } from '../types';
 import { toast } from 'sonner';
 
 interface PackageEditorModalProps {
@@ -24,6 +24,7 @@ interface PackageEditorModalProps {
   packageToEdit: PackageItem | null;
   onSavePackage: (pkg: PackageItem) => void;
   availableServices: ServiceItem[];
+  availableEventTypes?: EventType[];
 }
 
 export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
@@ -31,7 +32,8 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
   onClose,
   packageToEdit,
   onSavePackage,
-  availableServices
+  availableServices,
+  availableEventTypes = []
 }) => {
   const [name, setName] = useState('');
   const [tagline, setTagline] = useState('');
@@ -44,6 +46,9 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
 
   // Bundled services
   const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>([]);
+
+  // Linked Event Type IDs
+  const [selectedEventTypeIds, setSelectedEventTypeIds] = useState<number[]>([]);
 
   // Inclusions list
   const [inclusions, setInclusions] = useState<string[]>([]);
@@ -66,6 +71,9 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
       setSelectedServiceIds(Array.isArray(packageToEdit.servicesIncluded) ? packageToEdit.servicesIncluded : []);
       setInclusions(Array.isArray(packageToEdit.inclusions) ? packageToEdit.inclusions : []);
       setFeatures(Array.isArray(packageToEdit.features) ? packageToEdit.features : []);
+      setSelectedEventTypeIds(
+        (packageToEdit.eventTypes as EventType[])?.map((et: EventType) => et.id) || []
+      );
     } else {
       setName('');
       setTagline('Complete end-to-end event production and guest experience suite.');
@@ -87,12 +95,19 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
         'Real-time Schedule Tracker',
         'Complimentary Rehearsal Director'
       ]);
+      setSelectedEventTypeIds([]);
     }
   }, [packageToEdit, isOpen]);
 
   const toggleService = (serviceId: string) => {
     setSelectedServiceIds(prev => 
       prev.includes(serviceId) ? prev.filter(id => id !== serviceId) : [...prev, serviceId]
+    );
+  };
+
+  const toggleEventType = (eventTypeId: number) => {
+    setSelectedEventTypeIds(prev => 
+      prev.includes(eventTypeId) ? prev.filter(id => id !== eventTypeId) : [...prev, eventTypeId]
     );
   };
 
@@ -139,7 +154,8 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
       idealFor: idealFor.trim() || 'All Special Occasions',
       servicesIncluded: selectedServiceIds,
       inclusions: inclusions.length > 0 ? inclusions : ['Standard All-In Event Coordination'],
-      features: features.length > 0 ? features : ['Online Portal Milestone Tracking']
+      features: features.length > 0 ? features : ['Online Portal Milestone Tracking'],
+      eventTypes: selectedEventTypeIds
     };
 
     onSavePackage(finalPackage);
@@ -405,6 +421,42 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
               <Button type="button" size="sm" onClick={handleAddFeature} className="text-xs rounded-md bg-[#1E3A8A] text-white font-bold">
                 <Plus className="w-3.5 h-3.5 mr-1" /> Add
               </Button>
+            </div>
+          </div>
+
+          {/* Linked Event Types */}
+          <div className="p-4 rounded-md bg-purple-50/60 border border-purple-200 space-y-3">
+            <label className="text-xs font-bold text-purple-800 flex items-center justify-between">
+              <span>Assign Event Types</span>
+              <span className="text-[11px] text-purple-700 font-semibold">{selectedEventTypeIds.length} Linked</span>
+            </label>
+            <p className="text-[11px] text-slate-500">
+              Select which event types this package applies to. Leave empty to apply to all.
+            </p>
+
+            <div className="flex flex-wrap gap-2">
+              {availableEventTypes.map(et => {
+                const isSelected = selectedEventTypeIds.includes(et.id);
+                return (
+                  <button
+                    type="button"
+                    key={et.id}
+                    onClick={() => toggleEventType(et.id)}
+                    className={`flex items-center justify-between px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
+                      isSelected 
+                        ? 'bg-purple-600 border-purple-600 text-white shadow-sm' 
+                        : 'bg-white/60 border-slate-200 text-slate-600 hover:border-slate-300'
+                    }`}
+                  >
+                    <span>{et.name}</span>
+                    <div className={`w-3 h-3 rounded-full ml-2 flex items-center justify-center shrink-0 ${
+                      isSelected ? 'bg-white text-purple-600' : 'hidden'
+                    }`}>
+                      <Check className="w-2.5 h-2.5" />
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
 

@@ -74,6 +74,7 @@ import { RecordPaymentModal } from './RecordPaymentModal';
 import { PaymentReceiptModal } from './PaymentReceiptModal';
 import { BookingDetailModal } from './BookingDetailModal';
 import { CreateAccountModal } from './CreateAccountModal';
+import { EventTypeManager } from './EventTypeManager';
 
 import {
   InquiryFormData,
@@ -84,7 +85,8 @@ import {
   Booking,
   PaymentTransaction,
   StaffMember,
-  SchedulingConflict
+  SchedulingConflict,
+  EventType
 } from '../types';
 
 interface AdminDashboardProps {
@@ -104,6 +106,7 @@ interface AdminDashboardProps {
   onDeleteQuotation?: (quotationId: string) => void;
   onUpdateInquiryStatus: (inquiryId: string, status: InquiryFormData['status']) => void;
   onDeleteInquiry?: (inquiryId: string) => void;
+  onUpdateInquiryClassification?: (inquiryId: string, eventTypeId: number, eventTypeName: string) => void;
   onVerifyDownpayment: (inquiryId: string) => void;
   onApproveBooking: (inquiryId: string) => void;
   onSaveService: (service: ServiceItem) => void;
@@ -127,6 +130,7 @@ interface AdminDashboardProps {
   adminToken?: string;
   onAccountCreated?: () => void;
   onToggleStaffStatus?: (staffId: string) => void;
+  availableEventTypes?: EventType[];
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
@@ -146,6 +150,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onDeleteQuotation,
   onUpdateInquiryStatus,
   onDeleteInquiry,
+  onUpdateInquiryClassification,
   onVerifyDownpayment,
   onApproveBooking,
   onSaveService,
@@ -169,10 +174,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   adminToken,
   onAccountCreated,
   onToggleStaffStatus,
+  availableEventTypes = []
 }) => {
   // Navigation active view state
   const [activeSection, setActiveSection] = useState<
-    'overview' | 'inquiries' | 'quotations' | 'bookings' | 'scheduling' | 'payments' | 'services' | 'packages' | 'equipment' | 'staff' | 'evaluations'
+    'overview' | 'inquiries' | 'quotations' | 'bookings' | 'scheduling' | 'payments' | 'services' | 'packages' | 'equipment' | 'staff' | 'evaluations' | 'event-types'
   >('overview');
 
   // Mobile sidebar drawer state
@@ -601,6 +607,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     {
       group: 'SERVICES & RESOURCES',
       items: [
+        { id: 'event-types', label: 'Event Types', icon: Layers, badge: null },
         { id: 'services', label: 'Event Services', icon: Wrench, badge: `${services.length}`, badgeColor: 'bg-slate-100 text-slate-600' },
         { id: 'packages', label: 'Packages', icon: Package, badge: `${packages.length}`, badgeColor: 'bg-slate-100 text-slate-600' },
         { id: 'equipment', label: 'Equipment & Inventory', icon: Boxes, badge: `${equipmentResources.length}`, badgeColor: 'bg-slate-100 text-slate-600' }
@@ -1802,6 +1809,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
           )}
 
+          {activeSection === 'event-types' && (
+            <EventTypeManager />
+          )}
+
           {/* ======================================================== */}
           {/* SECTION 7: SERVICES CATALOG MODULE                       */}
           {/* ======================================================== */}
@@ -2447,6 +2458,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         inquiry={selectedInquiryForDetails}
         services={services}
         packages={packages}
+        availableEventTypes={availableEventTypes}
+        onUpdateInquiryClassification={onUpdateInquiryClassification}
         onCreateQuotation={(inq) => {
           setSelectedInquiryForQuote(inq);
           setSelectedExistingQuote(null);
@@ -2472,6 +2485,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         serviceToEdit={serviceToEdit}
         onSaveService={onSaveService}
         availableResources={equipmentResources}
+        availableEventTypes={availableEventTypes}
       />
 
       {/* Package Editor Modal */}
@@ -2481,6 +2495,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         packageToEdit={packageToEdit}
         onSavePackage={onSavePackage}
         availableServices={services}
+        availableEventTypes={availableEventTypes}
       />
 
       {/* Equipment Resource Modal */}

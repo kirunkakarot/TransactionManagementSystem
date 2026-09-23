@@ -1176,6 +1176,19 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                     </span>
                   </div>
 
+                  {/* Admin Comment / Suggestion */}
+                  {effectiveQuotation.adminComment && (
+                    <div className="p-5 rounded-md bg-blue-50/80 border border-blue-200 mt-6 mb-2">
+                      <div className="flex items-center gap-2 mb-2">
+                        <FileText className="w-4 h-4 text-blue-700" />
+                        <span className="text-xs font-bold uppercase tracking-wider text-blue-900">Admin Comment / Suggestion</span>
+                      </div>
+                      <p className="text-sm text-blue-950 whitespace-pre-wrap leading-relaxed">
+                        {effectiveQuotation.adminComment}
+                      </p>
+                    </div>
+                  )}
+
                   {/* Actions according to workflow */}
                   <div className="flex items-center gap-2 flex-wrap">
                     {isQuotationSent && (

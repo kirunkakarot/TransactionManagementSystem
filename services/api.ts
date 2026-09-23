@@ -133,6 +133,47 @@ export async function fetchUsers(token?: string) {
   return data;
 }
 
+// ==========================================
+// EVENT TYPES API METHODS
+// ==========================================
+export async function fetchEventTypes(search = '', limit = 100, offset = 0, token?: string) {
+  try {
+    const params = new URLSearchParams({ search, limit: limit.toString(), offset: offset.toString() });
+    // Use GET for public access or admin, depending on token presence on the server.
+    const res = await fetch(`${API_URL}/event-types?${params.toString()}`, { 
+      headers: getAuthHeaders(token, null),
+      cache: 'no-store' 
+    });
+    if (!res.ok) return { eventTypes: [], total: 0 };
+    return await parseResponseJson(res);
+  } catch (error) {
+    console.warn('fetchEventTypes notice:', error);
+    return { eventTypes: [], total: 0 };
+  }
+}
+
+export async function createEventTypeApi(data: any, token?: string) {
+  const res = await fetch(`${API_URL}/event-types`, {
+    method: 'POST',
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(data),
+  });
+  const resData = await parseResponseJson(res);
+  if (!res.ok) throw new Error(resData.message || 'Failed to create event type');
+  return resData;
+}
+
+export async function updateEventTypeApi(id: number | string, data: any, token?: string) {
+  const res = await fetch(`${API_URL}/event-types/${id}`, {
+    method: 'PUT',
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(data),
+  });
+  const resData = await parseResponseJson(res);
+  if (!res.ok) throw new Error(resData.message || 'Failed to update event type');
+  return resData;
+}
+
 export async function fetchServices(search = '', limit = 100, offset = 0) {
   try {
     const params = new URLSearchParams({
@@ -250,6 +291,8 @@ export async function fetchInquiries(limit = 100, offset = 0, token?: string) {
 export async function submitInquiry(data: {
   trackingId?: string;
   eventType: string;
+  eventTypeId?: number;
+  customEventDescription?: string;
   eventDate: string;
   eventVenue?: string;
   venue?: string;
@@ -271,6 +314,8 @@ export async function submitInquiry(data: {
 }) {
   const payload = {
     eventType: data.eventType,
+    eventTypeId: data.eventTypeId || null,
+    customEventDescription: data.customEventDescription || null,
     eventDate: data.eventDate,
     venue: data.venue || data.eventVenue || '',
     guestCount: Number(data.guestCount || data.guestsCount) || 100,
@@ -303,6 +348,28 @@ export async function updateInquiryStatusApi(id: number | string, status: string
   });
   const data = await parseResponseJson(res);
   if (!res.ok) throw new Error(data.message || 'Failed to update inquiry status');
+  return data;
+}
+
+export async function updateInquiryClassificationApi(id: number | string, eventTypeId: number, eventTypeName: string, token?: string) {
+  const res = await fetch(`${API_URL}/inquiries/${id}/classify`, {
+    method: 'PATCH',
+    headers: getAuthHeaders(token),
+    body: JSON.stringify({ eventTypeId, eventTypeName }),
+  });
+  const data = await parseResponseJson(res);
+  if (!res.ok) throw new Error(data.message || 'Failed to update inquiry classification');
+  return data;
+}
+
+export async function classifyInquiryApi(id: number | string, eventTypeId: number, eventTypeName: string, token?: string) {
+  const res = await fetch(`${API_URL}/inquiries/${id}/classify`, {
+    method: 'PATCH',
+    headers: getAuthHeaders(token),
+    body: JSON.stringify({ eventTypeId, eventTypeName }),
+  });
+  const data = await parseResponseJson(res);
+  if (!res.ok) throw new Error(data.message || 'Failed to classify inquiry');
   return data;
 }
 

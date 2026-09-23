@@ -293,6 +293,7 @@ export type PackageWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Package"> | Date | string
   updatedAt?: Prisma.DateTimeNullableFilter<"Package"> | Date | string | null
   bookingPackages?: Prisma.BookingPackageListRelationFilter
+  eventTypes?: Prisma.EventTypeListRelationFilter
 }
 
 export type PackageOrderByWithRelationInput = {
@@ -312,6 +313,7 @@ export type PackageOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   bookingPackages?: Prisma.BookingPackageOrderByRelationAggregateInput
+  eventTypes?: Prisma.EventTypeOrderByRelationAggregateInput
 }
 
 export type PackageWhereUniqueInput = Prisma.AtLeast<{
@@ -334,6 +336,7 @@ export type PackageWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Package"> | Date | string
   updatedAt?: Prisma.DateTimeNullableFilter<"Package"> | Date | string | null
   bookingPackages?: Prisma.BookingPackageListRelationFilter
+  eventTypes?: Prisma.EventTypeListRelationFilter
 }, "id">
 
 export type PackageOrderByWithAggregationInput = {
@@ -396,6 +399,7 @@ export type PackageCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   bookingPackages?: Prisma.BookingPackageCreateNestedManyWithoutPackageInput
+  eventTypes?: Prisma.EventTypeCreateNestedManyWithoutPackagesInput
 }
 
 export type PackageUncheckedCreateInput = {
@@ -415,6 +419,7 @@ export type PackageUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   bookingPackages?: Prisma.BookingPackageUncheckedCreateNestedManyWithoutPackageInput
+  eventTypes?: Prisma.EventTypeUncheckedCreateNestedManyWithoutPackagesInput
 }
 
 export type PackageUpdateInput = {
@@ -433,6 +438,7 @@ export type PackageUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bookingPackages?: Prisma.BookingPackageUpdateManyWithoutPackageNestedInput
+  eventTypes?: Prisma.EventTypeUpdateManyWithoutPackagesNestedInput
 }
 
 export type PackageUncheckedUpdateInput = {
@@ -452,6 +458,7 @@ export type PackageUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bookingPackages?: Prisma.BookingPackageUncheckedUpdateManyWithoutPackageNestedInput
+  eventTypes?: Prisma.EventTypeUncheckedUpdateManyWithoutPackagesNestedInput
 }
 
 export type PackageCreateManyInput = {
@@ -505,6 +512,16 @@ export type PackageUncheckedUpdateManyInput = {
   servicesIncluded?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type PackageListRelationFilter = {
+  every?: Prisma.PackageWhereInput
+  some?: Prisma.PackageWhereInput
+  none?: Prisma.PackageWhereInput
+}
+
+export type PackageOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type PackageCountOrderByAggregateInput = {
@@ -572,6 +589,44 @@ export type PackageNullableScalarRelationFilter = {
   isNot?: Prisma.PackageWhereInput | null
 }
 
+export type PackageCreateNestedManyWithoutEventTypesInput = {
+  create?: Prisma.XOR<Prisma.PackageCreateWithoutEventTypesInput, Prisma.PackageUncheckedCreateWithoutEventTypesInput> | Prisma.PackageCreateWithoutEventTypesInput[] | Prisma.PackageUncheckedCreateWithoutEventTypesInput[]
+  connectOrCreate?: Prisma.PackageCreateOrConnectWithoutEventTypesInput | Prisma.PackageCreateOrConnectWithoutEventTypesInput[]
+  connect?: Prisma.PackageWhereUniqueInput | Prisma.PackageWhereUniqueInput[]
+}
+
+export type PackageUncheckedCreateNestedManyWithoutEventTypesInput = {
+  create?: Prisma.XOR<Prisma.PackageCreateWithoutEventTypesInput, Prisma.PackageUncheckedCreateWithoutEventTypesInput> | Prisma.PackageCreateWithoutEventTypesInput[] | Prisma.PackageUncheckedCreateWithoutEventTypesInput[]
+  connectOrCreate?: Prisma.PackageCreateOrConnectWithoutEventTypesInput | Prisma.PackageCreateOrConnectWithoutEventTypesInput[]
+  connect?: Prisma.PackageWhereUniqueInput | Prisma.PackageWhereUniqueInput[]
+}
+
+export type PackageUpdateManyWithoutEventTypesNestedInput = {
+  create?: Prisma.XOR<Prisma.PackageCreateWithoutEventTypesInput, Prisma.PackageUncheckedCreateWithoutEventTypesInput> | Prisma.PackageCreateWithoutEventTypesInput[] | Prisma.PackageUncheckedCreateWithoutEventTypesInput[]
+  connectOrCreate?: Prisma.PackageCreateOrConnectWithoutEventTypesInput | Prisma.PackageCreateOrConnectWithoutEventTypesInput[]
+  upsert?: Prisma.PackageUpsertWithWhereUniqueWithoutEventTypesInput | Prisma.PackageUpsertWithWhereUniqueWithoutEventTypesInput[]
+  set?: Prisma.PackageWhereUniqueInput | Prisma.PackageWhereUniqueInput[]
+  disconnect?: Prisma.PackageWhereUniqueInput | Prisma.PackageWhereUniqueInput[]
+  delete?: Prisma.PackageWhereUniqueInput | Prisma.PackageWhereUniqueInput[]
+  connect?: Prisma.PackageWhereUniqueInput | Prisma.PackageWhereUniqueInput[]
+  update?: Prisma.PackageUpdateWithWhereUniqueWithoutEventTypesInput | Prisma.PackageUpdateWithWhereUniqueWithoutEventTypesInput[]
+  updateMany?: Prisma.PackageUpdateManyWithWhereWithoutEventTypesInput | Prisma.PackageUpdateManyWithWhereWithoutEventTypesInput[]
+  deleteMany?: Prisma.PackageScalarWhereInput | Prisma.PackageScalarWhereInput[]
+}
+
+export type PackageUncheckedUpdateManyWithoutEventTypesNestedInput = {
+  create?: Prisma.XOR<Prisma.PackageCreateWithoutEventTypesInput, Prisma.PackageUncheckedCreateWithoutEventTypesInput> | Prisma.PackageCreateWithoutEventTypesInput[] | Prisma.PackageUncheckedCreateWithoutEventTypesInput[]
+  connectOrCreate?: Prisma.PackageCreateOrConnectWithoutEventTypesInput | Prisma.PackageCreateOrConnectWithoutEventTypesInput[]
+  upsert?: Prisma.PackageUpsertWithWhereUniqueWithoutEventTypesInput | Prisma.PackageUpsertWithWhereUniqueWithoutEventTypesInput[]
+  set?: Prisma.PackageWhereUniqueInput | Prisma.PackageWhereUniqueInput[]
+  disconnect?: Prisma.PackageWhereUniqueInput | Prisma.PackageWhereUniqueInput[]
+  delete?: Prisma.PackageWhereUniqueInput | Prisma.PackageWhereUniqueInput[]
+  connect?: Prisma.PackageWhereUniqueInput | Prisma.PackageWhereUniqueInput[]
+  update?: Prisma.PackageUpdateWithWhereUniqueWithoutEventTypesInput | Prisma.PackageUpdateWithWhereUniqueWithoutEventTypesInput[]
+  updateMany?: Prisma.PackageUpdateManyWithWhereWithoutEventTypesInput | Prisma.PackageUpdateManyWithWhereWithoutEventTypesInput[]
+  deleteMany?: Prisma.PackageScalarWhereInput | Prisma.PackageScalarWhereInput[]
+}
+
 export type NullableDecimalFieldUpdateOperationsInput = {
   set?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -596,6 +651,85 @@ export type PackageUpdateOneWithoutBookingPackagesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.PackageUpdateToOneWithWhereWithoutBookingPackagesInput, Prisma.PackageUpdateWithoutBookingPackagesInput>, Prisma.PackageUncheckedUpdateWithoutBookingPackagesInput>
 }
 
+export type PackageCreateWithoutEventTypesInput = {
+  name: string
+  tagline?: string | null
+  description?: string | null
+  capacity?: string | null
+  price: runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isPopular?: boolean | null
+  isActive?: boolean | null
+  idealFor?: string | null
+  inclusions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  features?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  servicesIncluded?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  bookingPackages?: Prisma.BookingPackageCreateNestedManyWithoutPackageInput
+}
+
+export type PackageUncheckedCreateWithoutEventTypesInput = {
+  id?: number
+  name: string
+  tagline?: string | null
+  description?: string | null
+  capacity?: string | null
+  price: runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isPopular?: boolean | null
+  isActive?: boolean | null
+  idealFor?: string | null
+  inclusions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  features?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  servicesIncluded?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  bookingPackages?: Prisma.BookingPackageUncheckedCreateNestedManyWithoutPackageInput
+}
+
+export type PackageCreateOrConnectWithoutEventTypesInput = {
+  where: Prisma.PackageWhereUniqueInput
+  create: Prisma.XOR<Prisma.PackageCreateWithoutEventTypesInput, Prisma.PackageUncheckedCreateWithoutEventTypesInput>
+}
+
+export type PackageUpsertWithWhereUniqueWithoutEventTypesInput = {
+  where: Prisma.PackageWhereUniqueInput
+  update: Prisma.XOR<Prisma.PackageUpdateWithoutEventTypesInput, Prisma.PackageUncheckedUpdateWithoutEventTypesInput>
+  create: Prisma.XOR<Prisma.PackageCreateWithoutEventTypesInput, Prisma.PackageUncheckedCreateWithoutEventTypesInput>
+}
+
+export type PackageUpdateWithWhereUniqueWithoutEventTypesInput = {
+  where: Prisma.PackageWhereUniqueInput
+  data: Prisma.XOR<Prisma.PackageUpdateWithoutEventTypesInput, Prisma.PackageUncheckedUpdateWithoutEventTypesInput>
+}
+
+export type PackageUpdateManyWithWhereWithoutEventTypesInput = {
+  where: Prisma.PackageScalarWhereInput
+  data: Prisma.XOR<Prisma.PackageUpdateManyMutationInput, Prisma.PackageUncheckedUpdateManyWithoutEventTypesInput>
+}
+
+export type PackageScalarWhereInput = {
+  AND?: Prisma.PackageScalarWhereInput | Prisma.PackageScalarWhereInput[]
+  OR?: Prisma.PackageScalarWhereInput[]
+  NOT?: Prisma.PackageScalarWhereInput | Prisma.PackageScalarWhereInput[]
+  id?: Prisma.IntFilter<"Package"> | number
+  name?: Prisma.StringFilter<"Package"> | string
+  tagline?: Prisma.StringNullableFilter<"Package"> | string | null
+  description?: Prisma.StringNullableFilter<"Package"> | string | null
+  capacity?: Prisma.StringNullableFilter<"Package"> | string | null
+  price?: Prisma.DecimalFilter<"Package"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalPrice?: Prisma.DecimalNullableFilter<"Package"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isPopular?: Prisma.BoolNullableFilter<"Package"> | boolean | null
+  isActive?: Prisma.BoolNullableFilter<"Package"> | boolean | null
+  idealFor?: Prisma.StringNullableFilter<"Package"> | string | null
+  inclusions?: Prisma.JsonNullableFilter<"Package">
+  features?: Prisma.JsonNullableFilter<"Package">
+  servicesIncluded?: Prisma.JsonNullableFilter<"Package">
+  createdAt?: Prisma.DateTimeFilter<"Package"> | Date | string
+  updatedAt?: Prisma.DateTimeNullableFilter<"Package"> | Date | string | null
+}
+
 export type PackageCreateWithoutBookingPackagesInput = {
   name: string
   tagline?: string | null
@@ -611,6 +745,7 @@ export type PackageCreateWithoutBookingPackagesInput = {
   servicesIncluded?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  eventTypes?: Prisma.EventTypeCreateNestedManyWithoutPackagesInput
 }
 
 export type PackageUncheckedCreateWithoutBookingPackagesInput = {
@@ -629,6 +764,7 @@ export type PackageUncheckedCreateWithoutBookingPackagesInput = {
   servicesIncluded?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  eventTypes?: Prisma.EventTypeUncheckedCreateNestedManyWithoutPackagesInput
 }
 
 export type PackageCreateOrConnectWithoutBookingPackagesInput = {
@@ -662,9 +798,66 @@ export type PackageUpdateWithoutBookingPackagesInput = {
   servicesIncluded?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  eventTypes?: Prisma.EventTypeUpdateManyWithoutPackagesNestedInput
 }
 
 export type PackageUncheckedUpdateWithoutBookingPackagesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capacity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isPopular?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  idealFor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inclusions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  features?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  servicesIncluded?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  eventTypes?: Prisma.EventTypeUncheckedUpdateManyWithoutPackagesNestedInput
+}
+
+export type PackageUpdateWithoutEventTypesInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capacity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isPopular?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  idealFor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inclusions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  features?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  servicesIncluded?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bookingPackages?: Prisma.BookingPackageUpdateManyWithoutPackageNestedInput
+}
+
+export type PackageUncheckedUpdateWithoutEventTypesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capacity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isPopular?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  idealFor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inclusions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  features?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  servicesIncluded?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bookingPackages?: Prisma.BookingPackageUncheckedUpdateManyWithoutPackageNestedInput
+}
+
+export type PackageUncheckedUpdateManyWithoutEventTypesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -689,10 +882,12 @@ export type PackageUncheckedUpdateWithoutBookingPackagesInput = {
 
 export type PackageCountOutputType = {
   bookingPackages: number
+  eventTypes: number
 }
 
 export type PackageCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   bookingPackages?: boolean | PackageCountOutputTypeCountBookingPackagesArgs
+  eventTypes?: boolean | PackageCountOutputTypeCountEventTypesArgs
 }
 
 /**
@@ -710,6 +905,13 @@ export type PackageCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exte
  */
 export type PackageCountOutputTypeCountBookingPackagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.BookingPackageWhereInput
+}
+
+/**
+ * PackageCountOutputType without action
+ */
+export type PackageCountOutputTypeCountEventTypesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EventTypeWhereInput
 }
 
 
@@ -730,6 +932,7 @@ export type PackageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   createdAt?: boolean
   updatedAt?: boolean
   bookingPackages?: boolean | Prisma.Package$bookingPackagesArgs<ExtArgs>
+  eventTypes?: boolean | Prisma.Package$eventTypesArgs<ExtArgs>
   _count?: boolean | Prisma.PackageCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["package"]>
 
@@ -790,6 +993,7 @@ export type PackageSelectScalar = {
 export type PackageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "tagline" | "description" | "capacity" | "price" | "originalPrice" | "isPopular" | "isActive" | "idealFor" | "inclusions" | "features" | "servicesIncluded" | "createdAt" | "updatedAt", ExtArgs["result"]["package"]>
 export type PackageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   bookingPackages?: boolean | Prisma.Package$bookingPackagesArgs<ExtArgs>
+  eventTypes?: boolean | Prisma.Package$eventTypesArgs<ExtArgs>
   _count?: boolean | Prisma.PackageCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PackageIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -799,6 +1003,7 @@ export type $PackagePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   name: "Package"
   objects: {
     bookingPackages: Prisma.$BookingPackagePayload<ExtArgs>[]
+    eventTypes: Prisma.$EventTypePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1211,6 +1416,7 @@ readonly fields: PackageFieldRefs;
 export interface Prisma__PackageClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   bookingPackages<T extends Prisma.Package$bookingPackagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Package$bookingPackagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BookingPackagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  eventTypes<T extends Prisma.Package$eventTypesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Package$eventTypesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EventTypePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1669,6 +1875,30 @@ export type Package$bookingPackagesArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.BookingPackageScalarFieldEnum | Prisma.BookingPackageScalarFieldEnum[]
+}
+
+/**
+ * Package.eventTypes
+ */
+export type Package$eventTypesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EventType
+   */
+  select?: Prisma.EventTypeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EventType
+   */
+  omit?: Prisma.EventTypeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EventTypeInclude<ExtArgs> | null
+  where?: Prisma.EventTypeWhereInput
+  orderBy?: Prisma.EventTypeOrderByWithRelationInput | Prisma.EventTypeOrderByWithRelationInput[]
+  cursor?: Prisma.EventTypeWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EventTypeScalarFieldEnum | Prisma.EventTypeScalarFieldEnum[]
 }
 
 /**

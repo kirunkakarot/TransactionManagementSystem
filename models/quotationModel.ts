@@ -39,6 +39,7 @@ export interface QuotationInput {
   validUntil: string | Date;
   validityDays?: number;
   status?: string;
+  adminComment?: string | null;
   notes?: string | null;
   terms?: string[];
 }
@@ -237,6 +238,7 @@ export const createQuotation = async (data: QuotationInput) => {
       validUntil: validUntilDate,
       validityDays: Number(data.validityDays) || 14,
       status: quotationStatus,
+      adminComment: data.adminComment !== undefined ? data.adminComment : null,
       notes: data.notes || inqRecord?.notes || null,
       terms: data.terms || [
         '50% Non-refundable Reservation Downpayment required to lock event calendar & production crew.',
@@ -295,6 +297,7 @@ export const updateQuotation = async (id: number | string, data: Partial<Quotati
   if (data.validUntil !== undefined) updateData.validUntil = typeof data.validUntil === 'string' ? new Date(data.validUntil) : data.validUntil;
   if (data.validityDays !== undefined) updateData.validityDays = Number(data.validityDays);
   if (data.status !== undefined) updateData.status = data.status;
+  if (data.adminComment !== undefined) updateData.adminComment = data.adminComment;
   if (data.notes !== undefined) updateData.notes = data.notes;
   if (data.terms !== undefined) updateData.terms = data.terms;
   updateData.sentAt = new Date();

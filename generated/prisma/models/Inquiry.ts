@@ -30,12 +30,14 @@ export type InquiryAvgAggregateOutputType = {
   id: number | null
   userId: number | null
   guestsCount: number | null
+  eventTypeId: number | null
 }
 
 export type InquirySumAggregateOutputType = {
   id: number | null
   userId: number | null
   guestsCount: number | null
+  eventTypeId: number | null
 }
 
 export type InquiryMinAggregateOutputType = {
@@ -58,6 +60,8 @@ export type InquiryMinAggregateOutputType = {
   cancelledBy: string | null
   cancellationReason: string | null
   createdAt: Date | null
+  eventTypeId: number | null
+  customEventDescription: string | null
 }
 
 export type InquiryMaxAggregateOutputType = {
@@ -80,6 +84,8 @@ export type InquiryMaxAggregateOutputType = {
   cancelledBy: string | null
   cancellationReason: string | null
   createdAt: Date | null
+  eventTypeId: number | null
+  customEventDescription: string | null
 }
 
 export type InquiryCountAggregateOutputType = {
@@ -103,6 +109,8 @@ export type InquiryCountAggregateOutputType = {
   cancelledBy: number
   cancellationReason: number
   createdAt: number
+  eventTypeId: number
+  customEventDescription: number
   _all: number
 }
 
@@ -111,12 +119,14 @@ export type InquiryAvgAggregateInputType = {
   id?: true
   userId?: true
   guestsCount?: true
+  eventTypeId?: true
 }
 
 export type InquirySumAggregateInputType = {
   id?: true
   userId?: true
   guestsCount?: true
+  eventTypeId?: true
 }
 
 export type InquiryMinAggregateInputType = {
@@ -139,6 +149,8 @@ export type InquiryMinAggregateInputType = {
   cancelledBy?: true
   cancellationReason?: true
   createdAt?: true
+  eventTypeId?: true
+  customEventDescription?: true
 }
 
 export type InquiryMaxAggregateInputType = {
@@ -161,6 +173,8 @@ export type InquiryMaxAggregateInputType = {
   cancelledBy?: true
   cancellationReason?: true
   createdAt?: true
+  eventTypeId?: true
+  customEventDescription?: true
 }
 
 export type InquiryCountAggregateInputType = {
@@ -184,6 +198,8 @@ export type InquiryCountAggregateInputType = {
   cancelledBy?: true
   cancellationReason?: true
   createdAt?: true
+  eventTypeId?: true
+  customEventDescription?: true
   _all?: true
 }
 
@@ -294,6 +310,8 @@ export type InquiryGroupByOutputType = {
   cancelledBy: string | null
   cancellationReason: string | null
   createdAt: Date
+  eventTypeId: number | null
+  customEventDescription: string | null
   _count: InquiryCountAggregateOutputType | null
   _avg: InquiryAvgAggregateOutputType | null
   _sum: InquirySumAggregateOutputType | null
@@ -340,7 +358,10 @@ export type InquiryWhereInput = {
   cancelledBy?: Prisma.StringNullableFilter<"Inquiry"> | string | null
   cancellationReason?: Prisma.StringNullableFilter<"Inquiry"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Inquiry"> | Date | string
+  eventTypeId?: Prisma.IntNullableFilter<"Inquiry"> | number | null
+  customEventDescription?: Prisma.StringNullableFilter<"Inquiry"> | string | null
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  eventTypeRef?: Prisma.XOR<Prisma.EventTypeNullableScalarRelationFilter, Prisma.EventTypeWhereInput> | null
   quotations?: Prisma.QuotationListRelationFilter
   bookings?: Prisma.BookingListRelationFilter
 }
@@ -366,7 +387,10 @@ export type InquiryOrderByWithRelationInput = {
   cancelledBy?: Prisma.SortOrderInput | Prisma.SortOrder
   cancellationReason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  eventTypeId?: Prisma.SortOrderInput | Prisma.SortOrder
+  customEventDescription?: Prisma.SortOrderInput | Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
+  eventTypeRef?: Prisma.EventTypeOrderByWithRelationInput
   quotations?: Prisma.QuotationOrderByRelationAggregateInput
   bookings?: Prisma.BookingOrderByRelationAggregateInput
 }
@@ -395,7 +419,10 @@ export type InquiryWhereUniqueInput = Prisma.AtLeast<{
   cancelledBy?: Prisma.StringNullableFilter<"Inquiry"> | string | null
   cancellationReason?: Prisma.StringNullableFilter<"Inquiry"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Inquiry"> | Date | string
+  eventTypeId?: Prisma.IntNullableFilter<"Inquiry"> | number | null
+  customEventDescription?: Prisma.StringNullableFilter<"Inquiry"> | string | null
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  eventTypeRef?: Prisma.XOR<Prisma.EventTypeNullableScalarRelationFilter, Prisma.EventTypeWhereInput> | null
   quotations?: Prisma.QuotationListRelationFilter
   bookings?: Prisma.BookingListRelationFilter
 }, "id" | "trackingId">
@@ -421,6 +448,8 @@ export type InquiryOrderByWithAggregationInput = {
   cancelledBy?: Prisma.SortOrderInput | Prisma.SortOrder
   cancellationReason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  eventTypeId?: Prisma.SortOrderInput | Prisma.SortOrder
+  customEventDescription?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.InquiryCountOrderByAggregateInput
   _avg?: Prisma.InquiryAvgOrderByAggregateInput
   _max?: Prisma.InquiryMaxOrderByAggregateInput
@@ -452,6 +481,8 @@ export type InquiryScalarWhereWithAggregatesInput = {
   cancelledBy?: Prisma.StringNullableWithAggregatesFilter<"Inquiry"> | string | null
   cancellationReason?: Prisma.StringNullableWithAggregatesFilter<"Inquiry"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Inquiry"> | Date | string
+  eventTypeId?: Prisma.IntNullableWithAggregatesFilter<"Inquiry"> | number | null
+  customEventDescription?: Prisma.StringNullableWithAggregatesFilter<"Inquiry"> | string | null
 }
 
 export type InquiryCreateInput = {
@@ -473,7 +504,9 @@ export type InquiryCreateInput = {
   cancelledBy?: string | null
   cancellationReason?: string | null
   createdAt?: Date | string
+  customEventDescription?: string | null
   user?: Prisma.UserCreateNestedOneWithoutInquiriesInput
+  eventTypeRef?: Prisma.EventTypeCreateNestedOneWithoutInquiriesInput
   quotations?: Prisma.QuotationCreateNestedManyWithoutInquiryInput
   bookings?: Prisma.BookingCreateNestedManyWithoutInquiryInput
 }
@@ -499,6 +532,8 @@ export type InquiryUncheckedCreateInput = {
   cancelledBy?: string | null
   cancellationReason?: string | null
   createdAt?: Date | string
+  eventTypeId?: number | null
+  customEventDescription?: string | null
   quotations?: Prisma.QuotationUncheckedCreateNestedManyWithoutInquiryInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutInquiryInput
 }
@@ -522,7 +557,9 @@ export type InquiryUpdateInput = {
   cancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customEventDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user?: Prisma.UserUpdateOneWithoutInquiriesNestedInput
+  eventTypeRef?: Prisma.EventTypeUpdateOneWithoutInquiriesNestedInput
   quotations?: Prisma.QuotationUpdateManyWithoutInquiryNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutInquiryNestedInput
 }
@@ -548,6 +585,8 @@ export type InquiryUncheckedUpdateInput = {
   cancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  eventTypeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  customEventDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quotations?: Prisma.QuotationUncheckedUpdateManyWithoutInquiryNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutInquiryNestedInput
 }
@@ -573,6 +612,8 @@ export type InquiryCreateManyInput = {
   cancelledBy?: string | null
   cancellationReason?: string | null
   createdAt?: Date | string
+  eventTypeId?: number | null
+  customEventDescription?: string | null
 }
 
 export type InquiryUpdateManyMutationInput = {
@@ -594,6 +635,7 @@ export type InquiryUpdateManyMutationInput = {
   cancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customEventDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type InquiryUncheckedUpdateManyInput = {
@@ -617,6 +659,8 @@ export type InquiryUncheckedUpdateManyInput = {
   cancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  eventTypeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  customEventDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type InquiryListRelationFilter = {
@@ -650,12 +694,15 @@ export type InquiryCountOrderByAggregateInput = {
   cancelledBy?: Prisma.SortOrder
   cancellationReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  eventTypeId?: Prisma.SortOrder
+  customEventDescription?: Prisma.SortOrder
 }
 
 export type InquiryAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   guestsCount?: Prisma.SortOrder
+  eventTypeId?: Prisma.SortOrder
 }
 
 export type InquiryMaxOrderByAggregateInput = {
@@ -678,6 +725,8 @@ export type InquiryMaxOrderByAggregateInput = {
   cancelledBy?: Prisma.SortOrder
   cancellationReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  eventTypeId?: Prisma.SortOrder
+  customEventDescription?: Prisma.SortOrder
 }
 
 export type InquiryMinOrderByAggregateInput = {
@@ -700,12 +749,15 @@ export type InquiryMinOrderByAggregateInput = {
   cancelledBy?: Prisma.SortOrder
   cancellationReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  eventTypeId?: Prisma.SortOrder
+  customEventDescription?: Prisma.SortOrder
 }
 
 export type InquirySumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   guestsCount?: Prisma.SortOrder
+  eventTypeId?: Prisma.SortOrder
 }
 
 export type InquiryNullableScalarRelationFilter = {
@@ -752,6 +804,48 @@ export type InquiryUncheckedUpdateManyWithoutUserNestedInput = {
   connect?: Prisma.InquiryWhereUniqueInput | Prisma.InquiryWhereUniqueInput[]
   update?: Prisma.InquiryUpdateWithWhereUniqueWithoutUserInput | Prisma.InquiryUpdateWithWhereUniqueWithoutUserInput[]
   updateMany?: Prisma.InquiryUpdateManyWithWhereWithoutUserInput | Prisma.InquiryUpdateManyWithWhereWithoutUserInput[]
+  deleteMany?: Prisma.InquiryScalarWhereInput | Prisma.InquiryScalarWhereInput[]
+}
+
+export type InquiryCreateNestedManyWithoutEventTypeRefInput = {
+  create?: Prisma.XOR<Prisma.InquiryCreateWithoutEventTypeRefInput, Prisma.InquiryUncheckedCreateWithoutEventTypeRefInput> | Prisma.InquiryCreateWithoutEventTypeRefInput[] | Prisma.InquiryUncheckedCreateWithoutEventTypeRefInput[]
+  connectOrCreate?: Prisma.InquiryCreateOrConnectWithoutEventTypeRefInput | Prisma.InquiryCreateOrConnectWithoutEventTypeRefInput[]
+  createMany?: Prisma.InquiryCreateManyEventTypeRefInputEnvelope
+  connect?: Prisma.InquiryWhereUniqueInput | Prisma.InquiryWhereUniqueInput[]
+}
+
+export type InquiryUncheckedCreateNestedManyWithoutEventTypeRefInput = {
+  create?: Prisma.XOR<Prisma.InquiryCreateWithoutEventTypeRefInput, Prisma.InquiryUncheckedCreateWithoutEventTypeRefInput> | Prisma.InquiryCreateWithoutEventTypeRefInput[] | Prisma.InquiryUncheckedCreateWithoutEventTypeRefInput[]
+  connectOrCreate?: Prisma.InquiryCreateOrConnectWithoutEventTypeRefInput | Prisma.InquiryCreateOrConnectWithoutEventTypeRefInput[]
+  createMany?: Prisma.InquiryCreateManyEventTypeRefInputEnvelope
+  connect?: Prisma.InquiryWhereUniqueInput | Prisma.InquiryWhereUniqueInput[]
+}
+
+export type InquiryUpdateManyWithoutEventTypeRefNestedInput = {
+  create?: Prisma.XOR<Prisma.InquiryCreateWithoutEventTypeRefInput, Prisma.InquiryUncheckedCreateWithoutEventTypeRefInput> | Prisma.InquiryCreateWithoutEventTypeRefInput[] | Prisma.InquiryUncheckedCreateWithoutEventTypeRefInput[]
+  connectOrCreate?: Prisma.InquiryCreateOrConnectWithoutEventTypeRefInput | Prisma.InquiryCreateOrConnectWithoutEventTypeRefInput[]
+  upsert?: Prisma.InquiryUpsertWithWhereUniqueWithoutEventTypeRefInput | Prisma.InquiryUpsertWithWhereUniqueWithoutEventTypeRefInput[]
+  createMany?: Prisma.InquiryCreateManyEventTypeRefInputEnvelope
+  set?: Prisma.InquiryWhereUniqueInput | Prisma.InquiryWhereUniqueInput[]
+  disconnect?: Prisma.InquiryWhereUniqueInput | Prisma.InquiryWhereUniqueInput[]
+  delete?: Prisma.InquiryWhereUniqueInput | Prisma.InquiryWhereUniqueInput[]
+  connect?: Prisma.InquiryWhereUniqueInput | Prisma.InquiryWhereUniqueInput[]
+  update?: Prisma.InquiryUpdateWithWhereUniqueWithoutEventTypeRefInput | Prisma.InquiryUpdateWithWhereUniqueWithoutEventTypeRefInput[]
+  updateMany?: Prisma.InquiryUpdateManyWithWhereWithoutEventTypeRefInput | Prisma.InquiryUpdateManyWithWhereWithoutEventTypeRefInput[]
+  deleteMany?: Prisma.InquiryScalarWhereInput | Prisma.InquiryScalarWhereInput[]
+}
+
+export type InquiryUncheckedUpdateManyWithoutEventTypeRefNestedInput = {
+  create?: Prisma.XOR<Prisma.InquiryCreateWithoutEventTypeRefInput, Prisma.InquiryUncheckedCreateWithoutEventTypeRefInput> | Prisma.InquiryCreateWithoutEventTypeRefInput[] | Prisma.InquiryUncheckedCreateWithoutEventTypeRefInput[]
+  connectOrCreate?: Prisma.InquiryCreateOrConnectWithoutEventTypeRefInput | Prisma.InquiryCreateOrConnectWithoutEventTypeRefInput[]
+  upsert?: Prisma.InquiryUpsertWithWhereUniqueWithoutEventTypeRefInput | Prisma.InquiryUpsertWithWhereUniqueWithoutEventTypeRefInput[]
+  createMany?: Prisma.InquiryCreateManyEventTypeRefInputEnvelope
+  set?: Prisma.InquiryWhereUniqueInput | Prisma.InquiryWhereUniqueInput[]
+  disconnect?: Prisma.InquiryWhereUniqueInput | Prisma.InquiryWhereUniqueInput[]
+  delete?: Prisma.InquiryWhereUniqueInput | Prisma.InquiryWhereUniqueInput[]
+  connect?: Prisma.InquiryWhereUniqueInput | Prisma.InquiryWhereUniqueInput[]
+  update?: Prisma.InquiryUpdateWithWhereUniqueWithoutEventTypeRefInput | Prisma.InquiryUpdateWithWhereUniqueWithoutEventTypeRefInput[]
+  updateMany?: Prisma.InquiryUpdateManyWithWhereWithoutEventTypeRefInput | Prisma.InquiryUpdateManyWithWhereWithoutEventTypeRefInput[]
   deleteMany?: Prisma.InquiryScalarWhereInput | Prisma.InquiryScalarWhereInput[]
 }
 
@@ -814,6 +908,8 @@ export type InquiryCreateWithoutUserInput = {
   cancelledBy?: string | null
   cancellationReason?: string | null
   createdAt?: Date | string
+  customEventDescription?: string | null
+  eventTypeRef?: Prisma.EventTypeCreateNestedOneWithoutInquiriesInput
   quotations?: Prisma.QuotationCreateNestedManyWithoutInquiryInput
   bookings?: Prisma.BookingCreateNestedManyWithoutInquiryInput
 }
@@ -838,6 +934,8 @@ export type InquiryUncheckedCreateWithoutUserInput = {
   cancelledBy?: string | null
   cancellationReason?: string | null
   createdAt?: Date | string
+  eventTypeId?: number | null
+  customEventDescription?: string | null
   quotations?: Prisma.QuotationUncheckedCreateNestedManyWithoutInquiryInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutInquiryInput
 }
@@ -892,6 +990,85 @@ export type InquiryScalarWhereInput = {
   cancelledBy?: Prisma.StringNullableFilter<"Inquiry"> | string | null
   cancellationReason?: Prisma.StringNullableFilter<"Inquiry"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Inquiry"> | Date | string
+  eventTypeId?: Prisma.IntNullableFilter<"Inquiry"> | number | null
+  customEventDescription?: Prisma.StringNullableFilter<"Inquiry"> | string | null
+}
+
+export type InquiryCreateWithoutEventTypeRefInput = {
+  trackingId: string
+  clientName?: string | null
+  clientEmail?: string | null
+  clientPhone?: string | null
+  eventType: string
+  eventDate: Date | string
+  eventVenue: string
+  guestsCount: number
+  requirements?: string | null
+  selectedServices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  packageId?: string | null
+  notes?: string | null
+  estimatedBudget?: string | null
+  status?: string | null
+  cancelledAt?: Date | string | null
+  cancelledBy?: string | null
+  cancellationReason?: string | null
+  createdAt?: Date | string
+  customEventDescription?: string | null
+  user?: Prisma.UserCreateNestedOneWithoutInquiriesInput
+  quotations?: Prisma.QuotationCreateNestedManyWithoutInquiryInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutInquiryInput
+}
+
+export type InquiryUncheckedCreateWithoutEventTypeRefInput = {
+  id?: number
+  trackingId: string
+  userId?: number | null
+  clientName?: string | null
+  clientEmail?: string | null
+  clientPhone?: string | null
+  eventType: string
+  eventDate: Date | string
+  eventVenue: string
+  guestsCount: number
+  requirements?: string | null
+  selectedServices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  packageId?: string | null
+  notes?: string | null
+  estimatedBudget?: string | null
+  status?: string | null
+  cancelledAt?: Date | string | null
+  cancelledBy?: string | null
+  cancellationReason?: string | null
+  createdAt?: Date | string
+  customEventDescription?: string | null
+  quotations?: Prisma.QuotationUncheckedCreateNestedManyWithoutInquiryInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutInquiryInput
+}
+
+export type InquiryCreateOrConnectWithoutEventTypeRefInput = {
+  where: Prisma.InquiryWhereUniqueInput
+  create: Prisma.XOR<Prisma.InquiryCreateWithoutEventTypeRefInput, Prisma.InquiryUncheckedCreateWithoutEventTypeRefInput>
+}
+
+export type InquiryCreateManyEventTypeRefInputEnvelope = {
+  data: Prisma.InquiryCreateManyEventTypeRefInput | Prisma.InquiryCreateManyEventTypeRefInput[]
+  skipDuplicates?: boolean
+}
+
+export type InquiryUpsertWithWhereUniqueWithoutEventTypeRefInput = {
+  where: Prisma.InquiryWhereUniqueInput
+  update: Prisma.XOR<Prisma.InquiryUpdateWithoutEventTypeRefInput, Prisma.InquiryUncheckedUpdateWithoutEventTypeRefInput>
+  create: Prisma.XOR<Prisma.InquiryCreateWithoutEventTypeRefInput, Prisma.InquiryUncheckedCreateWithoutEventTypeRefInput>
+}
+
+export type InquiryUpdateWithWhereUniqueWithoutEventTypeRefInput = {
+  where: Prisma.InquiryWhereUniqueInput
+  data: Prisma.XOR<Prisma.InquiryUpdateWithoutEventTypeRefInput, Prisma.InquiryUncheckedUpdateWithoutEventTypeRefInput>
+}
+
+export type InquiryUpdateManyWithWhereWithoutEventTypeRefInput = {
+  where: Prisma.InquiryScalarWhereInput
+  data: Prisma.XOR<Prisma.InquiryUpdateManyMutationInput, Prisma.InquiryUncheckedUpdateManyWithoutEventTypeRefInput>
 }
 
 export type InquiryCreateWithoutQuotationsInput = {
@@ -913,7 +1090,9 @@ export type InquiryCreateWithoutQuotationsInput = {
   cancelledBy?: string | null
   cancellationReason?: string | null
   createdAt?: Date | string
+  customEventDescription?: string | null
   user?: Prisma.UserCreateNestedOneWithoutInquiriesInput
+  eventTypeRef?: Prisma.EventTypeCreateNestedOneWithoutInquiriesInput
   bookings?: Prisma.BookingCreateNestedManyWithoutInquiryInput
 }
 
@@ -938,6 +1117,8 @@ export type InquiryUncheckedCreateWithoutQuotationsInput = {
   cancelledBy?: string | null
   cancellationReason?: string | null
   createdAt?: Date | string
+  eventTypeId?: number | null
+  customEventDescription?: string | null
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutInquiryInput
 }
 
@@ -976,7 +1157,9 @@ export type InquiryUpdateWithoutQuotationsInput = {
   cancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customEventDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user?: Prisma.UserUpdateOneWithoutInquiriesNestedInput
+  eventTypeRef?: Prisma.EventTypeUpdateOneWithoutInquiriesNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutInquiryNestedInput
 }
 
@@ -1001,6 +1184,8 @@ export type InquiryUncheckedUpdateWithoutQuotationsInput = {
   cancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  eventTypeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  customEventDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutInquiryNestedInput
 }
 
@@ -1023,7 +1208,9 @@ export type InquiryCreateWithoutBookingsInput = {
   cancelledBy?: string | null
   cancellationReason?: string | null
   createdAt?: Date | string
+  customEventDescription?: string | null
   user?: Prisma.UserCreateNestedOneWithoutInquiriesInput
+  eventTypeRef?: Prisma.EventTypeCreateNestedOneWithoutInquiriesInput
   quotations?: Prisma.QuotationCreateNestedManyWithoutInquiryInput
 }
 
@@ -1048,6 +1235,8 @@ export type InquiryUncheckedCreateWithoutBookingsInput = {
   cancelledBy?: string | null
   cancellationReason?: string | null
   createdAt?: Date | string
+  eventTypeId?: number | null
+  customEventDescription?: string | null
   quotations?: Prisma.QuotationUncheckedCreateNestedManyWithoutInquiryInput
 }
 
@@ -1086,7 +1275,9 @@ export type InquiryUpdateWithoutBookingsInput = {
   cancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customEventDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user?: Prisma.UserUpdateOneWithoutInquiriesNestedInput
+  eventTypeRef?: Prisma.EventTypeUpdateOneWithoutInquiriesNestedInput
   quotations?: Prisma.QuotationUpdateManyWithoutInquiryNestedInput
 }
 
@@ -1111,6 +1302,8 @@ export type InquiryUncheckedUpdateWithoutBookingsInput = {
   cancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  eventTypeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  customEventDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quotations?: Prisma.QuotationUncheckedUpdateManyWithoutInquiryNestedInput
 }
 
@@ -1134,6 +1327,8 @@ export type InquiryCreateManyUserInput = {
   cancelledBy?: string | null
   cancellationReason?: string | null
   createdAt?: Date | string
+  eventTypeId?: number | null
+  customEventDescription?: string | null
 }
 
 export type InquiryUpdateWithoutUserInput = {
@@ -1155,6 +1350,8 @@ export type InquiryUpdateWithoutUserInput = {
   cancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customEventDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eventTypeRef?: Prisma.EventTypeUpdateOneWithoutInquiriesNestedInput
   quotations?: Prisma.QuotationUpdateManyWithoutInquiryNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutInquiryNestedInput
 }
@@ -1179,6 +1376,8 @@ export type InquiryUncheckedUpdateWithoutUserInput = {
   cancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  eventTypeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  customEventDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quotations?: Prisma.QuotationUncheckedUpdateManyWithoutInquiryNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutInquiryNestedInput
 }
@@ -1203,6 +1402,107 @@ export type InquiryUncheckedUpdateManyWithoutUserInput = {
   cancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  eventTypeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  customEventDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type InquiryCreateManyEventTypeRefInput = {
+  id?: number
+  trackingId: string
+  userId?: number | null
+  clientName?: string | null
+  clientEmail?: string | null
+  clientPhone?: string | null
+  eventType: string
+  eventDate: Date | string
+  eventVenue: string
+  guestsCount: number
+  requirements?: string | null
+  selectedServices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  packageId?: string | null
+  notes?: string | null
+  estimatedBudget?: string | null
+  status?: string | null
+  cancelledAt?: Date | string | null
+  cancelledBy?: string | null
+  cancellationReason?: string | null
+  createdAt?: Date | string
+  customEventDescription?: string | null
+}
+
+export type InquiryUpdateWithoutEventTypeRefInput = {
+  trackingId?: Prisma.StringFieldUpdateOperationsInput | string
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eventType?: Prisma.StringFieldUpdateOperationsInput | string
+  eventDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  eventVenue?: Prisma.StringFieldUpdateOperationsInput | string
+  guestsCount?: Prisma.IntFieldUpdateOperationsInput | number
+  requirements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  selectedServices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  packageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  estimatedBudget?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customEventDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  user?: Prisma.UserUpdateOneWithoutInquiriesNestedInput
+  quotations?: Prisma.QuotationUpdateManyWithoutInquiryNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutInquiryNestedInput
+}
+
+export type InquiryUncheckedUpdateWithoutEventTypeRefInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  trackingId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eventType?: Prisma.StringFieldUpdateOperationsInput | string
+  eventDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  eventVenue?: Prisma.StringFieldUpdateOperationsInput | string
+  guestsCount?: Prisma.IntFieldUpdateOperationsInput | number
+  requirements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  selectedServices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  packageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  estimatedBudget?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customEventDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotations?: Prisma.QuotationUncheckedUpdateManyWithoutInquiryNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutInquiryNestedInput
+}
+
+export type InquiryUncheckedUpdateManyWithoutEventTypeRefInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  trackingId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eventType?: Prisma.StringFieldUpdateOperationsInput | string
+  eventDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  eventVenue?: Prisma.StringFieldUpdateOperationsInput | string
+  guestsCount?: Prisma.IntFieldUpdateOperationsInput | number
+  requirements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  selectedServices?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  packageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  estimatedBudget?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellationReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customEventDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -1266,7 +1566,10 @@ export type InquirySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   cancelledBy?: boolean
   cancellationReason?: boolean
   createdAt?: boolean
+  eventTypeId?: boolean
+  customEventDescription?: boolean
   user?: boolean | Prisma.Inquiry$userArgs<ExtArgs>
+  eventTypeRef?: boolean | Prisma.Inquiry$eventTypeRefArgs<ExtArgs>
   quotations?: boolean | Prisma.Inquiry$quotationsArgs<ExtArgs>
   bookings?: boolean | Prisma.Inquiry$bookingsArgs<ExtArgs>
   _count?: boolean | Prisma.InquiryCountOutputTypeDefaultArgs<ExtArgs>
@@ -1293,7 +1596,10 @@ export type InquirySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   cancelledBy?: boolean
   cancellationReason?: boolean
   createdAt?: boolean
+  eventTypeId?: boolean
+  customEventDescription?: boolean
   user?: boolean | Prisma.Inquiry$userArgs<ExtArgs>
+  eventTypeRef?: boolean | Prisma.Inquiry$eventTypeRefArgs<ExtArgs>
 }, ExtArgs["result"]["inquiry"]>
 
 export type InquirySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1317,7 +1623,10 @@ export type InquirySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   cancelledBy?: boolean
   cancellationReason?: boolean
   createdAt?: boolean
+  eventTypeId?: boolean
+  customEventDescription?: boolean
   user?: boolean | Prisma.Inquiry$userArgs<ExtArgs>
+  eventTypeRef?: boolean | Prisma.Inquiry$eventTypeRefArgs<ExtArgs>
 }, ExtArgs["result"]["inquiry"]>
 
 export type InquirySelectScalar = {
@@ -1341,26 +1650,32 @@ export type InquirySelectScalar = {
   cancelledBy?: boolean
   cancellationReason?: boolean
   createdAt?: boolean
+  eventTypeId?: boolean
+  customEventDescription?: boolean
 }
 
-export type InquiryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "trackingId" | "userId" | "clientName" | "clientEmail" | "clientPhone" | "eventType" | "eventDate" | "eventVenue" | "guestsCount" | "requirements" | "selectedServices" | "packageId" | "notes" | "estimatedBudget" | "status" | "cancelledAt" | "cancelledBy" | "cancellationReason" | "createdAt", ExtArgs["result"]["inquiry"]>
+export type InquiryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "trackingId" | "userId" | "clientName" | "clientEmail" | "clientPhone" | "eventType" | "eventDate" | "eventVenue" | "guestsCount" | "requirements" | "selectedServices" | "packageId" | "notes" | "estimatedBudget" | "status" | "cancelledAt" | "cancelledBy" | "cancellationReason" | "createdAt" | "eventTypeId" | "customEventDescription", ExtArgs["result"]["inquiry"]>
 export type InquiryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.Inquiry$userArgs<ExtArgs>
+  eventTypeRef?: boolean | Prisma.Inquiry$eventTypeRefArgs<ExtArgs>
   quotations?: boolean | Prisma.Inquiry$quotationsArgs<ExtArgs>
   bookings?: boolean | Prisma.Inquiry$bookingsArgs<ExtArgs>
   _count?: boolean | Prisma.InquiryCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type InquiryIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.Inquiry$userArgs<ExtArgs>
+  eventTypeRef?: boolean | Prisma.Inquiry$eventTypeRefArgs<ExtArgs>
 }
 export type InquiryIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.Inquiry$userArgs<ExtArgs>
+  eventTypeRef?: boolean | Prisma.Inquiry$eventTypeRefArgs<ExtArgs>
 }
 
 export type $InquiryPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Inquiry"
   objects: {
     user: Prisma.$UserPayload<ExtArgs> | null
+    eventTypeRef: Prisma.$EventTypePayload<ExtArgs> | null
     quotations: Prisma.$QuotationPayload<ExtArgs>[]
     bookings: Prisma.$BookingPayload<ExtArgs>[]
   }
@@ -1385,6 +1700,8 @@ export type $InquiryPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     cancelledBy: string | null
     cancellationReason: string | null
     createdAt: Date
+    eventTypeId: number | null
+    customEventDescription: string | null
   }, ExtArgs["result"]["inquiry"]>
   composites: {}
 }
@@ -1780,6 +2097,7 @@ readonly fields: InquiryFieldRefs;
 export interface Prisma__InquiryClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.Inquiry$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Inquiry$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  eventTypeRef<T extends Prisma.Inquiry$eventTypeRefArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Inquiry$eventTypeRefArgs<ExtArgs>>): Prisma.Prisma__EventTypeClient<runtime.Types.Result.GetResult<Prisma.$EventTypePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   quotations<T extends Prisma.Inquiry$quotationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Inquiry$quotationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$QuotationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   bookings<T extends Prisma.Inquiry$bookingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Inquiry$bookingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BookingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -1831,6 +2149,8 @@ export interface InquiryFieldRefs {
   readonly cancelledBy: Prisma.FieldRef<"Inquiry", 'String'>
   readonly cancellationReason: Prisma.FieldRef<"Inquiry", 'String'>
   readonly createdAt: Prisma.FieldRef<"Inquiry", 'DateTime'>
+  readonly eventTypeId: Prisma.FieldRef<"Inquiry", 'Int'>
+  readonly customEventDescription: Prisma.FieldRef<"Inquiry", 'String'>
 }
     
 
@@ -2248,6 +2568,25 @@ export type Inquiry$userArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    */
   include?: Prisma.UserInclude<ExtArgs> | null
   where?: Prisma.UserWhereInput
+}
+
+/**
+ * Inquiry.eventTypeRef
+ */
+export type Inquiry$eventTypeRefArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EventType
+   */
+  select?: Prisma.EventTypeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EventType
+   */
+  omit?: Prisma.EventTypeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EventTypeInclude<ExtArgs> | null
+  where?: Prisma.EventTypeWhereInput
 }
 
 /**

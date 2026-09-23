@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { ServiceItem, EquipmentResource } from '../types';
+import { ServiceItem, EquipmentResource, EventType } from '../types';
 import { toast } from 'sonner';
 import { getStoredToken } from '@/services/api';
 
@@ -27,6 +27,7 @@ interface ServiceEditorModalProps {
   serviceToEdit: ServiceItem | null;
   onSaveService: (service: ServiceItem) => void;
   availableResources: EquipmentResource[];
+  availableEventTypes?: EventType[];
 }
 
 const SERVICE_CATEGORIES = [
@@ -56,7 +57,8 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
   onClose,
   serviceToEdit,
   onSaveService,
-  availableResources
+  availableResources,
+  availableEventTypes = []
 }) => {
   const [name, setName] = useState('');
   const [category, setCategory] = useState('Stage & Performance');
@@ -84,6 +86,9 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
   // Linked equipment IDs
   const [selectedResourceIds, setSelectedResourceIds] = useState<string[]>([]);
 
+  // Linked Event Type IDs
+  const [selectedEventTypeIds, setSelectedEventTypeIds] = useState<number[]>([]);
+
   useEffect(() => {
     if (serviceToEdit) {
       setName(serviceToEdit.name || '');
@@ -103,6 +108,9 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
         serviceToEdit.equipmentResources?.map(r => r.id) || 
         availableResources.filter(r => r.assignedServiceId === serviceToEdit.id).map(r => r.id)
       );
+      setSelectedEventTypeIds(
+        (serviceToEdit.eventTypes as EventType[])?.map((et: EventType) => et.id) || []
+      );
     } else {
       // Default new service values
       setName('');
@@ -116,6 +124,7 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
       setFeatures(['Professional On-Site Crew', 'Real-time Coordination', 'Pre-Event Soundcheck & Staging']);
       setInclusions(['Full Ingress & Egress', 'Dedicated Supervisor', 'Contingency Spares']);
       setSelectedResourceIds([]);
+      setSelectedEventTypeIds([]);
     }
     // Reset file upload state when modal opens/changes
     setSelectedFile(null);
@@ -160,6 +169,12 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
   const toggleResource = (resourceId: string) => {
     setSelectedResourceIds(prev => 
       prev.includes(resourceId) ? prev.filter(id => id !== resourceId) : [...prev, resourceId]
+    );
+  };
+
+  const toggleEventType = (eventTypeId: number) => {
+    setSelectedEventTypeIds(prev => 
+      prev.includes(eventTypeId) ? prev.filter(id => id !== eventTypeId) : [...prev, eventTypeId]
     );
   };
 
@@ -217,7 +232,8 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
       features: features.length > 0 ? features : ['Standard Professional Inclusions'],
       inclusions: inclusions.length > 0 ? inclusions : ['On-Site Crew & Supervision'],
       isActive,
-      equipmentResources: linkedResources
+      equipmentResources: linkedResources,
+      eventTypes: selectedEventTypeIds
     };
 
     onSaveService(finalService);
@@ -529,6 +545,42 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
                       isSelected ? 'bg-[#1E3A8A] border-[#1E3A8A] text-white' : 'border-slate-300'
                     }`}>
                       {isSelected && <Check className="w-3 h-3" />}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Linked Event Types */}
+          <div className="p-4 rounded-md bg-purple-50/60 border border-purple-200 space-y-3">
+            <label className="text-xs font-bold text-purple-800 flex items-center justify-between">
+              <span>Assign Event Types</span>
+              <span className="text-[11px] text-purple-700 font-semibold">{selectedEventTypeIds.length} Linked</span>
+            </label>
+            <p className="text-[11px] text-slate-500">
+              Select which event types this service applies to. Leave empty to apply to all.
+            </p>
+
+            <div className="flex flex-wrap gap-2">
+              {availableEventTypes.map(et => {
+                const isSelected = selectedEventTypeIds.includes(et.id);
+                return (
+                  <button
+                    type="button"
+                    key={et.id}
+                    onClick={() => toggleEventType(et.id)}
+                    className={`flex items-center justify-between px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
+                      isSelected 
+                        ? 'bg-purple-600 border-purple-600 text-white shadow-sm' 
+                        : 'bg-white/60 border-slate-200 text-slate-600 hover:border-slate-300'
+                    }`}
+                  >
+                    <span>{et.name}</span>
+                    <div className={`w-3 h-3 rounded-full ml-2 flex items-center justify-center shrink-0 ${
+                      isSelected ? 'bg-white text-purple-600' : 'hidden'
+                    }`}>
+                      <Check className="w-2.5 h-2.5" />
                     </div>
                   </button>
                 );

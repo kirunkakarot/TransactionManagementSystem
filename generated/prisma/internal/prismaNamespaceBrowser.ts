@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
+  EventType: 'EventType',
   Service: 'Service',
   Package: 'Package',
   Inquiry: 'Inquiry',
@@ -101,6 +102,18 @@ export const UserScalarFieldEnum = {
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const EventTypeScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EventTypeScalarFieldEnum = (typeof EventTypeScalarFieldEnum)[keyof typeof EventTypeScalarFieldEnum]
 
 
 export const ServiceScalarFieldEnum = {
@@ -164,7 +177,9 @@ export const InquiryScalarFieldEnum = {
   cancelledAt: 'cancelledAt',
   cancelledBy: 'cancelledBy',
   cancellationReason: 'cancellationReason',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  eventTypeId: 'eventTypeId',
+  customEventDescription: 'customEventDescription'
 } as const
 
 export type InquiryScalarFieldEnum = (typeof InquiryScalarFieldEnum)[keyof typeof InquiryScalarFieldEnum]
@@ -191,6 +206,7 @@ export const QuotationScalarFieldEnum = {
   validUntil: 'validUntil',
   validityDays: 'validityDays',
   status: 'status',
+  adminComment: 'adminComment',
   notes: 'notes',
   terms: 'terms',
   sentAt: 'sentAt',

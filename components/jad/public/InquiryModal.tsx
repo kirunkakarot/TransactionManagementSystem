@@ -27,7 +27,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { ServiceItem, PackageItem, InquiryFormData } from '../types';
+import { ServiceItem, PackageItem, InquiryFormData, EventType } from '../types';
 import { submitInquiry } from '@/services/api';
 
 interface InquiryModalProps {
@@ -41,6 +41,7 @@ interface InquiryModalProps {
   currentUser?: { role: 'client' | 'admin'; email: string } | null;
   services?: ServiceItem[];
   packages?: PackageItem[];
+  eventTypes?: EventType[];
   onRequireAuth?: () => void;
   onInquirySubmitted?: (inquiry: InquiryFormData) => void;
 }
@@ -56,6 +57,7 @@ export const InquiryModal: React.FC<InquiryModalProps> = ({
   currentUser,
   services = [],
   packages = [],
+  eventTypes = [],
   onRequireAuth,
   onInquirySubmitted
 }) => {
@@ -63,6 +65,7 @@ export const InquiryModal: React.FC<InquiryModalProps> = ({
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('0917-889-1234');
   const [eventType, setEventType] = useState('Birthday Celebration');
+  const [customEventDescription, setCustomEventDescription] = useState('');
   const [eventDate, setEventDate] = useState('2026-08-28');
   const [venue, setVenue] = useState('Grand Palazzo Royale, Ballroom A');
   const [guestCount, setGuestCount] = useState<number>(120);
@@ -138,12 +141,20 @@ export const InquiryModal: React.FC<InquiryModalProps> = ({
     const randomRef = `INQ-${Math.floor(1000 + Math.random() * 9000)}`;
 
     try {
+      let selectedEventTypeId: number | undefined = undefined;
+      const matchingType = eventTypes.find(et => et.name === eventType);
+      if (matchingType) {
+        selectedEventTypeId = matchingType.id;
+      }
+
       await submitInquiry({
         trackingId: randomRef,
         fullName: fullName || currentUser.email.split('@')[0],
         email: currentUser.email,
         phone: phone || '0917-889-1234',
-        eventType,
+        eventType: eventType === 'Other' ? (customEventDescription || 'Custom Event') : eventType,
+        eventTypeId: selectedEventTypeId,
+        customEventDescription: eventType === 'Other' ? customEventDescription : undefined,
         eventDate,
         eventVenue: venue,
         guestsCount: guestCount,
@@ -165,7 +176,7 @@ export const InquiryModal: React.FC<InquiryModalProps> = ({
         fullName: fullName || currentUser.email.split('@')[0],
         email: currentUser.email,
         phone: phone || '0917-889-1234',
-        eventType,
+        eventType: eventType === 'Other' ? (customEventDescription || 'Custom Event') : eventType,
         eventDate,
         venue,
         guestCount,
@@ -355,16 +366,46 @@ export const InquiryModal: React.FC<InquiryModalProps> = ({
                   <Label>Event Type</Label>
                   <select
                     value={eventType}
-                    onChange={(e) => setEventType(e.target.value)}
+                    onChange={(e) => {
+                      setEventType(e.target.value);
+                      if (e.target.value !== 'Other') {
+                        setCustomEventDescription('');
+                      }
+                    }}
                     className="flex h-10 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:bg-white"
                   >
-                    <option value="Birthday Celebration">Birthday Celebration</option>
-                    <option value="Grand Wedding">Grand Wedding & Reception</option>
-                    <option value="18th Debut">18th Debut Milestone</option>
-                    <option value="Corporate Gala">Corporate Gala / Launch</option>
-                    <option value="Anniversary Party">Anniversary & Reunion</option>
+                    {eventTypes.length > 0 ? (
+                      <>
+                        {eventTypes.map(et => (
+                          <option key={et.id} value={et.name}>{et.name}</option>
+                        ))}
+                      </>
+                    ) : (
+                      <>
+                        <option value="Birthday Celebration">Birthday Celebration</option>
+                        <option value="Grand Wedding">Grand Wedding & Reception</option>
+                        <option value="18th Debut">18th Debut Milestone</option>
+                        <option value="Corporate Gala">Corporate Gala / Launch</option>
+                        <option value="Anniversary Party">Anniversary & Reunion</option>
+                      </>
+                    )}
+                    <option value="Other">Other (Custom Event Type)</option>
                   </select>
                 </div>
+                
+                {eventType === 'Other' && (
+                  <div className="space-y-1.5">
+                    <Label>Custom Event Description</Label>
+                    <Input
+                      type="text"
+                      required
+                      placeholder="e.g. 50th Golden Anniversary"
+                      value={customEventDescription}
+                      onChange={(e) => setCustomEventDescription(e.target.value)}
+                      className="text-xs"
+                    />
+                  </div>
+                )}
 
                 <div className="space-y-1.5">
                   <Label>Event Date</Label>

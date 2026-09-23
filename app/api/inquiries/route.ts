@@ -47,6 +47,8 @@ export async function POST(req: Request) {
       budgetRange,
       estimatedBudget,
       trackingId,
+      eventTypeId,
+      customEventDescription,
     } = body;
 
     const effectiveVenue = eventVenue || venue;
@@ -72,6 +74,8 @@ export async function POST(req: Request) {
       clientEmail: effectiveClientEmail,
       clientPhone: effectiveClientPhone,
       eventType,
+      eventTypeId: eventTypeId ? parseInt(String(eventTypeId), 10) : null,
+      customEventDescription: customEventDescription || null,
       eventDate,
       eventVenue: effectiveVenue,
       guestsCount: effectiveGuestsCount,

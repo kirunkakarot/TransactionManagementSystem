@@ -398,6 +398,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   User: 'User',
+  EventType: 'EventType',
   Service: 'Service',
   Package: 'Package',
   Inquiry: 'Inquiry',
@@ -429,7 +430,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "service" | "package" | "inquiry" | "quotation" | "staff" | "equipmentResource" | "booking" | "bookingService" | "bookingPackage" | "bookingStaff" | "bookingResource" | "eventSchedule" | "paymentTransaction" | "feedback" | "passwordResetToken" | "googleIdentity"
+    modelProps: "user" | "eventType" | "service" | "package" | "inquiry" | "quotation" | "staff" | "equipmentResource" | "booking" | "bookingService" | "bookingPackage" | "bookingStaff" | "bookingResource" | "eventSchedule" | "paymentTransaction" | "feedback" | "passwordResetToken" | "googleIdentity"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -504,6 +505,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.UserCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UserCountAggregateOutputType> | number
+        }
+      }
+    }
+    EventType: {
+      payload: Prisma.$EventTypePayload<ExtArgs>
+      fields: Prisma.EventTypeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.EventTypeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EventTypePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.EventTypeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EventTypePayload>
+        }
+        findFirst: {
+          args: Prisma.EventTypeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EventTypePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.EventTypeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EventTypePayload>
+        }
+        findMany: {
+          args: Prisma.EventTypeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EventTypePayload>[]
+        }
+        create: {
+          args: Prisma.EventTypeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EventTypePayload>
+        }
+        createMany: {
+          args: Prisma.EventTypeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.EventTypeCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EventTypePayload>[]
+        }
+        delete: {
+          args: Prisma.EventTypeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EventTypePayload>
+        }
+        update: {
+          args: Prisma.EventTypeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EventTypePayload>
+        }
+        deleteMany: {
+          args: Prisma.EventTypeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.EventTypeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.EventTypeUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EventTypePayload>[]
+        }
+        upsert: {
+          args: Prisma.EventTypeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EventTypePayload>
+        }
+        aggregate: {
+          args: Prisma.EventTypeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateEventType>
+        }
+        groupBy: {
+          args: Prisma.EventTypeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EventTypeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.EventTypeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EventTypeCountAggregateOutputType> | number
         }
       }
     }
@@ -1747,6 +1822,18 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+export const EventTypeScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EventTypeScalarFieldEnum = (typeof EventTypeScalarFieldEnum)[keyof typeof EventTypeScalarFieldEnum]
+
+
 export const ServiceScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -1808,7 +1895,9 @@ export const InquiryScalarFieldEnum = {
   cancelledAt: 'cancelledAt',
   cancelledBy: 'cancelledBy',
   cancellationReason: 'cancellationReason',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  eventTypeId: 'eventTypeId',
+  customEventDescription: 'customEventDescription'
 } as const
 
 export type InquiryScalarFieldEnum = (typeof InquiryScalarFieldEnum)[keyof typeof InquiryScalarFieldEnum]
@@ -1835,6 +1924,7 @@ export const QuotationScalarFieldEnum = {
   validUntil: 'validUntil',
   validityDays: 'validityDays',
   status: 'status',
+  adminComment: 'adminComment',
   notes: 'notes',
   terms: 'terms',
   sentAt: 'sentAt',
@@ -2151,6 +2241,13 @@ export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 
 
 /**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
  * Reference to a field of type 'Decimal'
  */
 export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
@@ -2161,13 +2258,6 @@ export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
  * Reference to a field of type 'Decimal[]'
  */
 export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
-    
-
-
-/**
- * Reference to a field of type 'Boolean'
- */
-export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -2336,6 +2426,7 @@ export interface PrismaClientOptionsWithAdapter extends PrismaClientBaseOptions 
 export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaClientOptionsWithAdapter
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
+  eventType?: Prisma.EventTypeOmit
   service?: Prisma.ServiceOmit
   package?: Prisma.PackageOmit
   inquiry?: Prisma.InquiryOmit

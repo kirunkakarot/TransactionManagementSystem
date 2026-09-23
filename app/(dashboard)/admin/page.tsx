@@ -11,10 +11,11 @@ import {
   PackageItem, 
   InquiryFormData, 
   Quotation, 
-  EquipmentResource,
   Booking,
   PaymentTransaction,
-  StaffMember
+  StaffMember,
+  EventType,
+  EquipmentResource
 } from '@/components/jad/types';
 import { 
   fetchServices, 
@@ -52,7 +53,9 @@ import {
   rejectPaymentApi,
   deletePaymentApi,
   deleteInquiryApi,
-  updateInquiryStatusApi
+  updateInquiryStatusApi,
+  fetchEventTypes,
+  classifyInquiryApi
 } from '@/services/api';
 import Cookies from 'js-cookie';
 
@@ -69,6 +72,7 @@ export default function AdminPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [payments, setPayments] = useState<PaymentTransaction[]>([]);
   const [staffRoster, setStaffRoster] = useState<StaffMember[]>([]);
+  const [eventTypes, setEventTypes] = useState<EventType[]>([]);
 
   const getAdminToken = useCallback(() => {
     if (typeof window !== 'undefined') {
@@ -98,7 +102,8 @@ export default function AdminPage() {
         fetchEquipment('', 100),
         fetchQuotations('', 100, 0, token),
         fetchBookings('ALL', '', 100, 0, token),
-        fetchPayments('', 100, 0, token)
+        fetchPayments('', 100, 0, token),
+        fetchEventTypes('', 100, 0, token)
       ]);
 
       // 1. Map Services
@@ -120,6 +125,7 @@ export default function AdminPage() {
           inclusions: Array.isArray(s.inclusions) && s.inclusions.length > 0 ? s.inclusions : ['Dedicated Team', 'Quality Setup', 'Coordination Support'],
           tag: 'Verified',
           isActive: s.isActive !== false,
+          eventTypes: s.eventTypes || [],
         })));
       }
 
@@ -143,6 +149,7 @@ export default function AdminPage() {
           servicesIncluded: Array.isArray(p.servicesIncluded) ? p.servicesIncluded : ['entertainment', 'event-decoration', 'photo-video'],
           isPopular: p.isPopular === true,
           isActive: p.isActive !== false,
+          eventTypes: p.eventTypes || [],
         })));
       }
 
@@ -303,6 +310,15 @@ export default function AdminPage() {
         })));
       } else {
         setPayments([]);
+      }
+
+      // 9. Map Event Types
+      // Wait, Promise.all returns an array, let's just get it from the array
+      const etRes = await fetchEventTypes('', 100, 0, token);
+      if (etRes.eventTypes && etRes.eventTypes.length > 0) {
+        setEventTypes(etRes.eventTypes);
+      } else {
+        setEventTypes([]);
       }
     } catch (err) {
       console.warn('Admin loadAllAdminData fallback:', err);
@@ -901,6 +917,17 @@ export default function AdminPage() {
     }
   };
 
+  const handleUpdateInquiryClassification = async (inquiryId: string, eventTypeId: number, eventTypeName: string) => {
+    const token = getAdminToken();
+    try {
+      await classifyInquiryApi(inquiryId, eventTypeId, eventTypeName, token);
+      loadAllAdminData();
+    } catch (err: any) {
+      console.error('Error updating inquiry classification:', err);
+      toast.error('Failed to update classification', { description: err.message });
+    }
+  };
+
   const handleDeleteInquiry = async (inquiryId: string) => {
     const token = getAdminToken();
     try {
@@ -938,12 +965,14 @@ export default function AdminPage() {
         bookings={bookings}
         payments={payments}
         staffRoster={staffRoster}
+        availableEventTypes={eventTypes}
         onNavigateHome={() => router.push('/homepage')}
         onLogout={handleLogout}
         onSwitchToCustomer={() => router.push('/customer')}
         onSaveQuotation={handleSaveQuotation}
         onDeleteQuotation={handleDeleteQuotation}
         onUpdateInquiryStatus={handleUpdateInquiryStatus}
+        onUpdateInquiryClassification={handleUpdateInquiryClassification}
         onDeleteInquiry={handleDeleteInquiry}
         onVerifyDownpayment={handleVerifyDownpayment}
         onApproveBooking={handleApproveBooking}

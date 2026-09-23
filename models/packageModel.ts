@@ -14,6 +14,7 @@ export interface PackageInput {
   inclusions?: any;
   features?: any;
   servicesIncluded?: any;
+  eventTypes?: number[];
 }
 
 export const createPackagesTable = async () => {
@@ -38,7 +39,11 @@ export const createPackage = async (data: PackageInput | { name: string; descrip
       inclusions: d.inclusions ? d.inclusions : [],
       features: d.features ? d.features : [],
       servicesIncluded: d.servicesIncluded ? d.servicesIncluded : [],
+      eventTypes: d.eventTypes?.length ? { connect: d.eventTypes.map(id => ({ id })) } : undefined,
     },
+    include: {
+      eventTypes: true,
+    }
   });
 };
 
@@ -61,6 +66,9 @@ export const getPackages = async (limit = 100, offset = 0, search = '') => {
       orderBy: {
         id: 'asc',
       },
+      include: {
+        eventTypes: true,
+      }
     }),
     prisma.package.count({ where }),
   ]);
@@ -76,6 +84,7 @@ export const getPackageById = async (id: number | string) => {
   if (isNaN(packageId)) return null;
   return await prisma.package.findUnique({
     where: { id: packageId },
+    include: { eventTypes: true },
   });
 };
 
@@ -106,10 +115,12 @@ export const updatePackage = async (
   if (d.inclusions !== undefined) updatePayload.inclusions = d.inclusions;
   if (d.features !== undefined) updatePayload.features = d.features;
   if (d.servicesIncluded !== undefined) updatePayload.servicesIncluded = d.servicesIncluded;
+  if (d.eventTypes !== undefined) updatePayload.eventTypes = { set: d.eventTypes.map(id => ({ id })) };
 
   return await prisma.package.update({
     where: { id: packageId },
     data: updatePayload,
+    include: { eventTypes: true },
   });
 };
 

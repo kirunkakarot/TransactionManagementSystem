@@ -24,7 +24,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { InquiryFormData, ServiceItem, PackageItem } from '../types';
+import { InquiryFormData, ServiceItem, PackageItem, EventType } from '../types';
 
 interface InquiryDetailModalProps {
   isOpen: boolean;
@@ -32,6 +32,8 @@ interface InquiryDetailModalProps {
   inquiry: InquiryFormData | null;
   services?: ServiceItem[];
   packages?: PackageItem[];
+  availableEventTypes?: EventType[];
+  onUpdateInquiryClassification?: (inquiryId: string, eventTypeId: number, eventTypeName: string) => void;
   onCreateQuotation?: (inquiry: InquiryFormData) => void;
 }
 
@@ -41,6 +43,8 @@ export const InquiryDetailModal: React.FC<InquiryDetailModalProps> = ({
   inquiry,
   services = [],
   packages = [],
+  availableEventTypes = [],
+  onUpdateInquiryClassification,
   onCreateQuotation,
 }) => {
   if (!inquiry) return null;
@@ -131,10 +135,39 @@ export const InquiryDetailModal: React.FC<InquiryDetailModalProps> = ({
               <span>Target Event Details</span>
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              <Card className="p-3.5 rounded-md bg-white border-slate-200 shadow-sm">
+              <Card className="p-3.5 rounded-md bg-white border-slate-200 shadow-sm col-span-1 sm:col-span-2 lg:col-span-1">
                 <CardContent className="p-0 space-y-1">
                   <span className="text-[10px] font-semibold uppercase text-slate-400 block">Event Type</span>
-                  <span className="text-xs font-extrabold text-[#1E3A8A] block">{inquiry.eventType}</span>
+                  
+                  {availableEventTypes.length > 0 && onUpdateInquiryClassification ? (
+                    <div className="mt-1">
+                      <select
+                        value={(inquiry as any).eventTypeId || inquiry.eventType}
+                        onChange={(e) => {
+                          const selected = availableEventTypes.find(t => t.id === Number(e.target.value) || t.name === e.target.value);
+                          if (selected && inquiry.id) {
+                            onUpdateInquiryClassification(inquiry.id, selected.id, selected.name);
+                          }
+                        }}
+                        className="w-full text-xs font-bold text-[#1E3A8A] border-slate-200 rounded px-1 py-0.5 bg-blue-50/50"
+                      >
+                        <option value={inquiry.eventType} disabled>{inquiry.eventType}</option>
+                        {availableEventTypes.map(t => (
+                          <option key={t.id} value={t.id}>{t.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  ) : (
+                    <span className="text-xs font-extrabold text-[#1E3A8A] block">
+                      {inquiry.eventType}
+                    </span>
+                  )}
+                  
+                  {(inquiry as any).customEventDescription && (
+                    <span className="text-[10px] font-normal text-slate-500 block mt-1">
+                      Original: {(inquiry as any).customEventDescription}
+                    </span>
+                  )}
                 </CardContent>
               </Card>
 

@@ -66,6 +66,7 @@ export type QuotationMinAggregateOutputType = {
   validUntil: Date | null
   validityDays: number | null
   status: string | null
+  adminComment: string | null
   notes: string | null
   sentAt: Date | null
   acceptedAt: Date | null
@@ -93,6 +94,7 @@ export type QuotationMaxAggregateOutputType = {
   validUntil: Date | null
   validityDays: number | null
   status: string | null
+  adminComment: string | null
   notes: string | null
   sentAt: Date | null
   acceptedAt: Date | null
@@ -123,6 +125,7 @@ export type QuotationCountAggregateOutputType = {
   validUntil: number
   validityDays: number
   status: number
+  adminComment: number
   notes: number
   terms: number
   sentAt: number
@@ -175,6 +178,7 @@ export type QuotationMinAggregateInputType = {
   validUntil?: true
   validityDays?: true
   status?: true
+  adminComment?: true
   notes?: true
   sentAt?: true
   acceptedAt?: true
@@ -202,6 +206,7 @@ export type QuotationMaxAggregateInputType = {
   validUntil?: true
   validityDays?: true
   status?: true
+  adminComment?: true
   notes?: true
   sentAt?: true
   acceptedAt?: true
@@ -232,6 +237,7 @@ export type QuotationCountAggregateInputType = {
   validUntil?: true
   validityDays?: true
   status?: true
+  adminComment?: true
   notes?: true
   terms?: true
   sentAt?: true
@@ -350,6 +356,7 @@ export type QuotationGroupByOutputType = {
   validUntil: Date
   validityDays: number
   status: string
+  adminComment: string | null
   notes: string | null
   terms: runtime.JsonValue | null
   sentAt: Date | null
@@ -404,6 +411,7 @@ export type QuotationWhereInput = {
   validUntil?: Prisma.DateTimeFilter<"Quotation"> | Date | string
   validityDays?: Prisma.IntFilter<"Quotation"> | number
   status?: Prisma.StringFilter<"Quotation"> | string
+  adminComment?: Prisma.StringNullableFilter<"Quotation"> | string | null
   notes?: Prisma.StringNullableFilter<"Quotation"> | string | null
   terms?: Prisma.JsonNullableFilter<"Quotation">
   sentAt?: Prisma.DateTimeNullableFilter<"Quotation"> | Date | string | null
@@ -439,6 +447,7 @@ export type QuotationOrderByWithRelationInput = {
   validUntil?: Prisma.SortOrder
   validityDays?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  adminComment?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   terms?: Prisma.SortOrderInput | Prisma.SortOrder
   sentAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -477,6 +486,7 @@ export type QuotationWhereUniqueInput = Prisma.AtLeast<{
   validUntil?: Prisma.DateTimeFilter<"Quotation"> | Date | string
   validityDays?: Prisma.IntFilter<"Quotation"> | number
   status?: Prisma.StringFilter<"Quotation"> | string
+  adminComment?: Prisma.StringNullableFilter<"Quotation"> | string | null
   notes?: Prisma.StringNullableFilter<"Quotation"> | string | null
   terms?: Prisma.JsonNullableFilter<"Quotation">
   sentAt?: Prisma.DateTimeNullableFilter<"Quotation"> | Date | string | null
@@ -512,6 +522,7 @@ export type QuotationOrderByWithAggregationInput = {
   validUntil?: Prisma.SortOrder
   validityDays?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  adminComment?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   terms?: Prisma.SortOrderInput | Prisma.SortOrder
   sentAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -551,6 +562,7 @@ export type QuotationScalarWhereWithAggregatesInput = {
   validUntil?: Prisma.DateTimeWithAggregatesFilter<"Quotation"> | Date | string
   validityDays?: Prisma.IntWithAggregatesFilter<"Quotation"> | number
   status?: Prisma.StringWithAggregatesFilter<"Quotation"> | string
+  adminComment?: Prisma.StringNullableWithAggregatesFilter<"Quotation"> | string | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"Quotation"> | string | null
   terms?: Prisma.JsonNullableWithAggregatesFilter<"Quotation">
   sentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Quotation"> | Date | string | null
@@ -579,6 +591,7 @@ export type QuotationCreateInput = {
   validUntil: Date | string
   validityDays?: number
   status?: string
+  adminComment?: string | null
   notes?: string | null
   terms?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sentAt?: Date | string | null
@@ -614,6 +627,7 @@ export type QuotationUncheckedCreateInput = {
   validUntil: Date | string
   validityDays?: number
   status?: string
+  adminComment?: string | null
   notes?: string | null
   terms?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sentAt?: Date | string | null
@@ -644,6 +658,7 @@ export type QuotationUpdateInput = {
   validUntil?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   validityDays?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  adminComment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   terms?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -679,6 +694,7 @@ export type QuotationUncheckedUpdateInput = {
   validUntil?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   validityDays?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  adminComment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   terms?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -712,6 +728,7 @@ export type QuotationCreateManyInput = {
   validUntil: Date | string
   validityDays?: number
   status?: string
+  adminComment?: string | null
   notes?: string | null
   terms?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sentAt?: Date | string | null
@@ -740,6 +757,7 @@ export type QuotationUpdateManyMutationInput = {
   validUntil?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   validityDays?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  adminComment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   terms?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -771,6 +789,7 @@ export type QuotationUncheckedUpdateManyInput = {
   validUntil?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   validityDays?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  adminComment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   terms?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -812,6 +831,7 @@ export type QuotationCountOrderByAggregateInput = {
   validUntil?: Prisma.SortOrder
   validityDays?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  adminComment?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   terms?: Prisma.SortOrder
   sentAt?: Prisma.SortOrder
@@ -851,6 +871,7 @@ export type QuotationMaxOrderByAggregateInput = {
   validUntil?: Prisma.SortOrder
   validityDays?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  adminComment?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   sentAt?: Prisma.SortOrder
   acceptedAt?: Prisma.SortOrder
@@ -878,6 +899,7 @@ export type QuotationMinOrderByAggregateInput = {
   validUntil?: Prisma.SortOrder
   validityDays?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  adminComment?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   sentAt?: Prisma.SortOrder
   acceptedAt?: Prisma.SortOrder
@@ -1037,6 +1059,7 @@ export type QuotationCreateWithoutUserInput = {
   validUntil: Date | string
   validityDays?: number
   status?: string
+  adminComment?: string | null
   notes?: string | null
   terms?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sentAt?: Date | string | null
@@ -1070,6 +1093,7 @@ export type QuotationUncheckedCreateWithoutUserInput = {
   validUntil: Date | string
   validityDays?: number
   status?: string
+  adminComment?: string | null
   notes?: string | null
   terms?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sentAt?: Date | string | null
@@ -1132,6 +1156,7 @@ export type QuotationScalarWhereInput = {
   validUntil?: Prisma.DateTimeFilter<"Quotation"> | Date | string
   validityDays?: Prisma.IntFilter<"Quotation"> | number
   status?: Prisma.StringFilter<"Quotation"> | string
+  adminComment?: Prisma.StringNullableFilter<"Quotation"> | string | null
   notes?: Prisma.StringNullableFilter<"Quotation"> | string | null
   terms?: Prisma.JsonNullableFilter<"Quotation">
   sentAt?: Prisma.DateTimeNullableFilter<"Quotation"> | Date | string | null
@@ -1160,6 +1185,7 @@ export type QuotationCreateWithoutInquiryInput = {
   validUntil: Date | string
   validityDays?: number
   status?: string
+  adminComment?: string | null
   notes?: string | null
   terms?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sentAt?: Date | string | null
@@ -1193,6 +1219,7 @@ export type QuotationUncheckedCreateWithoutInquiryInput = {
   validUntil: Date | string
   validityDays?: number
   status?: string
+  adminComment?: string | null
   notes?: string | null
   terms?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sentAt?: Date | string | null
@@ -1249,6 +1276,7 @@ export type QuotationCreateWithoutBookingsInput = {
   validUntil: Date | string
   validityDays?: number
   status?: string
+  adminComment?: string | null
   notes?: string | null
   terms?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sentAt?: Date | string | null
@@ -1283,6 +1311,7 @@ export type QuotationUncheckedCreateWithoutBookingsInput = {
   validUntil: Date | string
   validityDays?: number
   status?: string
+  adminComment?: string | null
   notes?: string | null
   terms?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sentAt?: Date | string | null
@@ -1328,6 +1357,7 @@ export type QuotationUpdateWithoutBookingsInput = {
   validUntil?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   validityDays?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  adminComment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   terms?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1362,6 +1392,7 @@ export type QuotationUncheckedUpdateWithoutBookingsInput = {
   validUntil?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   validityDays?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  adminComment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   terms?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1391,6 +1422,7 @@ export type QuotationCreateWithoutPaymentsInput = {
   validUntil: Date | string
   validityDays?: number
   status?: string
+  adminComment?: string | null
   notes?: string | null
   terms?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sentAt?: Date | string | null
@@ -1425,6 +1457,7 @@ export type QuotationUncheckedCreateWithoutPaymentsInput = {
   validUntil: Date | string
   validityDays?: number
   status?: string
+  adminComment?: string | null
   notes?: string | null
   terms?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sentAt?: Date | string | null
@@ -1470,6 +1503,7 @@ export type QuotationUpdateWithoutPaymentsInput = {
   validUntil?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   validityDays?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  adminComment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   terms?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1504,6 +1538,7 @@ export type QuotationUncheckedUpdateWithoutPaymentsInput = {
   validUntil?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   validityDays?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  adminComment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   terms?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1535,6 +1570,7 @@ export type QuotationCreateManyUserInput = {
   validUntil: Date | string
   validityDays?: number
   status?: string
+  adminComment?: string | null
   notes?: string | null
   terms?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sentAt?: Date | string | null
@@ -1563,6 +1599,7 @@ export type QuotationUpdateWithoutUserInput = {
   validUntil?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   validityDays?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  adminComment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   terms?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1596,6 +1633,7 @@ export type QuotationUncheckedUpdateWithoutUserInput = {
   validUntil?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   validityDays?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  adminComment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   terms?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1628,6 +1666,7 @@ export type QuotationUncheckedUpdateManyWithoutUserInput = {
   validUntil?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   validityDays?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  adminComment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   terms?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1658,6 +1697,7 @@ export type QuotationCreateManyInquiryInput = {
   validUntil: Date | string
   validityDays?: number
   status?: string
+  adminComment?: string | null
   notes?: string | null
   terms?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sentAt?: Date | string | null
@@ -1686,6 +1726,7 @@ export type QuotationUpdateWithoutInquiryInput = {
   validUntil?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   validityDays?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  adminComment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   terms?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1719,6 +1760,7 @@ export type QuotationUncheckedUpdateWithoutInquiryInput = {
   validUntil?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   validityDays?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  adminComment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   terms?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1751,6 +1793,7 @@ export type QuotationUncheckedUpdateManyWithoutInquiryInput = {
   validUntil?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   validityDays?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  adminComment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   terms?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1822,6 +1865,7 @@ export type QuotationSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   validUntil?: boolean
   validityDays?: boolean
   status?: boolean
+  adminComment?: boolean
   notes?: boolean
   terms?: boolean
   sentAt?: boolean
@@ -1858,6 +1902,7 @@ export type QuotationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   validUntil?: boolean
   validityDays?: boolean
   status?: boolean
+  adminComment?: boolean
   notes?: boolean
   terms?: boolean
   sentAt?: boolean
@@ -1891,6 +1936,7 @@ export type QuotationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   validUntil?: boolean
   validityDays?: boolean
   status?: boolean
+  adminComment?: boolean
   notes?: boolean
   terms?: boolean
   sentAt?: boolean
@@ -1924,6 +1970,7 @@ export type QuotationSelectScalar = {
   validUntil?: boolean
   validityDays?: boolean
   status?: boolean
+  adminComment?: boolean
   notes?: boolean
   terms?: boolean
   sentAt?: boolean
@@ -1934,7 +1981,7 @@ export type QuotationSelectScalar = {
   updatedAt?: boolean
 }
 
-export type QuotationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "quotationRef" | "inquiryId" | "userId" | "clientName" | "clientEmail" | "clientPhone" | "eventType" | "eventDate" | "venue" | "guestCount" | "items" | "subtotal" | "discounts" | "additionalCharges" | "grandTotal" | "requiredDownpayment" | "validUntil" | "validityDays" | "status" | "notes" | "terms" | "sentAt" | "acceptedAt" | "depositPaidAt" | "confirmedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["quotation"]>
+export type QuotationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "quotationRef" | "inquiryId" | "userId" | "clientName" | "clientEmail" | "clientPhone" | "eventType" | "eventDate" | "venue" | "guestCount" | "items" | "subtotal" | "discounts" | "additionalCharges" | "grandTotal" | "requiredDownpayment" | "validUntil" | "validityDays" | "status" | "adminComment" | "notes" | "terms" | "sentAt" | "acceptedAt" | "depositPaidAt" | "confirmedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["quotation"]>
 export type QuotationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   inquiry?: boolean | Prisma.Quotation$inquiryArgs<ExtArgs>
   user?: boolean | Prisma.Quotation$userArgs<ExtArgs>
@@ -1980,6 +2027,7 @@ export type $QuotationPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     validUntil: Date
     validityDays: number
     status: string
+    adminComment: string | null
     notes: string | null
     terms: runtime.JsonValue | null
     sentAt: Date | null
@@ -2435,6 +2483,7 @@ export interface QuotationFieldRefs {
   readonly validUntil: Prisma.FieldRef<"Quotation", 'DateTime'>
   readonly validityDays: Prisma.FieldRef<"Quotation", 'Int'>
   readonly status: Prisma.FieldRef<"Quotation", 'String'>
+  readonly adminComment: Prisma.FieldRef<"Quotation", 'String'>
   readonly notes: Prisma.FieldRef<"Quotation", 'String'>
   readonly terms: Prisma.FieldRef<"Quotation", 'Json'>
   readonly sentAt: Prisma.FieldRef<"Quotation", 'DateTime'>
