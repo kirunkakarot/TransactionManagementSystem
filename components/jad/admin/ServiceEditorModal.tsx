@@ -1,11 +1,11 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  X, 
-  Plus, 
-  Trash2, 
-  Check, 
-  Layers, 
+import {
+  X,
+  Plus,
+  Trash2,
+  Check,
+  Layers,
   Image as ImageIcon,
   Tag,
   Wrench,
@@ -62,7 +62,7 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
 }) => {
   const [name, setName] = useState('');
   const [category, setCategory] = useState('Stage & Performance');
-  const [startingPrice, setStartingPrice] = useState<number>(15000);
+  const [startingPrice, setStartingPrice] = useState<number | ''>('');
   const [shortDesc, setShortDesc] = useState('');
   const [fullDesc, setFullDesc] = useState('');
   const [featuredImage, setFeaturedImage] = useState('');
@@ -92,11 +92,11 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
   useEffect(() => {
     if (serviceToEdit) {
       setName(serviceToEdit.name || '');
-      const validCategory = SERVICE_CATEGORIES.includes(serviceToEdit.category) 
-        ? serviceToEdit.category 
+      const validCategory = SERVICE_CATEGORIES.includes(serviceToEdit.category)
+        ? serviceToEdit.category
         : 'Stage & Performance';
       setCategory(validCategory);
-      setStartingPrice(serviceToEdit.startingPrice || 0);
+      setStartingPrice(serviceToEdit.startingPrice ?? '');
       setShortDesc(serviceToEdit.shortDesc || serviceToEdit.description || '');
       setFullDesc(serviceToEdit.fullDesc || serviceToEdit.description || serviceToEdit.shortDesc || '');
       setFeaturedImage(serviceToEdit.featuredImage || DEFAULT_IMAGES[validCategory] || '');
@@ -105,7 +105,7 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
       setFeatures(Array.isArray(serviceToEdit.features) ? serviceToEdit.features : []);
       setInclusions(Array.isArray(serviceToEdit.inclusions) ? serviceToEdit.inclusions : []);
       setSelectedResourceIds(
-        serviceToEdit.equipmentResources?.map(r => r.id) || 
+        serviceToEdit.equipmentResources?.map(r => r.id) ||
         availableResources.filter(r => r.assignedServiceId === serviceToEdit.id).map(r => r.id)
       );
       setSelectedEventTypeIds(
@@ -115,7 +115,7 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
       // Default new service values
       setName('');
       setCategory('Stage & Performance');
-      setStartingPrice(20000);
+      setStartingPrice('');
       setShortDesc('High-grade professional event service and execution.');
       setFullDesc('Comprehensive operational setup and experienced on-site specialists.');
       setFeaturedImage(DEFAULT_IMAGES['Stage & Performance']);
@@ -167,13 +167,13 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
   };
 
   const toggleResource = (resourceId: string) => {
-    setSelectedResourceIds(prev => 
+    setSelectedResourceIds(prev =>
       prev.includes(resourceId) ? prev.filter(id => id !== resourceId) : [...prev, resourceId]
     );
   };
 
   const toggleEventType = (eventTypeId: number) => {
-    setSelectedEventTypeIds(prev => 
+    setSelectedEventTypeIds(prev =>
       prev.includes(eventTypeId) ? prev.filter(id => id !== eventTypeId) : [...prev, eventTypeId]
     );
   };
@@ -184,8 +184,8 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
       toast.error('Service Name Required', { description: 'Please enter a name for the event service.' });
       return;
     }
-    if (startingPrice <= 0) {
-      toast.error('Invalid Rate', { description: 'Starting price must be greater than zero.' });
+    if (startingPrice === '' || Number(startingPrice) < 0) {
+      toast.error('Invalid Rate', { description: 'Starting price cannot be negative or empty.' });
       return;
     }
 
@@ -331,11 +331,11 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
                 <Input
                   type="number"
                   value={startingPrice}
-                  onChange={e => setStartingPrice(Number(e.target.value))}
+                  onChange={e => setStartingPrice(e.target.value === '' ? '' : Number(e.target.value))}
                   placeholder="25000"
                   required
                   min={0}
-                  step={500}
+                  step={100}
                   className="pl-7 text-xs font-extrabold text-[#1E3A8A] rounded-md"
                 />
               </div>
@@ -401,7 +401,7 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
                   accept="image/jpeg, image/png, image/webp"
                   className="hidden"
                 />
-                
+
                 <div className="flex-1 truncate pr-4 text-xs text-slate-500">
                   {selectedFile ? (
                     <span className="font-medium text-slate-700">Selected: {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)}MB)</span>
@@ -450,7 +450,7 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
               <span>Key Highlights & Specs</span>
               <span className="text-[11px] text-slate-400 font-normal">{features.length} items</span>
             </label>
-            
+
             <div className="flex flex-wrap gap-1.5">
               {features.map((feat, i) => (
                 <Badge key={i} variant="blue" className="text-xs py-1 px-2.5 gap-1.5">
@@ -482,7 +482,7 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
               <span>Standard Operational Inclusions</span>
               <span className="text-[11px] text-slate-400 font-normal">{inclusions.length} items</span>
             </label>
-            
+
             <div className="space-y-1.5">
               {inclusions.map((inc, i) => (
                 <div key={i} className="flex items-center justify-between p-2 rounded-md bg-white border border-slate-200 text-xs">
@@ -529,11 +529,10 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
                     type="button"
                     key={res.id}
                     onClick={() => toggleResource(res.id)}
-                    className={`flex items-start justify-between p-2.5 rounded-md border text-left text-xs transition-all ${
-                      isSelected 
-                        ? 'bg-white border-[#1E3A8A] shadow-sm' 
-                        : 'bg-white/60 border-slate-200 hover:border-slate-300'
-                    }`}
+                    className={`flex items-start justify-between p-2.5 rounded-md border text-left text-xs transition-all ${isSelected
+                      ? 'bg-white border-[#1E3A8A] shadow-sm'
+                      : 'bg-white/60 border-slate-200 hover:border-slate-300'
+                      }`}
                   >
                     <div className="space-y-0.5">
                       <div className="font-bold text-slate-800 leading-tight">{res.name}</div>
@@ -541,9 +540,8 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
                         {res.availableUnits} / {res.quantity} {res.unit} available • {res.category}
                       </div>
                     </div>
-                    <div className={`w-4 h-4 rounded-md border flex items-center justify-center shrink-0 ml-2 mt-0.5 ${
-                      isSelected ? 'bg-[#1E3A8A] border-[#1E3A8A] text-white' : 'border-slate-300'
-                    }`}>
+                    <div className={`w-4 h-4 rounded-md border flex items-center justify-center shrink-0 ml-2 mt-0.5 ${isSelected ? 'bg-[#1E3A8A] border-[#1E3A8A] text-white' : 'border-slate-300'
+                      }`}>
                       {isSelected && <Check className="w-3 h-3" />}
                     </div>
                   </button>
@@ -570,16 +568,14 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
                     type="button"
                     key={et.id}
                     onClick={() => toggleEventType(et.id)}
-                    className={`flex items-center justify-between px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
-                      isSelected 
-                        ? 'bg-purple-600 border-purple-600 text-white shadow-sm' 
-                        : 'bg-white/60 border-slate-200 text-slate-600 hover:border-slate-300'
-                    }`}
+                    className={`flex items-center justify-between px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${isSelected
+                      ? 'bg-purple-600 border-purple-600 text-white shadow-sm'
+                      : 'bg-white/60 border-slate-200 text-slate-600 hover:border-slate-300'
+                      }`}
                   >
                     <span>{et.name}</span>
-                    <div className={`w-3 h-3 rounded-full ml-2 flex items-center justify-center shrink-0 ${
-                      isSelected ? 'bg-white text-purple-600' : 'hidden'
-                    }`}>
+                    <div className={`w-3 h-3 rounded-full ml-2 flex items-center justify-center shrink-0 ${isSelected ? 'bg-white text-purple-600' : 'hidden'
+                      }`}>
                       <Check className="w-2.5 h-2.5" />
                     </div>
                   </button>

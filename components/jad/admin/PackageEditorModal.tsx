@@ -1,12 +1,12 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { 
-  X, 
-  Plus, 
-  Trash2, 
-  Check, 
-  Users, 
-  Layers, 
+import {
+  X,
+  Plus,
+  Trash2,
+  Check,
+  Users,
+  Layers,
   Star,
   Power,
   Package
@@ -38,8 +38,8 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
   const [name, setName] = useState('');
   const [tagline, setTagline] = useState('');
   const [capacity, setCapacity] = useState('100 - 150 Guests');
-  const [price, setPrice] = useState<number>(45000);
-  const [originalPrice, setOriginalPrice] = useState<number>(55000);
+  const [price, setPrice] = useState<number | ''>('');
+  const [originalPrice, setOriginalPrice] = useState<number | ''>('');
   const [idealFor, setIdealFor] = useState('');
   const [isPopular, setIsPopular] = useState(false);
   const [isActive, setIsActive] = useState(true);
@@ -63,8 +63,8 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
       setName(packageToEdit.name || '');
       setTagline(packageToEdit.tagline || (packageToEdit as any).description || '');
       setCapacity(packageToEdit.capacity || '50 - 200 Guests');
-      setPrice(packageToEdit.price || 0);
-      setOriginalPrice(packageToEdit.originalPrice || Math.round((packageToEdit.price || 0) * 1.2));
+      setPrice(packageToEdit.price ?? '');
+      setOriginalPrice(packageToEdit.originalPrice ?? (packageToEdit.price ? Math.round(packageToEdit.price * 1.2) : ''));
       setIdealFor(packageToEdit.idealFor || '');
       setIsPopular(packageToEdit.isPopular || false);
       setIsActive(packageToEdit.isActive !== false);
@@ -78,8 +78,8 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
       setName('');
       setTagline('Complete end-to-end event production and guest experience suite.');
       setCapacity('100 - 200 Guests');
-      setPrice(55000);
-      setOriginalPrice(68000);
+      setPrice('');
+      setOriginalPrice('');
       setIdealFor('Weddings, Debuts, Corporate Milestones');
       setIsPopular(false);
       setIsActive(true);
@@ -100,13 +100,13 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
   }, [packageToEdit, isOpen]);
 
   const toggleService = (serviceId: string) => {
-    setSelectedServiceIds(prev => 
+    setSelectedServiceIds(prev =>
       prev.includes(serviceId) ? prev.filter(id => id !== serviceId) : [...prev, serviceId]
     );
   };
 
   const toggleEventType = (eventTypeId: number) => {
-    setSelectedEventTypeIds(prev => 
+    setSelectedEventTypeIds(prev =>
       prev.includes(eventTypeId) ? prev.filter(id => id !== eventTypeId) : [...prev, eventTypeId]
     );
   };
@@ -137,8 +137,8 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
       toast.error('Package Name Required', { description: 'Please provide a name for this package bundle.' });
       return;
     }
-    if (price <= 0) {
-      toast.error('Invalid Package Rate', { description: 'Package price must be greater than zero.' });
+    if (price === '' || Number(price) < 0) {
+      toast.error('Invalid Package Rate', { description: 'Package price cannot be negative or empty.' });
       return;
     }
 
@@ -148,7 +148,7 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
       tagline: tagline.trim(),
       capacity: capacity.trim(),
       price: Number(price),
-      originalPrice: originalPrice > 0 ? Number(originalPrice) : undefined,
+      originalPrice: originalPrice ? Number(originalPrice) : undefined,
       isPopular,
       isActive,
       idealFor: idealFor.trim() || 'All Special Occasions',
@@ -267,11 +267,11 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
                 <Input
                   type="number"
                   value={price}
-                  onChange={e => setPrice(Number(e.target.value))}
+                  onChange={e => setPrice(e.target.value === '' ? '' : Number(e.target.value))}
                   placeholder="65000"
                   required
                   min={0}
-                  step={500}
+                  step={100}
                   className="pl-7 text-xs font-extrabold text-[#1E3A8A] rounded-md"
                 />
               </div>
@@ -284,10 +284,10 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
                 <Input
                   type="number"
                   value={originalPrice}
-                  onChange={e => setOriginalPrice(Number(e.target.value))}
+                  onChange={e => setOriginalPrice(e.target.value === '' ? '' : Number(e.target.value))}
                   placeholder="80000"
                   min={0}
-                  step={500}
+                  step={100}
                   className="pl-7 text-xs font-medium text-slate-500 rounded-md"
                 />
               </div>
@@ -330,11 +330,10 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
                     type="button"
                     key={srv.id}
                     onClick={() => toggleService(srv.id)}
-                    className={`flex items-center justify-between p-2.5 rounded-md border text-left text-xs transition-all ${
-                      isSelected 
-                        ? 'bg-white border-[#1E3A8A] shadow-sm' 
-                        : 'bg-white/60 border-slate-200 hover:border-slate-300'
-                    }`}
+                    className={`flex items-center justify-between p-2.5 rounded-md border text-left text-xs transition-all ${isSelected
+                      ? 'bg-white border-[#1E3A8A] shadow-sm'
+                      : 'bg-white/60 border-slate-200 hover:border-slate-300'
+                      }`}
                   >
                     <div>
                       <div className="font-bold text-slate-800">{srv.name}</div>
@@ -342,9 +341,8 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
                         Base: ₱{srv.startingPrice.toLocaleString()} PHP • {srv.category}
                       </div>
                     </div>
-                    <div className={`w-4 h-4 rounded-md border flex items-center justify-center shrink-0 ml-2 ${
-                      isSelected ? 'bg-[#1E3A8A] border-[#1E3A8A] text-white' : 'border-slate-300'
-                    }`}>
+                    <div className={`w-4 h-4 rounded-md border flex items-center justify-center shrink-0 ml-2 ${isSelected ? 'bg-[#1E3A8A] border-[#1E3A8A] text-white' : 'border-slate-300'
+                      }`}>
                       {isSelected && <Check className="w-3 h-3" />}
                     </div>
                   </button>
@@ -442,16 +440,14 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
                     type="button"
                     key={et.id}
                     onClick={() => toggleEventType(et.id)}
-                    className={`flex items-center justify-between px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
-                      isSelected 
-                        ? 'bg-purple-600 border-purple-600 text-white shadow-sm' 
-                        : 'bg-white/60 border-slate-200 text-slate-600 hover:border-slate-300'
-                    }`}
+                    className={`flex items-center justify-between px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${isSelected
+                      ? 'bg-purple-600 border-purple-600 text-white shadow-sm'
+                      : 'bg-white/60 border-slate-200 text-slate-600 hover:border-slate-300'
+                      }`}
                   >
                     <span>{et.name}</span>
-                    <div className={`w-3 h-3 rounded-full ml-2 flex items-center justify-center shrink-0 ${
-                      isSelected ? 'bg-white text-purple-600' : 'hidden'
-                    }`}>
+                    <div className={`w-3 h-3 rounded-full ml-2 flex items-center justify-center shrink-0 ${isSelected ? 'bg-white text-purple-600' : 'hidden'
+                      }`}>
                       <Check className="w-2.5 h-2.5" />
                     </div>
                   </button>
