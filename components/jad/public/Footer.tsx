@@ -1,11 +1,11 @@
 import React from 'react';
-import { 
-  Phone, 
-  Mail, 
-  MapPin, 
-   
-   
-  Globe, 
+import {
+  Phone,
+  Mail,
+  MapPin,
+
+
+  Globe,
   ArrowUp
 } from 'lucide-react';
 
@@ -27,10 +27,10 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenInquiryModal }
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-2.5">
               <div className="relative w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center">
-                <img 
-                  src="/jadlogo.png" 
-                  alt="JAD Events Logo" 
-                  className="w-full h-full object-contain drop-shadow-md brightness-110" 
+                <img
+                  src="/jadlogo.png"
+                  alt="JAD Events Logo"
+                  className="w-full h-full object-contain drop-shadow-md brightness-110"
                 />
               </div>
               <div className="flex flex-col">
@@ -144,11 +144,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenInquiryModal }
             <div className="space-y-2.5 text-xs text-slate-400">
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
-                <span>Metro Manila • Cavite • Tagaytay • Central Luzon, Philippines</span>
+                <span>275 Alegre Street, Balogo, Sorsogon City</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-orange-400 shrink-0" />
-                <span>+63 (02) 8923-JAD / 0917-889-JAD</span>
+                <span>+63 9491152443</span>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-orange-400 shrink-0" />
