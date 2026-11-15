@@ -16,8 +16,16 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
     // Role-based customer isolation: Customer can only view their own inquiry
     const isCustomer = auth.user.role !== 'Administrator';
-    if (isCustomer && inquiry.clientEmail !== auth.user.email && inquiry.userId !== auth.user.id) {
-      return NextResponse.json({ message: 'Not authorized to view another customer\'s inquiry' }, { status: 403 });
+    if (isCustomer) {
+      const userEmail = (auth.user.email || '').trim().toLowerCase();
+      const inqEmail = (inquiry.clientEmail || '').trim().toLowerCase();
+      const isOwner =
+        (inquiry.userId && inquiry.userId === auth.user.id) ||
+        (userEmail && inqEmail === userEmail);
+
+      if (!isOwner) {
+        return NextResponse.json({ message: 'Not authorized to view another customer\'s inquiry' }, { status: 403 });
+      }
     }
 
     return NextResponse.json(inquiry);

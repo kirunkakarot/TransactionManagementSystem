@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getQuotations, createQuotation } from '../../../models/quotationModel';
 import { checkAuth } from '../../../lib/auth';
+import { validateEventTimeRange } from '../../../lib/schedulingEngine';
 
 export async function GET(req: Request) {
   const auth = await checkAuth(req, false);
@@ -12,11 +13,13 @@ export async function GET(req: Request) {
     const offset = parseInt(searchParams.get('offset') || '0', 10);
     const search = searchParams.get('search') || '';
 
-    // If user is Customer, filter by their email
+    // If user is Customer, strictly filter by their userId or case-insensitive email
     const isCustomer = auth.user.role !== 'Administrator';
-    const effectiveSearch = isCustomer ? auth.user.email : search;
+    const customerFilter = isCustomer
+      ? { userId: auth.user.id, email: auth.user.email }
+      : undefined;
 
-    const data = await getQuotations(limit, offset, effectiveSearch);
+    const data = await getQuotations(limit, offset, search, customerFilter);
     return NextResponse.json(data);
   } catch (error: any) {
     return NextResponse.json({ message: 'Server error', error: error.message }, { status: 500 });
@@ -36,6 +39,18 @@ export async function POST(req: Request) {
       );
     }
 
+    const rawStart = body.approvedStartTime ?? body.startTime;
+    const rawEnd = body.approvedEndTime ?? body.endTime;
+    if (rawStart !== undefined || rawEnd !== undefined) {
+      const timeVal = validateEventTimeRange(rawStart, rawEnd, { required: false });
+      if (!timeVal.valid) {
+        return NextResponse.json(
+          { message: timeVal.message || 'Invalid event time range.' },
+          { status: 400 }
+        );
+      }
+    }
+
     const quotation = await createQuotation({
       quotationRef: body.quotationRef,
       inquiryId: body.inquiryId,
@@ -45,6 +60,12 @@ export async function POST(req: Request) {
       clientPhone: body.clientPhone,
       eventType: body.eventType,
       eventDate: body.eventDate,
+      startTime: body.startTime,
+      endTime: body.endTime,
+      requestedStartTime: body.requestedStartTime,
+      requestedEndTime: body.requestedEndTime,
+      approvedStartTime: body.approvedStartTime,
+      approvedEndTime: body.approvedEndTime,
       venue: body.venue,
       guestCount: body.guestCount,
       items: body.items || [],
@@ -63,7 +84,13 @@ export async function POST(req: Request) {
 
     return NextResponse.json(quotation, { status: 201 });
   } catch (error: any) {
-    if (error.message?.includes('cancelled')) {
+    const isConflict = error.message && (
+      error.message.includes('cancelled') ||
+      error.message.includes('conflict') ||
+      error.message.includes('occupied') ||
+      error.message.includes('accommodate')
+    );
+    if (isConflict) {
       return NextResponse.json({ message: error.message }, { status: 409 });
     }
     return NextResponse.json({ message: 'Server error', error: error.message }, { status: 500 });

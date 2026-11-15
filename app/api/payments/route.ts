@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '../../../lib/prisma';
 import { getPayments, createPaymentTransaction } from '../../../models/paymentModel';
 import { checkAuth } from '../../../lib/auth';
+import { verifyPaymentProofForCustomerSubmission } from '../../../lib/paymentProofStorage';
 
 export async function GET(req: Request) {
   const auth = await checkAuth(req, false);
@@ -18,8 +19,8 @@ export async function GET(req: Request) {
 
     const data = await getPayments(limit, offset, effectiveSearch);
     return NextResponse.json(data);
-  } catch (error: any) {
-    return NextResponse.json({ message: 'Server error', error: error.message }, { status: 500 });
+  } catch {
+    return NextResponse.json({ message: 'Server error' }, { status: 500 });
   }
 }
 
@@ -38,7 +39,7 @@ export async function POST(req: Request) {
 
     const isCustomer = auth.user.role !== 'Administrator';
 
-    // Retrieve target booking by integer ID or bookingRef string
+    // Retrieve target booking by integer ID or bookingRef string (including all payments)
     let booking = null;
     const parsedBookingId = Number(body.bookingId);
     if (!isNaN(parsedBookingId)) {
@@ -46,7 +47,7 @@ export async function POST(req: Request) {
         where: { id: parsedBookingId },
         include: {
           quotation: true,
-          payments: { where: { verified: true } },
+          payments: true,
         },
       });
     }
@@ -56,7 +57,7 @@ export async function POST(req: Request) {
         where: { bookingRef: body.bookingId },
         include: {
           quotation: true,
-          payments: { where: { verified: true } },
+          payments: true,
         },
       });
     }
@@ -66,8 +67,13 @@ export async function POST(req: Request) {
     }
 
     // Customer can only pay for their own booking
-    if (isCustomer && booking.clientEmail !== auth.user.email && booking.userId !== auth.user.id) {
-      return NextResponse.json({ message: 'Not authorized to submit payment for another customer\'s booking' }, { status: 403 });
+    const userEmail = (auth.user.email || '').trim().toLowerCase();
+    const bookingEmail = (booking.clientEmail || '').trim().toLowerCase();
+    if (isCustomer && bookingEmail !== userEmail && booking.userId !== auth.user.id) {
+      return NextResponse.json(
+        { message: "Not authorized to submit payment for another customer's booking" },
+        { status: 403 }
+      );
     }
 
     if (body.amount !== undefined && (isNaN(Number(body.amount)) || Number(body.amount) <= 0)) {
@@ -89,30 +95,77 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: 'Payment amount must be greater than zero.' }, { status: 400 });
     }
 
-    const verifiedTotal = booking.payments.reduce((sum: number, p: any) => sum + Number(p.amount), 0);
+    const verifiedPayments = booking.payments.filter((p: any) => p.verified);
+    const verifiedTotal = verifiedPayments.reduce((sum: number, p: any) => sum + Number(p.amount), 0);
     const remainingBalance = Math.max(0, Number(booking.totalAmount) - verifiedTotal);
 
+    let finalProofUrl: string | null =
+      typeof body.proofUrl === 'string' && body.proofUrl.trim() ? body.proofUrl.trim() : null;
+
     if (isCustomer) {
+      if (!body.referenceNumber || !String(body.referenceNumber).trim()) {
+        return NextResponse.json(
+          { message: 'Payment reference or transaction trace number is required.' },
+          { status: 400 }
+        );
+      }
+
       if (remainingBalance === 0 && verifiedTotal > 0) {
-        return NextResponse.json({ message: 'This booking has already been fully paid and settled in full.' }, { status: 409 });
+        return NextResponse.json(
+          { message: 'This booking has already been fully paid and settled in full.' },
+          { status: 409 }
+        );
       }
 
       if (paymentAmount > remainingBalance && remainingBalance > 0) {
-        return NextResponse.json({
-          message: `Payment amount (₱${paymentAmount.toLocaleString()}) exceeds remaining booking balance (₱${remainingBalance.toLocaleString()}).`
-        }, { status: 400 });
+        return NextResponse.json(
+          {
+            message: `Payment amount (₱${paymentAmount.toLocaleString()}) exceeds remaining booking balance (₱${remainingBalance.toLocaleString()}).`,
+          },
+          { status: 400 }
+        );
+      }
+
+      // Prevent duplicate pending verification payment on the same booking
+      const existingPending = booking.payments.find(
+        (p: any) => !p.verified && p.status === 'Pending Verification'
+      );
+      if (existingPending) {
+        return NextResponse.json(
+          { message: 'A payment proof is already pending verification for this booking.' },
+          { status: 409 }
+        );
       }
 
       // Prevent duplicate downpayment
       if (body.type.includes('Downpayment')) {
-        const existingDownpayment = booking.payments.find((p: any) => p.type.includes('Downpayment'));
+        const existingDownpayment = verifiedPayments.find((p: any) => p.type.includes('Downpayment'));
         if (existingDownpayment) {
-          return NextResponse.json({ message: 'A verified downpayment already exists for this booking.' }, { status: 409 });
+          return NextResponse.json(
+            { message: 'A verified downpayment already exists for this booking.' },
+            { status: 409 }
+          );
         }
       }
+
+      // Mandatory Payment Proof Image Verification for Customer Submissions
+      const proofVerification = await verifyPaymentProofForCustomerSubmission({
+        proofUrl: body.proofUrl,
+        userId: Number(auth.user.id),
+        userEmail: auth.user.email || '',
+      });
+
+      if (!proofVerification.valid || !proofVerification.canonicalProofUrl) {
+        return NextResponse.json(
+          { message: proofVerification.message || 'Valid payment proof image is required.' },
+          { status: proofVerification.status || 400 }
+        );
+      }
+
+      finalProofUrl = proofVerification.canonicalProofUrl;
     }
 
-    const isVerified = isCustomer ? false : (body.verified !== undefined ? Boolean(body.verified) : true);
+    const isVerified = isCustomer ? false : body.verified !== undefined ? Boolean(body.verified) : true;
 
     const payment = await createPaymentTransaction({
       bookingId: booking.id,
@@ -122,16 +175,35 @@ export async function POST(req: Request) {
       type: body.type,
       amount: paymentAmount,
       method: body.method || 'GCash QR',
-      referenceNumber: body.referenceNumber || `REF-${Date.now().toString().slice(-6)}`,
+      referenceNumber: body.referenceNumber
+        ? String(body.referenceNumber).trim()
+        : `REF-${Date.now().toString().slice(-6)}`,
       date: body.date || new Date(),
       verified: isVerified,
-      verifiedBy: isVerified ? (auth.user.name || 'Operations Lead') : null,
-      proofUrl: body.proofUrl || null,
+      verifiedBy: isVerified ? auth.user.name || 'Operations Lead' : null,
+      proofUrl: finalProofUrl,
       notes: body.notes || null,
     });
 
     return NextResponse.json(payment, { status: 201 });
   } catch (error: any) {
-    return NextResponse.json({ message: 'Server error', error: error.message }, { status: 500 });
+    // Note: Do NOT delete the uploaded proof file on payment creation failure so the customer can retry
+    // without losing their uploaded proof and no concurrent transaction's file is removed.
+    const msg = String(error?.message || '');
+    const isConflict =
+      msg.startsWith('Conflict:') ||
+      msg.includes('conflict') ||
+      msg.includes('occupied') ||
+      msg.includes('accommodate');
+    if (isConflict) {
+      return NextResponse.json(
+        { message: msg.replace(/^Conflict:\s*/, '') },
+        { status: 409 }
+      );
+    }
+    return NextResponse.json(
+      { message: 'Unable to record payment transaction due to a server error.' },
+      { status: 500 }
+    );
   }
 }

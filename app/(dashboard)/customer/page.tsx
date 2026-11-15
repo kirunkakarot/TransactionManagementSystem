@@ -5,10 +5,10 @@ import { useRouter } from 'next/navigation';
 import { CustomerDashboard } from '@/components/jad/customer/CustomerDashboard';
 import { Toaster } from '@/components/ui/sonner';
 import { toast } from 'sonner';
-import { Quotation, InquiryFormData, PaymentTransaction, Booking } from '@/components/jad/types';
+import { Quotation, InquiryFormData, PaymentTransaction, Booking, extractPlainInquiryNotes, parseInquirySelectionDetails, resolveEventTimes } from '@/components/jad/types';
 
 import Cookies from 'js-cookie';
-import { fetchCustomerPortalData, payQuotationDepositApi } from '@/services/api';
+import { fetchCustomerPortalData } from '@/services/api';
 
 export default function CustomerPage() {
   const router = useRouter();
@@ -54,19 +54,34 @@ export default function CustomerPage() {
 
       if (data.inquiries && data.inquiries.length > 0) {
         setInquiries(data.inquiries.map((inq: any) => {
+          const resolvedTimes = resolveEventTimes({
+            startTime: inq.startTime,
+            endTime: inq.endTime,
+            requestedStartTime: inq.requestedStartTime,
+            requestedEndTime: inq.requestedEndTime,
+            approvedStartTime: inq.approvedStartTime,
+            approvedEndTime: inq.approvedEndTime,
+            requirements: inq.requirements,
+          });
           return {
             id: inq.trackingId || inq.id.toString(),
             dbId: inq.id,
             fullName: inq.clientName || (data.user ? data.user.name : 'Client'),
             email: inq.clientEmail || (data.user ? data.user.email : userEmail),
             phone: inq.clientPhone || (data.user ? data.user.phone : ''),
-            eventType: inq.eventType,
+            eventType: inq.eventType, eventTypeId: inq.eventTypeId ?? null, customEventDescription: inq.customEventDescription || null,
             eventDate: inq.eventDate ? inq.eventDate.split('T')[0] : '',
+            startTime: resolvedTimes.startTime || undefined,
+            endTime: resolvedTimes.endTime || undefined,
+            requestedStartTime: resolvedTimes.requestedStartTime || undefined,
+            requestedEndTime: resolvedTimes.requestedEndTime || undefined,
+            approvedStartTime: resolvedTimes.approvedStartTime || undefined,
+            approvedEndTime: resolvedTimes.approvedEndTime || undefined,
             venue: inq.eventVenue,
             guestCount: inq.guestsCount,
             selectedServices: Array.isArray(inq.selectedServices) ? inq.selectedServices : [],
             packageId: inq.packageId || undefined,
-            notes: inq.notes || inq.requirements || '',
+            notes: extractPlainInquiryNotes(inq.notes, inq.requirements), requirements: inq.requirements || undefined, selectionDetails: parseInquirySelectionDetails(inq.requirements, inq.selectedServices, inq.packageId),
             budgetRange: inq.estimatedBudget || undefined,
             status: inq.status || 'Pending Review',
             submittedAt: inq.createdAt ? new Date(inq.createdAt).toLocaleDateString() : 'Recent',
@@ -77,59 +92,91 @@ export default function CustomerPage() {
       }
 
       if (data.quotations && data.quotations.length > 0) {
-        setQuotations(data.quotations.map((q: any) => ({
-          id: q.quotationRef || q.id.toString(),
-          dbId: q.id,
-          inquiryId: q.inquiryId ? q.inquiryId.toString() : (q.inquiry?.trackingId || ''),
-          clientName: q.clientName,
-          clientEmail: q.clientEmail,
-          clientPhone: q.clientPhone || '',
-          eventType: q.eventType,
-          eventDate: q.eventDate ? q.eventDate.split('T')[0] : '',
-          venue: q.venue,
-          guestCount: q.guestCount,
-          items: Array.isArray(q.items) ? q.items : [],
-          subtotal: Number(q.subtotal) || 0,
-          discounts: Array.isArray(q.discounts) ? q.discounts : [],
-          additionalCharges: Array.isArray(q.additionalCharges) ? q.additionalCharges : [],
-          grandTotal: Number(q.grandTotal) || 0,
-          requiredDownpayment: Number(q.requiredDownpayment) || Number(q.grandTotal) * 0.5,
-          validUntil: q.validUntil ? q.validUntil.split('T')[0] : '',
-          validityDays: q.validityDays || 14,
-          status: q.status || 'Quotation Sent',
-          notes: q.notes || '',
-          terms: Array.isArray(q.terms) ? q.terms : [],
-          createdAt: q.createdAt ? q.createdAt.split('T')[0] : '',
-          sentAt: q.sentAt ? q.sentAt.split('T')[0] : undefined,
-          depositPaidAt: q.depositPaidAt ? q.depositPaidAt.split('T')[0] : undefined,
-          confirmedAt: q.confirmedAt ? q.confirmedAt.split('T')[0] : undefined,
-        })));
+        setQuotations(data.quotations.map((q: any) => {
+          const resolvedTimes = resolveEventTimes({
+            startTime: q.startTime,
+            endTime: q.endTime,
+            requestedStartTime: q.requestedStartTime,
+            requestedEndTime: q.requestedEndTime,
+            approvedStartTime: q.approvedStartTime,
+            approvedEndTime: q.approvedEndTime,
+            requirements: q.inquiry?.requirements,
+          });
+          return {
+            id: q.quotationRef || q.id.toString(),
+            dbId: q.id,
+            inquiryId: q.inquiryId ? q.inquiryId.toString() : (q.inquiry?.trackingId || ''),
+            clientName: q.clientName,
+            clientEmail: q.clientEmail,
+            clientPhone: q.clientPhone || '',
+            eventType: q.eventType,
+            eventDate: q.eventDate ? q.eventDate.split('T')[0] : '',
+            startTime: resolvedTimes.startTime || undefined,
+            endTime: resolvedTimes.endTime || undefined,
+            requestedStartTime: resolvedTimes.requestedStartTime || undefined,
+            requestedEndTime: resolvedTimes.requestedEndTime || undefined,
+            approvedStartTime: resolvedTimes.approvedStartTime || undefined,
+            approvedEndTime: resolvedTimes.approvedEndTime || undefined,
+            venue: q.venue,
+            guestCount: q.guestCount,
+            items: Array.isArray(q.items) ? q.items : [],
+            subtotal: Number(q.subtotal) || 0,
+            discounts: Array.isArray(q.discounts) ? q.discounts : [],
+            additionalCharges: Array.isArray(q.additionalCharges) ? q.additionalCharges : [],
+            grandTotal: Number(q.grandTotal) || 0,
+            requiredDownpayment: Number(q.requiredDownpayment) || Number(q.grandTotal) * 0.5,
+            validUntil: q.validUntil ? q.validUntil.split('T')[0] : '',
+            validityDays: q.validityDays || 14,
+            status: q.status || 'Quotation Sent',
+            notes: q.notes || '',
+            terms: Array.isArray(q.terms) ? q.terms : [],
+            createdAt: q.createdAt ? q.createdAt.split('T')[0] : '',
+            sentAt: q.sentAt ? q.sentAt.split('T')[0] : undefined,
+            depositPaidAt: q.depositPaidAt ? q.depositPaidAt.split('T')[0] : undefined,
+            confirmedAt: q.confirmedAt ? q.confirmedAt.split('T')[0] : undefined,
+          };
+        }));
       } else {
         setQuotations([]);
       }
 
       if (data.bookings && data.bookings.length > 0) {
-        setBookings(data.bookings.map((b: any) => ({
-          id: b.bookingRef || `BK-${b.id}`,
-          dbId: b.id,
-          inquiryId: b.inquiryId ? b.inquiryId.toString() : (b.inquiry?.trackingId || undefined),
-          quotationId: b.quotationId ? b.quotationId.toString() : (b.quotation?.quotationRef || undefined),
-          clientName: b.clientName,
-          clientEmail: b.clientEmail,
-          clientPhone: b.clientPhone,
-          eventTitle: b.eventTitle,
-          eventType: b.eventType,
-          eventDate: b.eventDate ? b.eventDate.split('T')[0] : '',
-          startTime: b.startTime,
-          endTime: b.endTime,
-          venue: b.venue,
-          guestCount: b.guestCount,
-          status: b.status,
-          totalAmount: Number(b.totalAmount) || 0,
-          notes: b.notes,
-          confirmedAt: b.confirmedAt ? b.confirmedAt.split('T')[0] : undefined,
-          feedback: b.feedback || null,
-        })));
+        setBookings(data.bookings.map((b: any) => {
+          const resolvedTimes = resolveEventTimes({
+            startTime: b.startTime,
+            endTime: b.endTime,
+            requestedStartTime: b.requestedStartTime,
+            requestedEndTime: b.requestedEndTime,
+            approvedStartTime: b.approvedStartTime,
+            approvedEndTime: b.approvedEndTime,
+            requirements: b.inquiry?.requirements,
+          });
+          return {
+            id: b.bookingRef || `BK-${b.id}`,
+            dbId: b.id,
+            inquiryId: b.inquiryId ? b.inquiryId.toString() : (b.inquiry?.trackingId || undefined),
+            quotationId: b.quotationId ? b.quotationId.toString() : (b.quotation?.quotationRef || undefined),
+            clientName: b.clientName,
+            clientEmail: b.clientEmail,
+            clientPhone: b.clientPhone,
+            eventTitle: b.eventTitle,
+            eventType: b.eventType,
+            eventDate: b.eventDate ? b.eventDate.split('T')[0] : '',
+            startTime: b.startTime || resolvedTimes.startTime,
+            endTime: b.endTime || resolvedTimes.endTime,
+            requestedStartTime: resolvedTimes.requestedStartTime || undefined,
+            requestedEndTime: resolvedTimes.requestedEndTime || undefined,
+            approvedStartTime: resolvedTimes.approvedStartTime || b.startTime || undefined,
+            approvedEndTime: resolvedTimes.approvedEndTime || b.endTime || undefined,
+            venue: b.venue,
+            guestCount: b.guestCount,
+            status: b.status,
+            totalAmount: Number(b.totalAmount) || 0,
+            notes: b.notes,
+            confirmedAt: b.confirmedAt ? b.confirmedAt.split('T')[0] : undefined,
+            feedback: b.feedback || null,
+          };
+        }));
       } else {
         setBookings([]);
       }
@@ -216,26 +263,6 @@ export default function CustomerPage() {
     router.push('/homepage');
   };
 
-  const handleCustomerPayDownpayment = async (quotationId: string) => {
-    const token = getCustomerToken();
-
-    try {
-      await payQuotationDepositApi(quotationId, {
-        method: 'GCash QR',
-        referenceNumber: `GCASH-${Date.now().toString().slice(-6)}`,
-      }, token);
-
-      toast.success('50% Reservation Downpayment Settled!', {
-        description: 'Your payment is recorded in the ledger and the calendar slot is locked.'
-      });
-
-      loadPortalData();
-    } catch (err: any) {
-      console.error('Error paying deposit:', err);
-      toast.error('Payment Failed', { description: err.message });
-    }
-  };
-
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
       <Toaster position="top-right" richColors />
@@ -253,7 +280,6 @@ export default function CustomerPage() {
         onNavigateHome={() => router.push('/homepage')}
         onLogout={handleLogout}
         onSwitchToAdmin={() => router.push('/admin')}
-        onPayDownpayment={handleCustomerPayDownpayment}
         onManageProfile={() => router.push('/customer/profile')}
         onRefreshData={loadPortalData}
       />

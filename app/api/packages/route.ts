@@ -4,12 +4,21 @@ import { checkAuth } from '../../../lib/auth';
 
 export async function GET(req: Request) {
   try {
+    const auth = await checkAuth(req, true);
+    const isAdmin = !auth.error;
+
     const { searchParams } = new URL(req.url);
     const limit = parseInt(searchParams.get('limit') || '100', 10);
     const offset = parseInt(searchParams.get('offset') || '0', 10);
     const search = searchParams.get('search') || '';
 
     const data = await getPackages(limit, offset, search);
+    if (!isAdmin) {
+      return NextResponse.json({
+        ...data,
+        packages: data.packages.map(({ price, originalPrice, ...rest }: any) => rest),
+      });
+    }
     return NextResponse.json(data);
   } catch (error: any) {
     return NextResponse.json({ message: 'Server error', error: error.message }, { status: 500 });

@@ -18,7 +18,8 @@ import {
   Eye, 
   EyeOff, 
   Loader2, 
-  RefreshCw
+  RefreshCw,
+  UserRound
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -148,8 +149,8 @@ export const ManageProfile: React.FC<ManageProfileProps> = ({
       }
     } catch (err: any) {
       console.error('Failed to load profile:', err);
-      toast.error('Could not load profile details', {
-        description: err.message || 'Please verify your connection and try again.'
+      toast.error('Unable to load your profile', {
+        description: err.message || 'Please check your connection and try again.'
       });
     } finally {
       setIsLoading(false);
@@ -208,11 +209,12 @@ export const ManageProfile: React.FC<ManageProfileProps> = ({
         }
       }
 
-      toast.success('Profile Updated Successfully!', {
-        description: 'Your personal information has been saved to your account.'
+      toast.success('Profile updated successfully.', {
+        description: 'Your personal information has been saved.',
+        icon: <UserRound className="w-4 h-4 text-emerald-600" />,
       });
     } catch (err: any) {
-      toast.error('Failed to update profile', {
+      toast.error('Unable to update your profile', {
         description: err.message || 'Please check your information and try again.'
       });
     } finally {
@@ -262,13 +264,14 @@ export const ManageProfile: React.FC<ManageProfileProps> = ({
           } catch (e) {}
         }
 
-        toast.success('Profile Picture Updated!', {
-          description: 'Your new avatar has been saved.'
+        toast.success('Profile photo updated successfully.', {
+          description: 'Your new profile photo has been saved.',
+          icon: <UserRound className="w-4 h-4 text-emerald-600" />,
         });
       }
     } catch (err: any) {
-      toast.error('Image upload failed', {
-        description: err.message || 'Could not upload image.'
+      toast.error('Unable to upload profile photo', {
+        description: err.message || 'Please try again with another image.'
       });
     } finally {
       setIsUploadingImage(false);
@@ -297,9 +300,11 @@ export const ManageProfile: React.FC<ManageProfileProps> = ({
         } catch (e) {}
       }
 
-      toast.info('Profile picture removed');
+      toast.success('Profile photo removed.');
     } catch (err: any) {
-      toast.error('Failed to remove image', { description: err.message });
+      toast.error('Unable to remove profile photo', {
+        description: err.message || 'Please try again.',
+      });
     } finally {
       setIsUploadingImage(false);
     }
@@ -335,12 +340,13 @@ export const ManageProfile: React.FC<ManageProfileProps> = ({
       setNewPassword('');
       setConfirmPassword('');
 
-      toast.success('Password Changed Successfully!', {
-        description: 'Your account credentials have been updated securely.'
+      toast.success('Password changed successfully.', {
+        description: 'Your account password has been updated.',
+        icon: <ShieldCheck className="w-4 h-4 text-emerald-600" />,
       });
     } catch (err: any) {
-      toast.error('Password Change Failed', {
-        description: err.message || 'Please check your current password and try again.'
+      toast.error('Unable to change password', {
+        description: err.message || 'Please verify your current password and try again.'
       });
     } finally {
       setIsSavingPassword(false);
@@ -363,9 +369,14 @@ export const ManageProfile: React.FC<ManageProfileProps> = ({
         address: address.trim() || undefined,
         notificationPreferences: updated
       }, token);
-      toast.success('Notification preference saved');
+      toast.success('Changes saved successfully.', {
+        description: 'Your notification preferences have been updated.',
+        icon: <Save className="w-4 h-4 text-emerald-600" />,
+      });
     } catch (err: any) {
-      toast.error('Could not save preference', { description: err.message });
+      toast.error('Unable to save your preferences', {
+        description: err.message || 'Please try again.',
+      });
     } finally {
       setIsSavingNotifications(false);
     }

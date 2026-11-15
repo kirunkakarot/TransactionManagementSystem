@@ -1,18 +1,21 @@
 "use client";
 import React from 'react';
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  Calendar, 
-  MapPin, 
-  Users, 
-  FileText, 
+import {
+  User,
+  Mail,
+  Phone,
+  Calendar,
+  MapPin,
+  Users,
+  FileText,
   Layers,
-  Check, 
-  Package, 
-  Receipt, 
-  Clock
+  Check,
+  Package,
+  Receipt,
+  Clock,
+  Utensils,
+  Music,
+  Palette
 } from 'lucide-react';
 import {
   Dialog,
@@ -24,7 +27,17 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { InquiryFormData, ServiceItem, PackageItem, EventType } from '../types';
+import {
+  InquiryFormData,
+  ServiceItem,
+  PackageItem,
+  EventType,
+  parseInquirySelectionDetails,
+  extractPlainInquiryNotes,
+  formatSelectionModeLabel,
+  formatEventTimeRange,
+  resolveEventTimes,
+} from '../types';
 
 interface InquiryDetailModalProps {
   isOpen: boolean;
@@ -35,6 +48,10 @@ interface InquiryDetailModalProps {
   availableEventTypes?: EventType[];
   onUpdateInquiryClassification?: (inquiryId: string, eventTypeId: number, eventTypeName: string) => void;
   onCreateQuotation?: (inquiry: InquiryFormData) => void;
+}
+
+function toSlug(val: string): string {
+  return val.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
 export const InquiryDetailModal: React.FC<InquiryDetailModalProps> = ({
@@ -49,13 +66,72 @@ export const InquiryDetailModal: React.FC<InquiryDetailModalProps> = ({
 }) => {
   if (!inquiry) return null;
 
-  const matchedPackage = packages.find(p => p.id === inquiry.packageId);
-  const matchedServices = (inquiry.selectedServices || []).map(sId => {
-    const found = services.find(s => s.id === sId);
+  const selectionDetails =
+    inquiry.selectionDetails ||
+    parseInquirySelectionDetails(
+      inquiry.requirements,
+      inquiry.selectedServices,
+      inquiry.packageId
+    );
+  const plainNotes = extractPlainInquiryNotes(inquiry.notes, inquiry.requirements);
+  const resolvedTimes = resolveEventTimes({
+    startTime: inquiry.startTime,
+    endTime: inquiry.endTime,
+    requestedStartTime: inquiry.requestedStartTime,
+    requestedEndTime: inquiry.requestedEndTime,
+    approvedStartTime: inquiry.approvedStartTime,
+    approvedEndTime: inquiry.approvedEndTime,
+    requirements: inquiry.requirements,
+    selectionDetails,
+  });
+  const requestedTimeLabel = formatEventTimeRange(
+    resolvedTimes.requestedStartTime || resolvedTimes.startTime,
+    resolvedTimes.requestedEndTime || resolvedTimes.endTime,
+    { includeDuration: true, fallback: 'Not recorded' }
+  );
+  const approvedTimeLabel =
+    resolvedTimes.approvedStartTime && resolvedTimes.approvedEndTime
+      ? formatEventTimeRange(resolvedTimes.approvedStartTime, resolvedTimes.approvedEndTime, {
+          includeDuration: true,
+        })
+      : '';
+  const hasAdjustedApprovedTime =
+    Boolean(approvedTimeLabel) &&
+    (resolvedTimes.approvedStartTime !== resolvedTimes.requestedStartTime ||
+      resolvedTimes.approvedEndTime !== resolvedTimes.requestedEndTime);
+
+  const matchedPackage = inquiry.packageId
+    ? packages.find(
+        (p) =>
+          p.id === String(inquiry.packageId) ||
+          p.name.toLowerCase() === String(inquiry.packageId).toLowerCase() ||
+          toSlug(p.name) === String(inquiry.packageId).toLowerCase()
+      )
+    : undefined;
+
+  const packageCustom = selectionDetails?.packageSelection || null;
+
+  const matchedServices = (inquiry.selectedServices || []).map((sId) => {
+    const clean = String(sId).trim().toLowerCase();
+    const found = services.find(
+      (s) =>
+        s.id.toLowerCase() === clean ||
+        s.name.toLowerCase() === clean ||
+        toSlug(s.name) === clean
+    );
+    const custom =
+      selectionDetails?.serviceCustomizations?.[sId] ||
+      (found ? selectionDetails?.serviceCustomizations?.[found.id] : undefined);
+
     return {
       id: sId,
-      name: found ? found.name : sId.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+      name:
+        found?.name ||
+        custom?.serviceName ||
+        sId.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+      category: found?.category || custom?.category,
       price: found ? found.startingPrice : undefined,
+      custom,
     };
   });
 
@@ -78,7 +154,7 @@ export const InquiryDetailModal: React.FC<InquiryDetailModalProps> = ({
                   </span>
                 </div>
                 <DialogDescription className="text-xs text-slate-500">
-                  Customer event specifications and requested package provisions
+                  Customer event specifications, selected options, and quotation preparation reference
                 </DialogDescription>
               </div>
             </div>
@@ -106,8 +182,8 @@ export const InquiryDetailModal: React.FC<InquiryDetailModalProps> = ({
 
               <div>
                 <span className="text-[10px] font-semibold uppercase text-slate-400 block">Email Address</span>
-                <a 
-                  href={`mailto:${inquiry.email}`} 
+                <a
+                  href={`mailto:${inquiry.email}`}
                   className="text-xs font-bold text-[#1E3A8A] hover:underline flex items-center gap-1.5 mt-0.5 truncate"
                 >
                   <Mail className="w-3.5 h-3.5 text-blue-500 shrink-0" />
@@ -117,8 +193,8 @@ export const InquiryDetailModal: React.FC<InquiryDetailModalProps> = ({
 
               <div>
                 <span className="text-[10px] font-semibold uppercase text-slate-400 block">Contact Phone</span>
-                <a 
-                  href={`tel:${inquiry.phone}`} 
+                <a
+                  href={`tel:${inquiry.phone}`}
                   className="text-xs font-bold text-slate-900 hover:text-[#1E3A8A] flex items-center gap-1.5 mt-0.5"
                 >
                   <Phone className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
@@ -138,22 +214,28 @@ export const InquiryDetailModal: React.FC<InquiryDetailModalProps> = ({
               <Card className="p-3.5 rounded-md bg-white border-slate-200 shadow-sm col-span-1 sm:col-span-2 lg:col-span-1">
                 <CardContent className="p-0 space-y-1">
                   <span className="text-[10px] font-semibold uppercase text-slate-400 block">Event Type</span>
-                  
+
                   {availableEventTypes.length > 0 && onUpdateInquiryClassification ? (
                     <div className="mt-1">
                       <select
-                        value={(inquiry as any).eventTypeId || inquiry.eventType}
+                        value={inquiry.eventTypeId || inquiry.eventType}
                         onChange={(e) => {
-                          const selected = availableEventTypes.find(t => t.id === Number(e.target.value) || t.name === e.target.value);
+                          const selected = availableEventTypes.find(
+                            (t) => t.id === Number(e.target.value) || t.name === e.target.value
+                          );
                           if (selected && inquiry.id) {
                             onUpdateInquiryClassification(inquiry.id, selected.id, selected.name);
                           }
                         }}
                         className="w-full text-xs font-bold text-[#1E3A8A] border-slate-200 rounded px-1 py-0.5 bg-blue-50/50"
                       >
-                        <option value={inquiry.eventType} disabled>{inquiry.eventType}</option>
-                        {availableEventTypes.map(t => (
-                          <option key={t.id} value={t.id}>{t.name}</option>
+                        <option value={inquiry.eventType} disabled>
+                          {inquiry.eventType}
+                        </option>
+                        {availableEventTypes.map((t) => (
+                          <option key={t.id} value={t.id}>
+                            {t.name}
+                          </option>
                         ))}
                       </select>
                     </div>
@@ -162,10 +244,10 @@ export const InquiryDetailModal: React.FC<InquiryDetailModalProps> = ({
                       {inquiry.eventType}
                     </span>
                   )}
-                  
-                  {(inquiry as any).customEventDescription && (
+
+                  {inquiry.customEventDescription && (
                     <span className="text-[10px] font-normal text-slate-500 block mt-1">
-                      Original: {(inquiry as any).customEventDescription}
+                      Custom Description: {inquiry.customEventDescription}
                     </span>
                   )}
                 </CardContent>
@@ -181,10 +263,30 @@ export const InquiryDetailModal: React.FC<InquiryDetailModalProps> = ({
                 </CardContent>
               </Card>
 
+              <Card className="p-3.5 rounded-md bg-white border-slate-200 shadow-sm sm:col-span-2">
+                <CardContent className="p-0 space-y-1">
+                  <span className="text-[10px] font-semibold uppercase text-slate-400 block">
+                    Requested Event Time
+                  </span>
+                  <span className="text-xs font-extrabold text-[#1E3A8A] flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                    <span>{requestedTimeLabel}</span>
+                  </span>
+                  {hasAdjustedApprovedTime && (
+                    <span className="text-[10px] font-bold text-emerald-700 block pt-0.5">
+                      Approved Schedule: {approvedTimeLabel}
+                    </span>
+                  )}
+                </CardContent>
+              </Card>
+
               <Card className="p-3.5 rounded-md bg-white border-slate-200 shadow-sm">
                 <CardContent className="p-0 space-y-1">
                   <span className="text-[10px] font-semibold uppercase text-slate-400 block">Target Venue</span>
-                  <span className="text-xs font-bold text-slate-900 flex items-center gap-1 block truncate" title={inquiry.venue}>
+                  <span
+                    className="text-xs font-bold text-slate-900 flex items-center gap-1 block truncate"
+                    title={inquiry.venue}
+                  >
                     <MapPin className="w-3.5 h-3.5 text-red-500 shrink-0 inline" />
                     <span className="truncate">{inquiry.venue}</span>
                   </span>
@@ -203,50 +305,188 @@ export const InquiryDetailModal: React.FC<InquiryDetailModalProps> = ({
             </div>
           </div>
 
-          {/* Section 3: Selected Services & Packages */}
+          {/* Section 3: Selected Services, Packages, Options & Preferences */}
           <div className="space-y-2.5">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-              <Layers className="w-3.5 h-3.5 text-blue-600" />
-              <span>Requested Services & Packages</span>
-            </h4>
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5 text-blue-600" />
+                <span>Requested Services, Packages & Customizations</span>
+              </h4>
+              {selectionDetails?.selectionMode && (
+                <Badge variant="outline" className="text-[10px] bg-blue-50 text-[#1E3A8A] border-blue-200 font-bold">
+                  Mode: {formatSelectionModeLabel(selectionDetails.selectionMode)}
+                </Badge>
+              )}
+            </div>
 
-            <div className="p-4 rounded-md bg-slate-50 border border-slate-200/80 space-y-3">
-              {matchedPackage && (
-                <div className="flex items-center justify-between p-3 rounded-md bg-purple-50 border border-purple-200">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-md bg-purple-600 text-white flex items-center justify-center font-bold">
-                      <Package className="w-4 h-4" />
+            <div className="p-4 rounded-md bg-slate-50 border border-slate-200/80 space-y-3.5">
+              {/* Selected Package Block */}
+              {(matchedPackage || inquiry.packageId) && (
+                <div className="p-3.5 rounded-md bg-purple-50/80 border border-purple-200 space-y-2.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-md bg-purple-600 text-white flex items-center justify-center font-bold shrink-0">
+                        <Package className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-purple-900">
+                          Selected Package: {matchedPackage?.name || packageCustom?.packageName || inquiry.packageId}
+                        </div>
+                        <div className="text-[10px] text-purple-700">
+                          {matchedPackage?.tagline || matchedPackage?.capacity || 'Bundled Event Package'}
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="text-xs font-bold text-purple-900">Selected Package: {matchedPackage.name}</div>
-                      <div className="text-[10px] text-purple-700">{matchedPackage.tagline || matchedPackage.capacity}</div>
+                    {matchedPackage && typeof matchedPackage.price === 'number' && (
+                      <div className="text-xs font-extrabold text-purple-900 shrink-0">
+                        ₱{matchedPackage.price.toLocaleString()} PHP
+                      </div>
+                    )}
+                  </div>
+
+                  {packageCustom?.selectedOptions && packageCustom.selectedOptions.length > 0 && (
+                    <div className="space-y-1 pt-2 border-t border-purple-200/60">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-purple-800 block">
+                        Selected Package Inclusions & Features ({packageCustom.selectedOptions.length}):
+                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {packageCustom.selectedOptions.map((opt, idx) => (
+                          <Badge
+                            key={idx}
+                            variant="secondary"
+                            className="text-[10px] bg-white text-purple-900 border border-purple-200 font-medium"
+                          >
+                            <Check className="w-2.5 h-2.5 mr-1 text-purple-700" />
+                            {opt}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-xs font-extrabold text-purple-900">
-                    ₱{matchedPackage.price.toLocaleString()} PHP
-                  </div>
+                  )}
+
+                  {packageCustom?.customNotes && packageCustom.customNotes.trim() && (
+                    <div className="p-2 rounded bg-white/90 border border-purple-200 text-xs text-slate-700">
+                      <span className="font-bold text-purple-900">Client Package Note: </span>
+                      {packageCustom.customNotes}
+                    </div>
+                  )}
                 </div>
               )}
 
+              {/* Selected Individual / Add-On Services */}
               {matchedServices.length > 0 ? (
-                <div className="space-y-1.5">
-                  <span className="text-[11px] font-semibold text-slate-600 block">Requested Production Services:</span>
-                  <div className="flex flex-wrap gap-2">
-                    {matchedServices.map(srv => (
-                      <Badge key={srv.id} variant="secondary" className="px-2.5 py-1 text-xs bg-white border border-slate-200 text-slate-800 font-semibold gap-1.5 shadow-sm">
-                        <Check className="w-3 h-3 text-blue-600" />
-                        <span>{srv.name}</span>
-                        {srv.price && (
-                          <span className="text-[10px] text-emerald-700 font-bold ml-1">
-                            (₱{srv.price.toLocaleString()})
-                          </span>
-                        )}
-                      </Badge>
-                    ))}
+                <div className="space-y-2.5">
+                  <span className="text-[11px] font-bold text-slate-700 block">
+                    {inquiry.packageId ? 'Requested Add-On Services:' : 'Requested Individual Services:'}
+                  </span>
+                  <div className="space-y-2.5">
+                    {matchedServices.map((srv) => {
+                      const c = srv.custom;
+                      const hasPreferences = Boolean(
+                        c?.preferredDishes?.trim() ||
+                          c?.dietaryRestrictions?.trim() ||
+                          c?.preferredActivities?.trim() ||
+                          c?.stylingThemeNotes?.trim() ||
+                          c?.customNotes?.trim()
+                      );
+
+                      return (
+                        <div
+                          key={srv.id}
+                          className="p-3 rounded-md bg-white border border-slate-200 space-y-2 shadow-2xs"
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2">
+                              <Check className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                              <span className="text-xs font-extrabold text-slate-900">{srv.name}</span>
+                              {srv.category && (
+                                <Badge variant="outline" className="text-[9px] text-slate-500">
+                                  {srv.category}
+                                </Badge>
+                              )}
+                            </div>
+                            {typeof srv.price === 'number' && (
+                              <span className="text-xs font-bold text-emerald-700 shrink-0">
+                                Base: ₱{srv.price.toLocaleString()} PHP
+                              </span>
+                            )}
+                          </div>
+
+                          {c?.selectedOptions && c.selectedOptions.length > 0 && (
+                            <div className="space-y-1 pt-1 border-t border-slate-100">
+                              <span className="text-[10px] font-semibold text-slate-500 block">
+                                Selected Service Options ({c.selectedOptions.length}):
+                              </span>
+                              <div className="flex flex-wrap gap-1.5">
+                                {c.selectedOptions.map((opt, idx) => (
+                                  <Badge
+                                    key={idx}
+                                    variant="secondary"
+                                    className="text-[10px] bg-blue-50/70 text-[#1E3A8A] border border-blue-200 font-medium"
+                                  >
+                                    <Check className="w-2.5 h-2.5 mr-1 text-blue-600" />
+                                    {opt}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {hasPreferences && (
+                            <div className="p-2.5 rounded bg-slate-50 border border-slate-200/80 space-y-1.5 text-xs">
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-[#1E3A8A] block">
+                                Client Service Preferences:
+                              </span>
+                              {c?.preferredDishes?.trim() && (
+                                <div className="flex items-start gap-1.5 text-slate-700">
+                                  <Utensils className="w-3.5 h-3.5 text-orange-500 shrink-0 mt-0.5" />
+                                  <div>
+                                    <span className="font-bold">Preferred Dishes / Menu: </span>
+                                    <span>{c.preferredDishes}</span>
+                                  </div>
+                                </div>
+                              )}
+                              {c?.dietaryRestrictions?.trim() && (
+                                <div className="text-slate-700 pl-5">
+                                  <span className="font-bold">Dietary Restrictions / Allergies: </span>
+                                  <span>{c.dietaryRestrictions}</span>
+                                </div>
+                              )}
+                              {c?.preferredActivities?.trim() && (
+                                <div className="flex items-start gap-1.5 text-slate-700">
+                                  <Music className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
+                                  <div>
+                                    <span className="font-bold">Preferred Activities / Program: </span>
+                                    <span>{c.preferredActivities}</span>
+                                  </div>
+                                </div>
+                              )}
+                              {c?.stylingThemeNotes?.trim() && (
+                                <div className="flex items-start gap-1.5 text-slate-700">
+                                  <Palette className="w-3.5 h-3.5 text-purple-600 shrink-0 mt-0.5" />
+                                  <div>
+                                    <span className="font-bold">Theme / Motif & Color Palette: </span>
+                                    <span>{c.stylingThemeNotes}</span>
+                                  </div>
+                                </div>
+                              )}
+                              {c?.customNotes?.trim() && (
+                                <div className="text-slate-700">
+                                  <span className="font-bold">Specific Instructions: </span>
+                                  <span>{c.customNotes}</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
-              ) : !matchedPackage ? (
-                <div className="text-xs text-slate-500 italic">No specific service or package pre-selected. Custom scope requested.</div>
+              ) : !matchedPackage && !inquiry.packageId ? (
+                <div className="text-xs text-slate-500 italic">
+                  No specific service or package pre-selected. Custom scope requested.
+                </div>
               ) : null}
 
               {inquiry.budgetRange && (
@@ -264,10 +504,10 @@ export const InquiryDetailModal: React.FC<InquiryDetailModalProps> = ({
           <div className="space-y-2">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
               <FileText className="w-3.5 h-3.5 text-blue-600" />
-              <span>Event Requirements & Customer Notes</span>
+              <span>Overall Event Notes & Customer Remarks</span>
             </h4>
             <div className="p-4 rounded-md bg-slate-50 border border-slate-200/80 text-xs text-slate-700 whitespace-pre-wrap min-h-[70px]">
-              {inquiry.notes || 'No additional custom requirements noted by client.'}
+              {plainNotes || 'No additional custom requirements noted by client.'}
             </div>
           </div>
 

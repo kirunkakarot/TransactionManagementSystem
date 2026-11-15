@@ -4,10 +4,17 @@ import { checkAuth } from '../../../../lib/auth';
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const auth = await checkAuth(req, true);
+    const isAdmin = !auth.error;
+
     const { id } = await params;
     const pkg = await getPackageById(id);
     if (!pkg) {
       return NextResponse.json({ message: 'Package not found' }, { status: 404 });
+    }
+    if (!isAdmin) {
+      const { price, originalPrice, ...publicPkg } = pkg as any;
+      return NextResponse.json(publicPkg);
     }
     return NextResponse.json(pkg);
   } catch (error: any) {

@@ -34,7 +34,9 @@ export function EventTypeManager() {
       const data = await fetchEventTypes();
       setEventTypes(data.eventTypes || []);
     } catch (error: any) {
-      toast.error('Error', { description: 'Failed to load event types' });
+      toast.error('Unable to load event types', {
+        description: 'Please refresh the page and try again.',
+      });
     } finally {
       setLoading(false);
     }
@@ -67,7 +69,9 @@ export function EventTypeManager() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim()) {
-      toast.error('Validation Error', { description: 'Name is required.' });
+      toast.error('Event type name required', {
+        description: 'Please enter a name for the event type.',
+      });
       return;
     }
 
@@ -77,15 +81,21 @@ export function EventTypeManager() {
       
       if (editingType) {
         await updateEventTypeApi(editingType.id, formData, token);
-        toast.success('Success', { description: 'Event type updated successfully.' });
+        toast.success('Changes updated successfully.', {
+          description: `"${formData.name.trim()}" has been updated.`,
+        });
       } else {
         await createEventTypeApi(formData, token);
-        toast.success('Success', { description: 'Event type created successfully.' });
+        toast.success('Event type added successfully.', {
+          description: `"${formData.name.trim()}" is now available for inquiries.`,
+        });
       }
       closeModal();
       loadEventTypes();
     } catch (error: any) {
-      toast.error('Error', { description: error.message || 'Failed to save event type' });
+      toast.error('Unable to save event type', {
+        description: error.message || 'Please check your input and try again.',
+      });
     } finally {
       setSubmitting(false);
     }

@@ -1,13 +1,13 @@
 "use client";
 import React from 'react';
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  Calendar, 
-  MapPin, 
-  Users, 
-  Receipt, 
+import {
+  User,
+  Mail,
+  Phone,
+  Calendar,
+  MapPin,
+  Users,
+  Receipt,
   Clock,
   ShieldCheck,
   CreditCard,
@@ -34,7 +34,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Booking, PaymentTransaction, Quotation, InquiryFormData } from '../types';
+import { Booking, PaymentTransaction, Quotation, InquiryFormData, formatEventTimeRange, resolveEventTimes } from '../types';
 
 interface BookingDetailModalProps {
   isOpen: boolean;
@@ -68,20 +68,46 @@ export const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
   if (!booking) return null;
 
   // Find linked quotation
-  const linkedQuotation = quotations.find(q => 
-    q.id === booking.quotationId || 
+  const linkedQuotation = quotations.find(q =>
+    q.id === booking.quotationId ||
     (booking.quotationId && q.dbId && q.dbId.toString() === booking.quotationId)
   );
 
   // Find linked inquiry
-  const linkedInquiry = inquiries.find(i => 
-    i.id === booking.inquiryId || 
+  const linkedInquiry = inquiries.find(i =>
+    i.id === booking.inquiryId ||
     (booking.inquiryId && i.dbId && i.dbId.toString() === booking.inquiryId)
   );
 
+  const resolvedSchedule = resolveEventTimes({
+    startTime: booking.startTime,
+    endTime: booking.endTime,
+    requestedStartTime: booking.requestedStartTime || linkedQuotation?.requestedStartTime || linkedInquiry?.requestedStartTime,
+    requestedEndTime: booking.requestedEndTime || linkedQuotation?.requestedEndTime || linkedInquiry?.requestedEndTime,
+    approvedStartTime: booking.approvedStartTime || booking.startTime,
+    approvedEndTime: booking.approvedEndTime || booking.endTime,
+    requirements: linkedInquiry?.requirements,
+    selectionDetails: linkedInquiry?.selectionDetails,
+  });
+  const approvedProgramTime = formatEventTimeRange(
+    booking.startTime || resolvedSchedule.startTime || '17:00',
+    booking.endTime || resolvedSchedule.endTime || '23:00',
+    { includeDuration: true, fallback: '5:00 PM – 11:00 PM (6 hours)' }
+  );
+  const requestedProgramTime =
+    resolvedSchedule.requestedStartTime && resolvedSchedule.requestedEndTime
+      ? formatEventTimeRange(resolvedSchedule.requestedStartTime, resolvedSchedule.requestedEndTime, {
+        includeDuration: true,
+      })
+      : '';
+  const hasAdjustedSchedule =
+    Boolean(requestedProgramTime) &&
+    (resolvedSchedule.requestedStartTime !== (booking.startTime || resolvedSchedule.startTime) ||
+      resolvedSchedule.requestedEndTime !== (booking.endTime || resolvedSchedule.endTime));
+
   // Find payments for this booking
-  const bookingPayments = payments.filter(p => 
-    p.bookingId === booking.id || 
+  const bookingPayments = payments.filter(p =>
+    p.bookingId === booking.id ||
     (booking.dbId && p.bookingId === booking.dbId.toString()) ||
     (booking.quotationId && p.quotationId === booking.quotationId) ||
     (p.clientEmail && booking.clientEmail && p.clientEmail.toLowerCase() === booking.clientEmail.toLowerCase())
@@ -90,7 +116,7 @@ export const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
   const verifiedPayments = bookingPayments.filter(p => p.verified);
   const totalVerifiedPaid = verifiedPayments.reduce((sum, p) => sum + Number(p.amount), 0);
   const remainingBalance = Math.max(0, Number(booking.totalAmount) - totalVerifiedPaid);
-  const paymentProgress = booking.totalAmount > 0 
+  const paymentProgress = booking.totalAmount > 0
     ? Math.min(100, Math.round((totalVerifiedPaid / Number(booking.totalAmount)) * 100))
     : 0;
 
@@ -124,12 +150,12 @@ export const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
             </div>
 
             <div className="flex items-center gap-2 self-start sm:self-center">
-              <Badge 
+              <Badge
                 variant={
-                  booking.status === 'Confirmed' ? 'success' : 
-                  booking.status === 'Completed' ? 'success' : 
-                  booking.status === 'Cancelled' ? 'destructive' : 'blue'
-                } 
+                  booking.status === 'Confirmed' ? 'success' :
+                    booking.status === 'Completed' ? 'success' :
+                      booking.status === 'Cancelled' ? 'destructive' : 'blue'
+                }
                 className="text-xs px-3 py-1 font-bold"
               >
                 {booking.status}
@@ -189,11 +215,16 @@ export const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
                 </span>
               </div>
               <div>
-                <span className="text-[10px] font-semibold uppercase text-slate-400 block">Program Time</span>
+                <span className="text-[10px] font-semibold uppercase text-slate-400 block">Approved Program Time</span>
                 <span className="font-bold text-slate-800 flex items-center gap-1 mt-0.5">
-                  <Clock className="w-3.5 h-3.5 text-blue-600" />
-                  {booking.startTime || '17:00'} - {booking.endTime || '23:00'}
+                  <Clock className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                  <span>{approvedProgramTime}</span>
                 </span>
+                {hasAdjustedSchedule && (
+                  <span className="text-[10px] font-medium text-slate-500 block mt-0.5">
+                    Requested: {requestedProgramTime}
+                  </span>
+                )}
               </div>
               <div>
                 <span className="text-[10px] font-semibold uppercase text-slate-400 block">Expected Guests</span>
@@ -247,7 +278,7 @@ export const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
                   <span>{remainingBalance === 0 ? 'Fully Settle' : '50% Downpayment Covered'}</span>
                 </div>
                 <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className="h-full bg-emerald-600 rounded-full transition-all duration-300"
                     style={{ width: `${paymentProgress}%` }}
                   />
@@ -358,11 +389,10 @@ export const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
                       {[1, 2, 3, 4, 5].map((star) => (
                         <Star
                           key={star}
-                          className={`w-4 h-4 ${
-                            star <= booking.feedback!.overallRating
-                              ? 'text-amber-400 fill-amber-400'
-                              : 'text-slate-200'
-                          }`}
+                          className={`w-4 h-4 ${star <= booking.feedback!.overallRating
+                            ? 'text-amber-400 fill-amber-400'
+                            : 'text-slate-200'
+                            }`}
                         />
                       ))}
                     </div>

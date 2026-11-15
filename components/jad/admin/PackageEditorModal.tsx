@@ -72,7 +72,7 @@ export const PackageEditorModal: React.FC<PackageEditorModalProps> = ({
       setInclusions(Array.isArray(packageToEdit.inclusions) ? packageToEdit.inclusions : []);
       setFeatures(Array.isArray(packageToEdit.features) ? packageToEdit.features : []);
       setSelectedEventTypeIds(
-        (packageToEdit.eventTypes as EventType[])?.map((et: EventType) => et.id) || []
+        (packageToEdit.eventTypes as any[])?.map((et: any) => (typeof et === 'number' ? et : et.id)).filter(Boolean) || []
       );
     } else {
       setName('');

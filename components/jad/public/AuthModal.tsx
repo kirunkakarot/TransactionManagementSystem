@@ -107,12 +107,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       toast.success(
         mode === 'login' 
           ? `Welcome back, ${userObj.name}!` 
-          : 'Customer account created successfully!'
+          : 'Account created successfully.'
       );
       onClose();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Please verify your credentials and try again.';
-      toast.error('Authentication Failed', {
+      toast.error(mode === 'login' ? 'Unable to sign in' : 'Unable to create account', {
         description: message
       });
     } finally {

@@ -8,10 +8,11 @@ export async function POST(
 ) {
   try {
     const resolvedParams = await params;
-    const user = await checkAuth(req, false);
-    if (!user) {
-      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    const auth = await checkAuth(req, false);
+    if (auth.error) {
+      return auth.error;
     }
+    const user = auth.user;
 
     const quotationId = parseInt(resolvedParams.id, 10);
     if (isNaN(quotationId)) {
@@ -52,12 +53,30 @@ async function processDecline(quotationId: number, user: any, req: Request) {
       return NextResponse.json({ message: 'Quotation not found' }, { status: 404 });
     }
 
-    if (user.role === 'Customer' && quotation.userId !== user.id && quotation.clientEmail.toLowerCase() !== user.email.toLowerCase()) {
+    const userEmail = (user.email || '').trim().toLowerCase();
+    const qEmail = (quotation.clientEmail || '').trim().toLowerCase();
+    const inqEmail = (quotation.inquiry?.clientEmail || '').trim().toLowerCase();
+
+    const isOwner =
+      (quotation.userId && quotation.userId === user.id) ||
+      (qEmail && qEmail === userEmail) ||
+      (quotation.inquiry?.userId && quotation.inquiry.userId === user.id) ||
+      (inqEmail && inqEmail === userEmail);
+
+    if (user.role !== 'Administrator' && !isOwner) {
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
     if (quotation.status === 'Declined') {
       return NextResponse.json({ message: 'Quotation is already declined' }, { status: 400 });
+    }
+
+    const nonDeclinableStatuses = ['Confirmed', 'Deposit Paid', 'Cancelled', 'Expired'];
+    if (nonDeclinableStatuses.includes(quotation.status)) {
+      return NextResponse.json(
+        { message: `Cannot decline a quotation with status: ${quotation.status}` },
+        { status: 400 }
+      );
     }
 
     // Update Quotation
@@ -75,7 +94,7 @@ async function processDecline(quotationId: number, user: any, req: Request) {
       await prisma.inquiry.update({
         where: { id: quotation.inquiryId },
         data: {
-          status: 'Cancelled',
+          status: 'CANCELLED',
           cancelledAt: new Date(),
           cancelledBy: user.name || user.email || 'System',
           cancellationReason: reason,

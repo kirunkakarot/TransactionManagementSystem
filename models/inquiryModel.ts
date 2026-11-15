@@ -1,5 +1,10 @@
 import { prisma } from '../lib/prisma';
 import { Prisma } from '../generated/prisma/client';
+import {
+  toEventDateDbValue,
+  resolveEventTimes,
+  updateRequirementsWithSchedule,
+} from '../lib/schedulingEngine';
 
 export interface InquiryInput {
   trackingId?: string;
@@ -11,6 +16,12 @@ export interface InquiryInput {
   eventTypeId?: number | null;
   customEventDescription?: string | null;
   eventDate: string | Date;
+  startTime?: string | null;
+  endTime?: string | null;
+  requestedStartTime?: string | null;
+  requestedEndTime?: string | null;
+  approvedStartTime?: string | null;
+  approvedEndTime?: string | null;
   eventVenue: string;
   guestsCount: number;
   requirements?: string | null;
@@ -19,6 +30,30 @@ export interface InquiryInput {
   notes?: string | null;
   estimatedBudget?: string | null;
   status?: string;
+}
+
+export function enrichInquiry<T extends Record<string, any> | null>(inq: T): T {
+  if (!inq) return inq;
+  const activeBooking = Array.isArray(inq.bookings)
+    ? inq.bookings.find((b: any) => b.status !== 'Cancelled' && b.status !== 'Rejected')
+    : null;
+  const resolved = resolveEventTimes({
+    requirementsRaw: inq.requirements,
+    requestedStartTime: inq.requestedStartTime,
+    requestedEndTime: inq.requestedEndTime,
+    approvedStartTime: inq.approvedStartTime || activeBooking?.startTime,
+    approvedEndTime: inq.approvedEndTime || activeBooking?.endTime,
+  });
+
+  return {
+    ...inq,
+    requestedStartTime: resolved.requestedStartTime || undefined,
+    requestedEndTime: resolved.requestedEndTime || undefined,
+    approvedStartTime: resolved.approvedStartTime || undefined,
+    approvedEndTime: resolved.approvedEndTime || undefined,
+    startTime: resolved.effectiveStartTime || undefined,
+    endTime: resolved.effectiveEndTime || undefined,
+  };
 }
 
 export const generateTrackingId = async (): Promise<string> => {
@@ -38,7 +73,7 @@ export const generateTrackingId = async (): Promise<string> => {
 
 export const createInquiry = async (data: InquiryInput) => {
   const trackingId = data.trackingId || (await generateTrackingId());
-  const eventDateParsed = typeof data.eventDate === 'string' ? new Date(data.eventDate) : data.eventDate;
+  const eventDateParsed = toEventDateDbValue(data.eventDate);
 
   // Resolve user ID if email is provided and userId is missing
   let resolvedUserId = data.userId || null;
@@ -49,7 +84,27 @@ export const createInquiry = async (data: InquiryInput) => {
     if (matchedUser) resolvedUserId = matchedUser.id;
   }
 
-  return await prisma.inquiry.create({
+  const reqStart = data.requestedStartTime || data.startTime || null;
+  const reqEnd = data.requestedEndTime || data.endTime || null;
+  const appStart = data.approvedStartTime || null;
+  const appEnd = data.approvedEndTime || null;
+
+  let finalRequirements = data.requirements || data.notes || '';
+  if (reqStart || reqEnd || appStart || appEnd) {
+    finalRequirements = updateRequirementsWithSchedule(
+      finalRequirements,
+      {
+        requestedStartTime: reqStart,
+        requestedEndTime: reqEnd,
+        approvedStartTime: appStart,
+        approvedEndTime: appEnd,
+      },
+      data.selectedServices,
+      data.packageId
+    );
+  }
+
+  const created = await prisma.inquiry.create({
     data: {
       trackingId,
       userId: resolvedUserId,
@@ -62,10 +117,14 @@ export const createInquiry = async (data: InquiryInput) => {
       eventDate: eventDateParsed,
       eventVenue: data.eventVenue,
       guestsCount: Number(data.guestsCount) || 100,
-      requirements: data.requirements || data.notes || '',
+      requirements: finalRequirements,
       selectedServices: data.selectedServices || [],
       packageId: data.packageId || null,
-      notes: data.notes || data.requirements || null,
+      notes:
+        data.notes ||
+        (typeof data.requirements === 'string' && !data.requirements.trim().startsWith('{')
+          ? data.requirements
+          : null),
       estimatedBudget: data.estimatedBudget !== undefined && data.estimatedBudget !== null ? String(data.estimatedBudget) : null,
       status: data.status || 'Pending Review',
     },
@@ -75,6 +134,8 @@ export const createInquiry = async (data: InquiryInput) => {
       },
     },
   });
+
+  return enrichInquiry(created);
 };
 
 export const getInquiries = async (limit = 100, offset = 0, search = '') => {
@@ -110,13 +171,13 @@ export const getInquiries = async (limit = 100, offset = 0, search = '') => {
   ]);
 
   return {
-    inquiries,
+    inquiries: inquiries.map((inq) => enrichInquiry(inq)),
     total,
   };
 };
 
 export const getInquiryByTrackingId = async (trackingId: string) => {
-  return await prisma.inquiry.findUnique({
+  const inq = await prisma.inquiry.findUnique({
     where: { trackingId },
     include: {
       user: true,
@@ -124,6 +185,7 @@ export const getInquiryByTrackingId = async (trackingId: string) => {
       bookings: true,
     },
   });
+  return enrichInquiry(inq);
 };
 
 export const getInquiryById = async (id: number | string) => {
@@ -132,7 +194,7 @@ export const getInquiryById = async (id: number | string) => {
     // If it's a tracking ID like INQ-XXXXX
     return await getInquiryByTrackingId(String(id));
   }
-  return await prisma.inquiry.findUnique({
+  const inq = await prisma.inquiry.findUnique({
     where: { id: inquiryId },
     include: {
       user: true,
@@ -140,10 +202,11 @@ export const getInquiryById = async (id: number | string) => {
       bookings: true,
     },
   });
+  return enrichInquiry(inq);
 };
 
 export const getInquiriesByCustomerEmail = async (email: string) => {
-  return await prisma.inquiry.findMany({
+  const list = await prisma.inquiry.findMany({
     where: { clientEmail: email },
     orderBy: { createdAt: 'desc' },
     include: {
@@ -151,6 +214,7 @@ export const getInquiriesByCustomerEmail = async (email: string) => {
       bookings: true,
     },
   });
+  return list.map((inq) => enrichInquiry(inq));
 };
 
 export const updateInquiryClassification = async (id: number | string, eventTypeId: number, eventTypeName: string) => {

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { rescheduleBooking } from '../../../../../models/bookingModel';
 import { checkAuth } from '../../../../../lib/auth';
+import { validateEventTimeRange } from '../../../../../lib/schedulingEngine';
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = await checkAuth(req, true);
@@ -17,8 +18,22 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       );
     }
 
+    const timeVal = validateEventTimeRange(body.newStartTime, body.newEndTime, { required: true });
+    if (!timeVal.valid || !timeVal.normalizedStartTime || !timeVal.normalizedEndTime) {
+      return NextResponse.json(
+        { message: timeVal.message || 'Invalid event start time and end time.' },
+        { status: 400 }
+      );
+    }
+
     const reason = body.reason || 'Rescheduled per client/operational request';
-    const updated = await rescheduleBooking(id, body.newDate, body.newStartTime, body.newEndTime, reason);
+    const updated = await rescheduleBooking(
+      id,
+      body.newDate,
+      timeVal.normalizedStartTime,
+      timeVal.normalizedEndTime,
+      reason
+    );
 
     return NextResponse.json({
       success: true,
@@ -26,7 +41,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       booking: updated,
     });
   } catch (error: any) {
-    const isConflict = error.message && error.message.includes('conflict');
+    const isConflict = error.message && (
+      error.message.includes('conflict') ||
+      error.message.includes('occupied') ||
+      error.message.includes('accommodate')
+    );
     return NextResponse.json({ message: error.message || 'Server error' }, { status: isConflict ? 409 : 400 });
   }
 }

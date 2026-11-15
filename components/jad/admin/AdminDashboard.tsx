@@ -86,7 +86,9 @@ import {
   PaymentTransaction,
   StaffMember,
   SchedulingConflict,
-  EventType
+  EventType,
+  formatEventTimeRange,
+  resolveEventTimes
 } from '../types';
 
 interface AdminDashboardProps {
@@ -305,13 +307,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         }
       });
 
-      // 3. Date Overbooking limit (>3 events a day)
-      if (dateBookings.length > 3) {
+      // 3. Date Overbooking limit (1 booking per day rule)
+      if (dateBookings.length > 1) {
         conflicts.push({
           id: `conf-cap-${date}`,
           type: 'Date Overbooking',
-          severity: 'Warning',
-          message: `Date ${date} has ${dateBookings.length} events scheduled (Recommended max is 3 per day).`,
+          severity: 'High',
+          message: `Date ${date} has ${dateBookings.length} active bookings (${dateBookings.map(b => b.id).join(', ')}). JAD Events can only accommodate 1 booking per calendar day.`,
           conflictingBookingIds: dateBookings.map(b => b.id),
           conflictingDate: date
         });
@@ -372,7 +374,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     );
     if (existingBooking) {
       toast.info('Already Booked', {
-        description: `This inquiry has already been converted into Booking #${existingBooking.id}.`
+        description: `This inquiry has already been converted into Booking #${existingBooking.id}.`,
+        icon: <CalendarCheck className="w-4 h-4 text-blue-600" />,
+      });
+      return;
+    }
+
+    // 0b. Enforce One Booking Per Day Rule before converting inquiry to booking
+    const occupyingBookingOnDate = bookings.find(
+      b => b.status !== 'Cancelled' && b.eventDate === inq.eventDate
+    );
+    if (occupyingBookingOnDate) {
+      toast.error('Date Already Occupied (1 Booking/Day Limit)', {
+        description: `Cannot confirm booking for ${inq.eventDate}: Date is already occupied by Booking #${occupyingBookingOnDate.id} ("${occupyingBookingOnDate.eventTitle}"). JAD Events can only accommodate one booking per calendar day.`
       });
       return;
     }
@@ -408,8 +422,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
     if (!isDepositSettled) {
       if (hasPendingDeposit && pendingPayment) {
-        toast.info('Reviewing Payment Proof', {
-          description: 'Opening payment proof screenshot for administrator review & verification...'
+        toast.info('Payment verification required', {
+          description: 'Opening the submitted payment proof for your review.',
         });
         handleViewReceipt(pendingPayment);
       } else {
@@ -423,10 +437,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     // Choose available staff from live staff roster
     const defaultStaff = staffRoster.length > 0
       ? staffRoster.slice(0, 2).map(s => ({ id: s.id, name: s.name, role: s.role }))
-      : [
-        { id: 'st-1', name: 'Marco Valenzuela', role: 'Lead Director' },
-        { id: 'st-4', name: 'Marie Del Rosario', role: 'Event Coordinator' }
-      ];
+      : [];
+
+    const resolvedTimes = resolveEventTimes({
+      startTime: relatedQuote.startTime || inq.startTime,
+      endTime: relatedQuote.endTime || inq.endTime,
+      requestedStartTime: relatedQuote.requestedStartTime || inq.requestedStartTime,
+      requestedEndTime: relatedQuote.requestedEndTime || inq.requestedEndTime,
+      approvedStartTime: relatedQuote.approvedStartTime || inq.approvedStartTime || relatedQuote.startTime,
+      approvedEndTime: relatedQuote.approvedEndTime || inq.approvedEndTime || relatedQuote.endTime,
+      requirements: inq.requirements,
+      selectionDetails: inq.selectionDetails,
+    });
 
     const newBooking: Booking = {
       id: `BK-2026-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -438,8 +460,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       eventTitle: `${inq.fullName}'s ${inq.eventType}`,
       eventType: inq.eventType,
       eventDate: inq.eventDate,
-      startTime: '17:00',
-      endTime: '23:00',
+      startTime: resolvedTimes.startTime || '17:00',
+      endTime: resolvedTimes.endTime || '23:00',
+      requestedStartTime: resolvedTimes.requestedStartTime || undefined,
+      requestedEndTime: resolvedTimes.requestedEndTime || undefined,
+      approvedStartTime: resolvedTimes.approvedStartTime || resolvedTimes.startTime || '17:00',
+      approvedEndTime: resolvedTimes.approvedEndTime || resolvedTimes.endTime || '23:00',
       venue: inq.venue,
       guestCount: inq.guestCount,
       status: 'Confirmed',
@@ -454,9 +480,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
     onSaveBooking(newBooking);
     onUpdateInquiryStatus(inq.id!, 'Confirmed');
-    toast.success('Converted to Confirmed Booking!', {
-      description: `Booking #${newBooking.id} created and placed on operational schedule.`
-    });
   };
 
   // Financial Metrics Calculations
@@ -1000,7 +1023,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               {b.status}
                             </Badge>
                           </div>
-                          <div className="text-[11px] text-slate-500 flex items-center gap-2 mt-1">
+                          <div className="text-[11px] text-slate-500 flex items-center gap-2 mt-1 flex-wrap">
+                            <span className="font-semibold text-[#1E3A8A]">
+                              {formatEventTimeRange(b.startTime, b.endTime, { includeDuration: true, fallback: '5:00 PM – 11:00 PM' })}
+                            </span>
+                            <span>•</span>
                             <span className="truncate max-w-[200px]">{b.venue}</span>
                             <span>•</span>
                             <span>{b.clientName}</span>
@@ -1103,9 +1130,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           </td>
                           <td className="py-3 px-4">
                             <div className="font-bold text-slate-800">{inq.eventType} ({inq.guestCount} guests)</div>
-                            <div className="text-[11px] text-slate-500 flex items-center gap-1">
+                            <div className="text-[11px] text-slate-500 flex items-center gap-1 flex-wrap">
                               <Calendar className="w-3 h-3 text-orange-500" />
                               <span>{inq.eventDate}</span>
+                              {(inq.startTime || inq.requestedStartTime) && (
+                                <>
+                                  <span>•</span>
+                                  <span className="font-semibold text-[#1E3A8A]">
+                                    {formatEventTimeRange(
+                                      inq.startTime || inq.requestedStartTime,
+                                      inq.endTime || inq.requestedEndTime,
+                                      { includeDuration: true }
+                                    )}
+                                  </span>
+                                </>
+                              )}
                               <span>•</span>
                               <span className="truncate max-w-[150px]">{inq.venue}</span>
                             </div>
@@ -1265,6 +1304,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         <td className="py-3 px-4">
                           <div className="font-bold text-slate-800">{quote.eventType}</div>
                           <div className="text-[11px] text-slate-500">{quote.eventDate}</div>
+                          {quote.startTime && quote.endTime && (
+                            <div className="text-[10px] font-semibold text-[#1E3A8A]">
+                              {formatEventTimeRange(quote.startTime, quote.endTime, { includeDuration: true })}
+                            </div>
+                          )}
                         </td>
                         <td className="py-3 px-4 text-right font-extrabold text-[#1E3A8A]">
                           ₱{quote.grandTotal.toLocaleString()} PHP
@@ -1405,6 +1449,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           <div className="font-bold text-slate-800 flex items-center gap-1">
                             <Calendar className="w-3 h-3 text-orange-500" />
                             <span>{b.eventDate}</span>
+                          </div>
+                          <div className="text-[10px] font-semibold text-[#1E3A8A]">
+                            {formatEventTimeRange(b.startTime, b.endTime, { includeDuration: true, fallback: '5:00 PM – 11:00 PM' })}
                           </div>
                           <div className="text-[11px] text-slate-500 truncate max-w-[160px]" title={b.venue}>
                             {b.venue}
@@ -1649,6 +1696,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         <div>
                           <span className="font-bold text-slate-900">{b.eventTitle}</span>
                           <span className="text-slate-500 ml-2">({b.venue})</span>
+                          <span className="text-[#1E3A8A] font-semibold ml-2">
+                            • {formatEventTimeRange(b.startTime, b.endTime, { includeDuration: true, fallback: '5:00 PM – 11:00 PM' })}
+                          </span>
                         </div>
                         <Badge variant={b.status === 'Confirmed' ? 'success' : 'blue'}>{b.status}</Badge>
                       </div>
@@ -1689,14 +1739,39 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <div className="space-y-2.5">
                   {pendingVerificationPaymentsList.map((p) => (
                     <div key={p.id} className="p-4 rounded-md bg-white border border-orange-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-xs text-slate-900">{p.clientName}</span>
-                          <span className="text-xs text-slate-500 font-mono">Ref #{p.referenceNumber}</span>
-                          <Badge variant="warning" className="text-[10px]">Awaiting Review</Badge>
-                        </div>
-                        <div className="text-[11px] text-slate-500 mt-1">
-                          Method: <strong>{p.method}</strong> • Amount: <strong className="text-emerald-700">₱{Number(p.amount).toLocaleString()} PHP</strong> • Submitted: {p.date || 'Recent'}
+                      <div className="flex items-start gap-3">
+                        {p.proofUrl && (
+                          <div
+                            onClick={() => handleViewReceipt(p)}
+                            className="w-12 h-12 rounded-md border border-slate-200 bg-slate-50 overflow-hidden shrink-0 cursor-pointer hover:ring-2 hover:ring-[#1E3A8A]/30 transition-all"
+                            title="Click to inspect uploaded payment proof"
+                          >
+                            <img
+                              src={p.proofUrl}
+                              alt={`Payment proof for ${p.clientName}`}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        )}
+                        <div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-bold text-xs text-slate-900">{p.clientName}</span>
+                            {(p.bookingId || p.quotationId) && (
+                              <span className="text-[11px] font-mono font-bold text-[#1E3A8A] bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200">
+                                {p.bookingId || p.quotationId}
+                              </span>
+                            )}
+                            <span className="text-xs text-slate-500 font-mono">Ref #{p.referenceNumber}</span>
+                            <Badge variant="warning" className="text-[10px]">Awaiting Review</Badge>
+                            {p.proofUrl && (
+                              <Badge variant="outline" className="text-[10px] bg-emerald-50 text-emerald-700 border-emerald-200">
+                                Proof Uploaded
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="text-[11px] text-slate-500 mt-1">
+                            Method: <strong>{p.method}</strong> • Amount: <strong className="text-emerald-700">₱{Number(p.amount).toLocaleString()} PHP</strong> • Submitted: {p.date || 'Recent'}
+                          </div>
                         </div>
                       </div>
 
@@ -1707,7 +1782,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           className="rounded-md text-xs font-bold bg-orange-500 hover:bg-orange-600 text-white shadow-sm gap-1.5"
                         >
                           <Eye className="w-3.5 h-3.5" />
-                          <span>Review Proof & Verify</span>
+                          <span>Review Proof &amp; Verify</span>
                         </Button>
                       </div>
                     </div>

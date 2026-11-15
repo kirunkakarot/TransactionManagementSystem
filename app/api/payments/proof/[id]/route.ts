@@ -1,15 +1,14 @@
 import { NextResponse } from 'next/server';
 import { checkAuth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { readFile } from 'fs/promises';
+import {
+  extractSafeProofFilename,
+  isUnattachedProofTimestampFresh,
+  MIME_MAP,
+  parseAndVerifyProofFilename,
+  readPaymentProofBuffer,
+} from '@/lib/paymentProofStorage';
 import path from 'path';
-
-const MIME_MAP: Record<string, string> = {
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.png': 'image/png',
-  '.webp': 'image/webp',
-};
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   // 1. Authenticate user
@@ -22,32 +21,27 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       return NextResponse.json({ message: 'Filename required' }, { status: 400 });
     }
 
-    // 2. Strict Path Traversal Prevention
-    const safeFilename = path.basename(decodeURIComponent(rawFilename)).trim();
-    if (
-      !safeFilename ||
-      safeFilename.includes('..') ||
-      safeFilename.includes('/') ||
-      safeFilename.includes('\\')
-    ) {
+    // 2. Strict Path Traversal & Filename Validation
+    const safeFilename = extractSafeProofFilename(rawFilename);
+    if (!safeFilename) {
       return NextResponse.json({ message: 'Invalid file requested' }, { status: 400 });
     }
 
     const ext = path.extname(safeFilename).toLowerCase();
-    const contentType = MIME_MAP[ext];
-    if (!contentType) {
+    if (!MIME_MAP[ext]) {
       return NextResponse.json({ message: 'Unsupported file format' }, { status: 400 });
     }
 
-    // 3. Authorization Check
+    // 3. Authorization Check (Performed strictly before retrieving file content)
     const userRole = auth.user.role;
     const userEmail = (auth.user.email || '').trim().toLowerCase();
-    const userId = auth.user.id;
+    const userId = Number(auth.user.id);
 
     // Administrators and Staff are authorized to review payment proofs
     if (userRole !== 'Administrator' && userRole !== 'Staff') {
-      // Customer: MUST only access their own payment proof
-      // Look up payment transaction containing this filename
+      const parsed = parseAndVerifyProofFilename(safeFilename);
+
+      // Look up payment transactions containing this filename
       const payments = await prisma.paymentTransaction.findMany({
         where: {
           proofUrl: {
@@ -71,29 +65,41 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       });
 
       if (payments.length > 0) {
-        // Must match at least one payment where customer is owner
         const isAuthorized = payments.some((p: any) => {
           const pClientEmail = (p.clientEmail || '').trim().toLowerCase();
-          const bookingUserMatch = p.booking && (p.booking.userId === userId || (p.booking.clientEmail && p.booking.clientEmail.trim().toLowerCase() === userEmail));
-          const quotationUserMatch = p.quotation && (p.quotation.userId === userId || (p.quotation.clientEmail && p.quotation.clientEmail.trim().toLowerCase() === userEmail));
+          const bookingUserMatch =
+            p.booking &&
+            (p.booking.userId === userId ||
+              (p.booking.clientEmail && p.booking.clientEmail.trim().toLowerCase() === userEmail));
+          const quotationUserMatch =
+            p.quotation &&
+            (p.quotation.userId === userId ||
+              (p.quotation.clientEmail && p.quotation.clientEmail.trim().toLowerCase() === userEmail));
           return pClientEmail === userEmail || bookingUserMatch || quotationUserMatch;
         });
 
         if (!isAuthorized) {
           return NextResponse.json(
-            { message: 'Forbidden: You are not authorized to view another customer\'s payment proof.' },
+            { message: "Forbidden: You are not authorized to view another customer's payment proof." },
             { status: 403 }
           );
         }
       } else {
-        // If file is not yet linked to a payment transaction (e.g. freshly uploaded proof within 1 hour before form submit),
-        // verify if the file timestamp prefix was created recently (anti-enumeration) or reject.
-        // Filename format: ${Date.now()}_${randomHex}.${ext}
-        const timePrefix = parseInt(safeFilename.split('_')[0], 10);
-        const now = Date.now();
-        const isRecentlyUploaded = !isNaN(timePrefix) && (now - timePrefix) < 60 * 60 * 1000 && (now - timePrefix) > -5000;
-
-        if (!isRecentlyUploaded) {
+        // File is not yet attached to a PaymentTransaction (previewing right after upload before submitting)
+        if (parsed && parsed.isSigned) {
+          if (!parsed.signatureValid || parsed.ownerUserId !== userId) {
+            return NextResponse.json(
+              { message: "Forbidden: You are not authorized to access another customer's payment proof." },
+              { status: 403 }
+            );
+          }
+          if (!isUnattachedProofTimestampFresh(parsed.timestamp)) {
+            return NextResponse.json(
+              { message: 'Forbidden: Temporary payment proof upload has expired.' },
+              { status: 403 }
+            );
+          }
+        } else {
           return NextResponse.json(
             { message: 'Forbidden: Payment proof not accessible.' },
             { status: 403 }
@@ -102,32 +108,29 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       }
     }
 
-    // 4. Retrieve File from Private Storage
-    const storageFilePath = path.join(process.cwd(), 'storage', 'payments', safeFilename);
-
-    let fileBuffer: Buffer;
-    try {
-      fileBuffer = await readFile(storageFilePath);
-    } catch {
+    // 4. Retrieve File from Private Storage or Vercel Blob Mirror (validates binary image signature)
+    const stored = await readPaymentProofBuffer(safeFilename);
+    if (!stored) {
       return NextResponse.json({ message: 'Payment proof file not found' }, { status: 404 });
     }
 
-    // 5. Stream Secure Image Response with Safe Headers
-    const bodyUint8 = new Uint8Array(fileBuffer);
+    // 5. Stream Secure Image Response with Validated Content-Type & Safe Private Headers
+    const bodyUint8 = new Uint8Array(stored.buffer);
 
     return new NextResponse(bodyUint8, {
       status: 200,
       headers: {
-        'Content-Type': contentType,
-        'Content-Length': fileBuffer.length.toString(),
+        'Content-Type': stored.contentType,
+        'Content-Length': stored.buffer.length.toString(),
         'Cache-Control': 'private, no-cache, no-store, must-revalidate',
         'X-Content-Type-Options': 'nosniff',
         'Content-Disposition': `inline; filename="${safeFilename}"`,
       },
     });
   } catch (error: any) {
+    console.error('Payment proof retrieval error:', error?.message || error);
     return NextResponse.json(
-      { message: 'Failed to retrieve payment proof', error: error.message },
+      { message: 'Failed to retrieve payment proof.' },
       { status: 500 }
     );
   }

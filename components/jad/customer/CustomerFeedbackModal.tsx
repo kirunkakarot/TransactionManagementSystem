@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from 'react';
-import { Star, MessageSquare, Send, X, AlertCircle } from 'lucide-react';
+import { Star, MessageSquare, Send, X, AlertCircle, CalendarCheck } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -128,17 +128,18 @@ export const CustomerFeedbackModal: React.FC<CustomerFeedbackModalProps> = ({
         token
       );
 
-      toast.success('Evaluation Submitted!', {
-        description: 'Thank you for your valuable feedback. It helps us continually elevate our services.',
+      toast.success('Feedback submitted successfully.', {
+        description: 'Thank you for sharing your event experience with JAD Events.',
+        icon: <CalendarCheck className="w-4 h-4 text-emerald-600" />,
       });
 
       onFeedbackSubmitted();
       onClose();
     } catch (err: any) {
       console.error('Feedback submission error:', err);
-      setErrorMsg(err.message || 'Failed to submit feedback. Please try again.');
-      toast.error('Submission Failed', {
-        description: err.message || 'Could not save your evaluation.',
+      setErrorMsg(err.message || 'Unable to submit your feedback. Please try again.');
+      toast.error('Unable to submit feedback', {
+        description: err.message || 'Please try again.',
       });
     } finally {
       setIsSubmitting(false);

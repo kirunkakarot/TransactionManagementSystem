@@ -45,6 +45,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const accepted = await acceptQuotation(quotation.id);
     return NextResponse.json({ success: true, quotation: accepted });
   } catch (error: any) {
+    const isConflict = error.message && (
+      error.message.includes('conflict') ||
+      error.message.includes('occupied') ||
+      error.message.includes('accommodate')
+    );
+    if (isConflict) {
+      return NextResponse.json({ message: error.message }, { status: 409 });
+    }
     return NextResponse.json({ message: 'Server error', error: error.message }, { status: 500 });
   }
 }

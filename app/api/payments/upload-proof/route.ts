@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server';
 import { checkAuth } from '../../../../lib/auth';
-import { put } from '@vercel/blob';
-import path from 'path';
-import crypto from 'crypto';
-
-const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp'];
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+import {
+  cleanupOrphanedPaymentProof,
+  generateOwnedProofFilename,
+  storePaymentProofBuffer,
+  validatePaymentProofFileInput,
+} from '../../../../lib/paymentProofStorage';
 
 export async function POST(req: Request) {
   const auth = await checkAuth(req, false);
@@ -15,36 +14,11 @@ export async function POST(req: Request) {
   try {
     const formData = await req.formData();
     const file = formData.get('proof') as File | null;
+    const previousProofUrl = formData.get('replaceProofUrl') as string | null;
 
-    if (!file) {
-      return NextResponse.json({ message: 'No proof file provided in request' }, { status: 400 });
-    }
-
-    // 1. File Size Validation
-    if (file.size > MAX_FILE_SIZE) {
+    if (!file || typeof file.arrayBuffer !== 'function') {
       return NextResponse.json(
-        { message: `File size exceeds the 5MB limit (File size: ${(file.size / (1024 * 1024)).toFixed(2)}MB)` },
-        { status: 400 }
-      );
-    }
-
-    if (file.size === 0) {
-      return NextResponse.json({ message: 'Cannot upload an empty file' }, { status: 400 });
-    }
-
-    // 2. MIME Type Validation
-    if (!ALLOWED_MIME_TYPES.includes(file.type.toLowerCase())) {
-      return NextResponse.json(
-        { message: 'Invalid file format. Only JPEG, PNG, and WebP images are allowed.' },
-        { status: 400 }
-      );
-    }
-
-    // 3. Extension Validation
-    const ext = path.extname(file.name).toLowerCase();
-    if (!ALLOWED_EXTENSIONS.includes(ext)) {
-      return NextResponse.json(
-        { message: 'Invalid file extension. Allowed extensions are .jpg, .jpeg, .png, .webp' },
+        { message: 'No payment proof image file provided in request.' },
         { status: 400 }
       );
     }
@@ -52,36 +26,70 @@ export async function POST(req: Request) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // 4. Magic Bytes Validation
-    const isJpeg = buffer[0] === 0xFF && buffer[1] === 0xD8 && buffer[2] === 0xFF;
-    const isPng = buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4E && buffer[3] === 0x47;
-    const isRiffWebp = buffer.subarray(0, 4).toString('ascii') === 'RIFF' && buffer.subarray(8, 12).toString('ascii') === 'WEBP';
+    const validation = validatePaymentProofFileInput({
+      fileName: file.name || '',
+      mimeType: file.type || '',
+      size: file.size,
+      buffer,
+    });
 
-    if (!isJpeg && !isPng && !isRiffWebp) {
+    if (!validation.valid || !validation.canonicalExtension || !validation.canonicalMimeType) {
       return NextResponse.json(
-        { message: 'File contents do not match a valid image signature. Upload rejected for security.' },
+        { message: validation.message || 'Invalid payment proof image.' },
         { status: 400 }
       );
     }
 
-    // 5. Generate Safe Unique Filename
-    const randomName = `${Date.now()}_${crypto.randomBytes(12).toString('hex')}${ext}`;
+    // Generate safe unique filename cryptographically bound to the authenticated user
+    const safeFilename = generateOwnedProofFilename(Number(auth.user.id), validation.canonicalExtension);
 
-    // Upload directly to Vercel Blob
-    const blob = await put(`payments/${randomName}`, file, {
-      access: 'public',
-    });
+    const stored = await storePaymentProofBuffer(
+      safeFilename,
+      buffer,
+      validation.canonicalMimeType
+    );
 
-    const secureProofUrl = blob.url;
+    // If replacing a temporary unsubmitted upload from the same user, clean up the abandoned file safely
+    if (previousProofUrl && typeof previousProofUrl === 'string') {
+      await cleanupOrphanedPaymentProof(previousProofUrl, Number(auth.user.id));
+    }
 
     return NextResponse.json({
       success: true,
-      message: 'Payment proof screenshot uploaded successfully. Pending administrator verification.',
-      proofUrl: secureProofUrl,
-      fileName: randomName,
-      fileSize: file.size,
+      message: 'Payment proof screenshot uploaded and verified.',
+      proofUrl: stored.proofUrl,
+      fileName: stored.fileName,
+      originalFileName: file.name,
+      fileSize: stored.fileSize,
+      mimeType: validation.canonicalMimeType,
     });
   } catch (error: any) {
-    return NextResponse.json({ message: 'Upload processing failed', error: error.message }, { status: 500 });
+    console.error('Payment proof upload error:', error?.message || error);
+    return NextResponse.json(
+      { message: 'Failed to store payment proof image. Please try uploading again.' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(req: Request) {
+  const auth = await checkAuth(req, false);
+  if (auth.error) return auth.error;
+
+  try {
+    const body = await req.json().catch(() => ({}));
+    const proofUrl = body?.proofUrl;
+    if (!proofUrl || typeof proofUrl !== 'string') {
+      return NextResponse.json({ message: 'proofUrl is required' }, { status: 400 });
+    }
+
+    const cleaned = await cleanupOrphanedPaymentProof(proofUrl, Number(auth.user.id));
+    return NextResponse.json({ success: true, cleaned });
+  } catch (error: any) {
+    console.error('Temporary proof cleanup error:', error?.message || error);
+    return NextResponse.json(
+      { message: 'Failed to clean up temporary upload.' },
+      { status: 500 }
+    );
   }
 }

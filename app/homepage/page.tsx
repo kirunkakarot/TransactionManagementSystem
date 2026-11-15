@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/jad/public/Navbar';
 import { Hero } from '@/components/jad/public/Hero';
@@ -26,10 +26,14 @@ import {
 import Cookies from 'js-cookie';
 import { fetchServices, fetchPackages, fetchEventTypes } from '@/services/api';
 
+const SECTION_IDS = ['hero', 'services', 'packages', 'availability', 'contact'] as const;
+
 export default function Homepage() {
   const router = useRouter();
   
   const [activeSection, setActiveSection] = useState('hero');
+  const isProgrammaticScrollRef = useRef(false);
+  const programmaticScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Authenticated User Session State
   const [currentUser, setCurrentUser] = useState<{ role: 'client' | 'admin'; email: string } | null>(null);
@@ -44,8 +48,11 @@ export default function Homepage() {
   const [selectedPackageForInquiry, setSelectedPackageForInquiry] = useState<PackageItem | null>(null);
   const [selectedServiceIdForInquiry, setSelectedServiceIdForInquiry] = useState<string | undefined>(undefined);
   const [inquiryDate, setInquiryDate] = useState<string | undefined>(undefined);
+  const [inquiryStartTime, setInquiryStartTime] = useState<string | undefined>(undefined);
+  const [inquiryEndTime, setInquiryEndTime] = useState<string | undefined>(undefined);
   const [inquiryEventType, setInquiryEventType] = useState<string | undefined>(undefined);
   const [inquiryVenue, setInquiryVenue] = useState<string | undefined>(undefined);
+  const [inquiryGuestCount, setInquiryGuestCount] = useState<number | undefined>(undefined);
 
   // Service Detail Modal State
   const [selectedServiceDetail, setSelectedServiceDetail] = useState<ServiceItem | null>(null);
@@ -82,8 +89,8 @@ export default function Homepage() {
 
       if (errorParam) {
         setTimeout(() => {
-          toast.error('Authentication Error', {
-            description: `Google Sign-In failed: ${errorParam.replace(/_/g, ' ')}`,
+          toast.error('Unable to sign in with Google', {
+            description: 'Google sign-in could not be completed. Please try again or sign in with your email and password.',
           });
         }, 100);
         
@@ -119,6 +126,7 @@ export default function Homepage() {
             inclusions: Array.isArray(s.inclusions) && s.inclusions.length > 0 ? s.inclusions : ['Dedicated Team', 'Quality Setup', 'Coordination Support'],
             tag: 'Verified',
             isActive: s.isActive !== false,
+            eventTypes: Array.isArray(s.eventTypes) ? s.eventTypes : [],
           }));
           setServices(mappedServices);
         }
@@ -141,8 +149,12 @@ export default function Homepage() {
             servicesIncluded: Array.isArray(p.servicesIncluded) ? p.servicesIncluded : ['entertainment', 'event-decoration', 'photo-video'],
             isPopular: p.isPopular === true,
             isActive: p.isActive !== false,
+            eventTypes: Array.isArray(p.eventTypes) ? p.eventTypes : [],
           }));
           setPackages(mappedPackages);
+        }
+        if (eventTypesRes?.eventTypes && eventTypesRes.eventTypes.length > 0) {
+          setEventTypes(eventTypesRes.eventTypes.filter((et: any) => et.isActive !== false));
         }
       } catch (err) {
         console.warn('Backend loadData fallback:', err);
@@ -160,6 +172,72 @@ export default function Homepage() {
     };
   }, []);
 
+  // Scroll-Spy Navigation: track active section smoothly without flickering
+  useEffect(() => {
+    let rafId: number | null = null;
+
+    const updateActiveSectionFromScroll = () => {
+      rafId = null;
+      if (isProgrammaticScrollRef.current) return;
+
+      const scrollY = window.scrollY;
+      const viewportHeight = window.innerHeight;
+      const docHeight = document.documentElement.scrollHeight;
+
+      // Near top of page -> hero
+      if (scrollY < 100) {
+        setActiveSection((prev) => (prev === 'hero' ? prev : 'hero'));
+        return;
+      }
+
+      // Near bottom of page -> contact (footer)
+      if (scrollY + viewportHeight >= docHeight - 64) {
+        setActiveSection((prev) => (prev === 'contact' ? prev : 'contact'));
+        return;
+      }
+
+      // Anchor line ~150px below top of viewport (accounting for fixed navbar)
+      const spyTriggerLine = 150;
+      let currentCandidate = 'hero';
+
+      for (const sectionId of SECTION_IDS) {
+        const el = document.getElementById(sectionId);
+        if (!el) continue;
+        const rect = el.getBoundingClientRect();
+        if (rect.top <= spyTriggerLine) {
+          currentCandidate = sectionId;
+        }
+      }
+
+      setActiveSection((prev) => (prev === currentCandidate ? prev : currentCandidate));
+    };
+
+    const handleScroll = () => {
+      if (rafId !== null) return;
+      rafId = window.requestAnimationFrame(updateActiveSectionFromScroll);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    updateActiveSectionFromScroll();
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (rafId !== null) {
+        window.cancelAnimationFrame(rafId);
+      }
+      if (programmaticScrollTimeoutRef.current) {
+        clearTimeout(programmaticScrollTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleOpenDashboard = useCallback(() => {
+    if (currentUser?.role === 'admin') {
+      router.push('/admin');
+    } else {
+      router.push('/customer');
+    }
+  }, [currentUser, router]);
 
   const handleLoginSuccess = (role: 'client' | 'admin', email: string) => {
     setCurrentUser({ role, email });
@@ -187,7 +265,23 @@ export default function Homepage() {
     setActiveSection(sectionId);
     const element = document.getElementById(sectionId);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      isProgrammaticScrollRef.current = true;
+      if (programmaticScrollTimeoutRef.current) {
+        clearTimeout(programmaticScrollTimeoutRef.current);
+      }
+
+      const prefersReducedMotion =
+        typeof window !== 'undefined' &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      element.scrollIntoView({
+        behavior: prefersReducedMotion ? 'auto' : 'smooth',
+        block: 'start',
+      });
+
+      programmaticScrollTimeoutRef.current = setTimeout(() => {
+        isProgrammaticScrollRef.current = false;
+      }, prefersReducedMotion ? 50 : 650);
     }
   };
 
@@ -207,16 +301,32 @@ export default function Homepage() {
     setSelectedServiceDetail(service);
   };
 
-  const handleInquireService = (serviceId: string) => {
+  const handleInquireService = (serviceId: string, eventTypeName?: string) => {
     setSelectedServiceIdForInquiry(serviceId);
     setSelectedPackageForInquiry(null);
+    if (eventTypeName) {
+      setInquiryEventType(eventTypeName);
+    }
     setIsInquiryModalOpen(true);
   };
 
-  const handleDirectInquireWithDate = (date: string, eventType: string, venue: string, _guests: string) => {
+  const handleDirectInquireWithDate = (
+    date: string,
+    eventType: string,
+    venue: string,
+    guests: string,
+    startTime?: string,
+    endTime?: string
+  ) => {
     setInquiryDate(date);
     setInquiryEventType(eventType);
     setInquiryVenue(venue);
+    if (startTime) setInquiryStartTime(startTime);
+    if (endTime) setInquiryEndTime(endTime);
+    const parsedGuests = parseInt(guests, 10);
+    if (!isNaN(parsedGuests) && parsedGuests > 0) {
+      setInquiryGuestCount(parsedGuests);
+    }
     setIsInquiryModalOpen(true);
   };
 
@@ -225,10 +335,8 @@ export default function Homepage() {
     setIsAuthModalOpen(true);
   };
 
-  const handleInquirySubmitted = (newInquiry: InquiryFormData) => {
-    toast.success('Inquiry Submitted!', {
-      description: 'We will review your inquiry and get back to you shortly.',
-    });
+  const handleInquirySubmitted = (_newInquiry: InquiryFormData) => {
+    // Notification is handled directly by InquiryModal upon submission
   };
 
   return (
@@ -241,13 +349,7 @@ export default function Homepage() {
         onOpenInquiryModal={handleOpenInquiryFromHero}
         onOpenAuthModal={handleOpenAuth}
         currentUser={currentUser}
-        onOpenDashboard={() => {
-          if (currentUser?.role === 'admin') {
-            router.push('/admin');
-          } else {
-            router.push('/customer');
-          }
-        }}
+        onOpenDashboard={handleOpenDashboard}
         onLogout={handleLogout}
       />
 
@@ -260,22 +362,28 @@ export default function Homepage() {
 
         <ServicesSection
           services={services}
+          eventTypes={eventTypes}
           onSelectService={handleSelectServiceDetail}
           onInquireService={handleInquireService}
         />
 
         <PackagesSection
           packages={packages}
+          eventTypes={eventTypes}
           onSelectPackage={handleSelectPackage}
         />
 
         <AvailabilitySection
+          eventTypes={eventTypes}
           onDirectInquireWithDate={handleDirectInquireWithDate}
         />
 
         <CallToAction
+          currentUser={currentUser}
           onSubmitInquiry={handleOpenInquiryFromHero}
           onOpenSignUp={() => handleOpenAuth('signup')}
+          onOpenDashboard={handleOpenDashboard}
+          onCheckAvailability={() => scrollToSection('availability')}
         />
       </main>
 
@@ -289,8 +397,11 @@ export default function Homepage() {
         onClose={() => setIsInquiryModalOpen(false)}
         initialPackage={selectedPackageForInquiry}
         initialDate={inquiryDate}
+        initialStartTime={inquiryStartTime}
+        initialEndTime={inquiryEndTime}
         initialEventType={inquiryEventType}
         initialVenue={inquiryVenue}
+        initialGuestCount={inquiryGuestCount}
         initialServiceId={selectedServiceIdForInquiry}
         currentUser={currentUser}
         services={services}
@@ -305,6 +416,7 @@ export default function Homepage() {
 
       <ServiceDetailModal
         service={selectedServiceDetail}
+        eventTypes={eventTypes}
         onClose={() => setSelectedServiceDetail(null)}
         onInquire={handleInquireService}
       />

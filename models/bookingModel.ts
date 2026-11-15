@@ -1,6 +1,42 @@
 import { prisma } from '../lib/prisma';
 import { Prisma } from '../generated/prisma/client';
-import { checkScheduleAvailability } from '../lib/schedulingEngine';
+import {
+  checkScheduleAvailability,
+  INTERACTIVE_TX_OPTIONS,
+  isQualifyingBookingStatus,
+  normalizeEventDateStr,
+  toEventDateDbValue,
+  validateEventTimeRange,
+  resolveEventTimes,
+  updateRequirementsWithSchedule,
+} from '../lib/schedulingEngine';
+import { extractQuotationScheduleFromTerms } from './quotationModel';
+
+export function enrichBooking<T extends Record<string, any> | null>(b: T): T {
+  if (!b) return b;
+  const qSchedule = b.quotation?.terms
+    ? extractQuotationScheduleFromTerms(b.quotation.terms).schedule
+    : {};
+  const resolved = resolveEventTimes({
+    requirementsRaw: b.inquiry?.requirements || null,
+    requestedStartTime: b.requestedStartTime || qSchedule.requestedStartTime,
+    requestedEndTime: b.requestedEndTime || qSchedule.requestedEndTime,
+    approvedStartTime:
+      b.startTime || b.schedule?.startTime || b.approvedStartTime || qSchedule.approvedStartTime,
+    approvedEndTime:
+      b.endTime || b.schedule?.endTime || b.approvedEndTime || qSchedule.approvedEndTime,
+  });
+
+  return {
+    ...b,
+    startTime: b.startTime || resolved.effectiveStartTime || '17:00',
+    endTime: b.endTime || resolved.effectiveEndTime || '23:00',
+    requestedStartTime: resolved.requestedStartTime || undefined,
+    requestedEndTime: resolved.requestedEndTime || undefined,
+    approvedStartTime: b.startTime || resolved.approvedStartTime || resolved.effectiveStartTime || undefined,
+    approvedEndTime: b.endTime || resolved.approvedEndTime || resolved.effectiveEndTime || undefined,
+  };
+}
 
 export interface BookingInput {
   bookingRef?: string;
@@ -42,28 +78,83 @@ export const generateBookingRef = async (): Promise<string> => {
   return ref;
 };
 
+export const sanitizeBookingForCustomer = (booking: any) => {
+  if (!booking) return booking;
+  return {
+    ...booking,
+    bookingServices: Array.isArray(booking.bookingServices)
+      ? booking.bookingServices.map(({ price, service, ...bsRest }: any) => ({
+          ...bsRest,
+          ...(service !== undefined
+            ? {
+                service: service
+                  ? (() => {
+                      const { price: _sPrice, ...sRest } = service;
+                      return sRest;
+                    })()
+                  : null,
+              }
+            : {}),
+        }))
+      : booking.bookingServices,
+    bookingPackages: Array.isArray(booking.bookingPackages)
+      ? booking.bookingPackages.map(({ price, package: pkg, ...bpRest }: any) => ({
+          ...bpRest,
+          ...(pkg !== undefined
+            ? {
+                package: pkg
+                  ? (() => {
+                      const { price: _pPrice, originalPrice: _pOrigPrice, ...pRest } = pkg;
+                      return pRest;
+                    })()
+                  : null,
+              }
+            : {}),
+        }))
+      : booking.bookingPackages,
+  };
+};
+
 export const getBookings = async (
   limit = 100,
   offset = 0,
   statusFilter = 'ALL',
-  search = ''
+  search = '',
+  customerFilter?: { userId?: number | null; email?: string | null }
 ) => {
-  const where: Prisma.BookingWhereInput = {};
+  const andConditions: Prisma.BookingWhereInput[] = [];
 
   if (statusFilter && statusFilter !== 'ALL') {
-    where.status = statusFilter;
+    andConditions.push({ status: statusFilter });
+  }
+
+  if (customerFilter) {
+    const ownerConditions: Prisma.BookingWhereInput[] = [];
+    if (customerFilter.userId) {
+      ownerConditions.push({ userId: customerFilter.userId });
+    }
+    const cleanEmail = (customerFilter.email || '').trim();
+    if (cleanEmail) {
+      ownerConditions.push({ clientEmail: { equals: cleanEmail, mode: 'insensitive' } });
+    }
+    andConditions.push(ownerConditions.length > 0 ? { OR: ownerConditions } : { id: -1 });
   }
 
   if (search) {
-    where.OR = [
-      { bookingRef: { contains: search, mode: 'insensitive' } },
-      { clientName: { contains: search, mode: 'insensitive' } },
-      { clientEmail: { contains: search, mode: 'insensitive' } },
-      { eventTitle: { contains: search, mode: 'insensitive' } },
-      { venue: { contains: search, mode: 'insensitive' } },
-      { eventType: { contains: search, mode: 'insensitive' } },
-    ];
+    andConditions.push({
+      OR: [
+        { bookingRef: { contains: search, mode: 'insensitive' } },
+        { clientName: { contains: search, mode: 'insensitive' } },
+        { clientEmail: { contains: search, mode: 'insensitive' } },
+        { eventTitle: { contains: search, mode: 'insensitive' } },
+        { venue: { contains: search, mode: 'insensitive' } },
+        { eventType: { contains: search, mode: 'insensitive' } },
+      ],
+    });
   }
+
+  const where: Prisma.BookingWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
 
   const [bookings, total] = await Promise.all([
     prisma.booking.findMany({
@@ -75,6 +166,7 @@ export const getBookings = async (
         user: {
           select: { id: true, name: true, email: true, phone: true },
         },
+        inquiry: true,
         quotation: true,
         schedule: true,
         bookingServices: {
@@ -96,14 +188,14 @@ export const getBookings = async (
     prisma.booking.count({ where }),
   ]);
 
-  return { bookings, total };
+  return { bookings: bookings.map((b) => enrichBooking(b)), total };
 };
 
 export const getBookingById = async (id: number | string) => {
   const bId = typeof id === 'string' ? parseInt(id, 10) : id;
   if (isNaN(bId)) return null;
 
-  return await prisma.booking.findUnique({
+  const found = await prisma.booking.findUnique({
     where: { id: bId },
     include: {
       user: true,
@@ -128,10 +220,11 @@ export const getBookingById = async (id: number | string) => {
       feedback: true,
     },
   });
+  return enrichBooking(found);
 };
 
 export const getBookingByRef = async (bookingRef: string) => {
-  return await prisma.booking.findUnique({
+  const found = await prisma.booking.findUnique({
     where: { bookingRef },
     include: {
       user: true,
@@ -155,13 +248,16 @@ export const getBookingByRef = async (bookingRef: string) => {
       },
     },
   });
+  return enrichBooking(found);
 };
 
 export const getBookingsByUserEmail = async (email: string) => {
-  return await prisma.booking.findMany({
+  const list = await prisma.booking.findMany({
     where: { clientEmail: email },
     orderBy: { eventDate: 'asc' },
     include: {
+      inquiry: true,
+      quotation: true,
       schedule: true,
       bookingServices: true,
       bookingPackages: true,
@@ -174,14 +270,24 @@ export const getBookingsByUserEmail = async (email: string) => {
       payments: true,
     },
   });
+  return list.map((b) => enrichBooking(b));
 };
 
 export const createBooking = async (data: BookingInput) => {
   const bookingRef = data.bookingRef || (await generateBookingRef());
-  const eventDateParsed = typeof data.eventDate === 'string' ? new Date(data.eventDate) : data.eventDate;
-  const startTime = data.startTime || '17:00';
-  const endTime = data.endTime || '23:00';
-  const dateStr = eventDateParsed.toISOString().split('T')[0];
+  const dateStr = normalizeEventDateStr(data.eventDate);
+  const eventDateParsed = toEventDateDbValue(dateStr);
+
+  if (data.startTime !== undefined || data.endTime !== undefined) {
+    const timeVal = validateEventTimeRange(data.startTime, data.endTime, { required: false });
+    if (!timeVal.valid) {
+      throw new Error(timeVal.message || 'Invalid event time range.');
+    }
+  }
+
+  let startTime = data.startTime || '';
+  let endTime = data.endTime || '';
+  const resolvedStatus = normalizeBookingStatus(data.status || 'Confirmed');
 
   return await prisma.$transaction(async (tx) => {
     // 1. Transaction Advisory Lock on target event date to serialize concurrent booking creations
@@ -286,7 +392,22 @@ export const createBooking = async (data: BookingInput) => {
       }
     } else if (qRecord?.inquiryId) {
       resolvedInquiryId = qRecord.inquiryId;
+      if (!inqRecord && resolvedInquiryId) {
+        inqRecord = await tx.inquiry.findUnique({ where: { id: resolvedInquiryId } });
+      }
     }
+
+    // Resolve event start/end times from explicit input -> quotation -> inquiry -> legacy fallback
+    const qSched = qRecord?.terms ? extractQuotationScheduleFromTerms(qRecord.terms).schedule : {};
+    const resolvedBookingTimes = resolveEventTimes({
+      requirementsRaw: inqRecord?.requirements || null,
+      requestedStartTime: qSched.requestedStartTime,
+      requestedEndTime: qSched.requestedEndTime,
+      approvedStartTime: startTime || qSched.approvedStartTime,
+      approvedEndTime: endTime || qSched.approvedEndTime,
+    });
+    startTime = startTime || resolvedBookingTimes.effectiveStartTime || '17:00';
+    endTime = endTime || resolvedBookingTimes.effectiveEndTime || '23:00';
 
     // 3. User association
     let userId = data.userId || qRecord?.userId || null;
@@ -337,7 +458,7 @@ export const createBooking = async (data: BookingInput) => {
     }
 
     // 6. Verify availability and detect conflicts inside transaction
-    if (data.status !== 'Cancelled') {
+    if (isQualifyingBookingStatus(resolvedStatus)) {
       const availabilityCheck = await checkScheduleAvailability({
         eventDate: eventDateParsed,
         startTime,
@@ -348,7 +469,7 @@ export const createBooking = async (data: BookingInput) => {
         client: tx,
       });
 
-      if (availabilityCheck.hasHighConflicts) {
+      if (!availabilityCheck.isAvailable || availabilityCheck.hasHighConflicts) {
         const errorMsg = availabilityCheck.conflicts.map(c => c.message).join(' | ');
         throw new Error(`Scheduling conflict detected: ${errorMsg}`);
       }
@@ -372,9 +493,9 @@ export const createBooking = async (data: BookingInput) => {
         venue: data.venue,
         guestCount: Number(data.guestCount) || 100,
         totalAmount: new Prisma.Decimal(Number(data.totalAmount) || 0),
-        status: data.status || 'Confirmed',
+        status: resolvedStatus,
         notes: data.notes || null,
-        confirmedAt: data.status === 'Confirmed' ? new Date() : null,
+        confirmedAt: resolvedStatus === 'Confirmed' ? new Date() : null,
       },
     });
 
@@ -385,7 +506,7 @@ export const createBooking = async (data: BookingInput) => {
         startTime,
         endTime,
         venue: data.venue,
-        status: booking.status === 'Cancelled' ? 'Cancelled' : 'Active',
+        status: !isQualifyingBookingStatus(booking.status) ? 'Cancelled' : 'Active',
       },
     });
 
@@ -414,6 +535,7 @@ export const createBooking = async (data: BookingInput) => {
     }
 
     if (data.assignedServices && Array.isArray(data.assignedServices)) {
+      const seenServiceKeys = new Set<string>();
       for (const s of data.assignedServices) {
         const sCodeStr = typeof s === 'string' ? s : (s.serviceCode || (s.id ? String(s.id) : ''));
         let sName = (typeof s === 'object' && s.name) ? s.name : '';
@@ -440,6 +562,10 @@ export const createBooking = async (data: BookingInput) => {
         }
         if (!sName) sName = 'Event Service';
 
+        const dedupKey = sDbId ? `id:${sDbId}` : `code:${(sCodeStr || sName).toLowerCase()}`;
+        if (seenServiceKeys.has(dedupKey)) continue;
+        seenServiceKeys.add(dedupKey);
+
         await tx.bookingService.create({
           data: {
             bookingId: booking.id,
@@ -453,6 +579,7 @@ export const createBooking = async (data: BookingInput) => {
     }
 
     if (data.assignedPackages && Array.isArray(data.assignedPackages)) {
+      const seenPackageKeys = new Set<string>();
       for (const p of data.assignedPackages) {
         const pCodeStr = typeof p === 'string' ? p : (p.packageCode || (p.id ? String(p.id) : ''));
         let pName = (typeof p === 'object' && p.name) ? p.name : '';
@@ -478,6 +605,10 @@ export const createBooking = async (data: BookingInput) => {
           }
         }
         if (!pName) pName = 'Event Package';
+
+        const dedupKey = pDbId ? `id:${pDbId}` : `code:${(pCodeStr || pName).toLowerCase()}`;
+        if (seenPackageKeys.has(dedupKey)) continue;
+        seenPackageKeys.add(dedupKey);
 
         await tx.bookingPackage.create({
           data: {
@@ -545,14 +676,32 @@ export const createBooking = async (data: BookingInput) => {
     }
 
     if (resolvedInquiryId) {
+      const inqUpdate: any = { status: 'Confirmed' };
+      if (inqRecord) {
+        inqUpdate.requirements = updateRequirementsWithSchedule(
+          inqRecord.requirements,
+          {
+            requestedStartTime: resolvedBookingTimes.requestedStartTime,
+            requestedEndTime: resolvedBookingTimes.requestedEndTime,
+            approvedStartTime: startTime,
+            approvedEndTime: endTime,
+          },
+          inqRecord.selectedServices,
+          inqRecord.packageId
+        );
+      }
       await tx.inquiry.update({
         where: { id: resolvedInquiryId },
-        data: { status: 'Confirmed' },
+        data: inqUpdate,
       }).catch(() => {});
     }
 
-    return booking;
-  });
+    return enrichBooking({
+      ...booking,
+      inquiry: inqRecord,
+      quotation: qRecord,
+    });
+  }, INTERACTIVE_TX_OPTIONS);
 };
 
 export const updateBooking = async (id: number | string, data: Partial<BookingInput>) => {
@@ -576,13 +725,22 @@ export const updateBooking = async (id: number | string, data: Partial<BookingIn
       throw new Error('Booking not found');
     }
 
-    const targetDate = data.eventDate ? (typeof data.eventDate === 'string' ? new Date(data.eventDate) : data.eventDate) : currentBooking.eventDate;
+    const targetDateSource = data.eventDate !== undefined ? data.eventDate : currentBooking.eventDate;
+    const dateStr = normalizeEventDateStr(targetDateSource);
+    const targetDate = toEventDateDbValue(dateStr);
     const targetStartTime = data.startTime || currentBooking.startTime;
     const targetEndTime = data.endTime || currentBooking.endTime;
-    const targetVenue = data.venue !== undefined ? data.venue : currentBooking.venue;
-    const targetStatus = data.status || currentBooking.status;
 
-    const dateStr = targetDate.toISOString().split('T')[0];
+    if (data.startTime !== undefined || data.endTime !== undefined) {
+      const timeVal = validateEventTimeRange(targetStartTime, targetEndTime, { required: true });
+      if (!timeVal.valid) {
+        throw new Error(timeVal.message || 'Invalid event time range.');
+      }
+    }
+
+    const targetVenue = data.venue !== undefined ? data.venue : currentBooking.venue;
+    const targetStatus = normalizeBookingStatus(data.status || currentBooking.status);
+
     const lockKey = `jad_date_lock_${dateStr}`;
     await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${lockKey}))`;
 
@@ -627,7 +785,7 @@ export const updateBooking = async (id: number | string, data: Partial<BookingIn
     }
 
     // Run Conflict Detection inside transaction
-    if (targetStatus !== 'Cancelled') {
+    if (isQualifyingBookingStatus(targetStatus)) {
       const availabilityCheck = await checkScheduleAvailability({
         eventDate: targetDate,
         startTime: targetStartTime,
@@ -639,7 +797,7 @@ export const updateBooking = async (id: number | string, data: Partial<BookingIn
         client: tx,
       });
 
-      if (availabilityCheck.hasHighConflicts) {
+      if (!availabilityCheck.isAvailable || availabilityCheck.hasHighConflicts) {
         const errorMsg = availabilityCheck.conflicts.map(c => c.message).join(' | ');
         throw new Error(`Scheduling conflict detected on update: ${errorMsg}`);
       }
@@ -658,8 +816,8 @@ export const updateBooking = async (id: number | string, data: Partial<BookingIn
     if (data.guestCount !== undefined) updateData.guestCount = Number(data.guestCount);
     if (data.totalAmount !== undefined) updateData.totalAmount = new Prisma.Decimal(Number(data.totalAmount));
     if (data.status !== undefined) {
-      updateData.status = data.status;
-      if (data.status === 'Confirmed' && !currentBooking.confirmedAt) {
+      updateData.status = targetStatus;
+      if (targetStatus === 'Confirmed' && !currentBooking.confirmedAt) {
         updateData.confirmedAt = new Date();
       }
     }
@@ -679,14 +837,14 @@ export const updateBooking = async (id: number | string, data: Partial<BookingIn
         startTime: targetStartTime,
         endTime: targetEndTime,
         venue: targetVenue,
-        status: targetStatus === 'Cancelled' ? 'Cancelled' : 'Active',
+        status: !isQualifyingBookingStatus(targetStatus) ? 'Cancelled' : 'Active',
       },
       update: {
         eventDate: targetDate,
         startTime: targetStartTime,
         endTime: targetEndTime,
         venue: targetVenue,
-        status: targetStatus === 'Cancelled' ? 'Cancelled' : 'Active',
+        status: !isQualifyingBookingStatus(targetStatus) ? 'Cancelled' : 'Active',
       },
     });
 
@@ -718,8 +876,28 @@ export const updateBooking = async (id: number | string, data: Partial<BookingIn
       }
     }
 
-    return updated;
-  });
+    // Sync approved schedule to linked inquiry while preserving customer's requested time
+    if (currentBooking.inquiryId && (data.startTime !== undefined || data.endTime !== undefined)) {
+      const linkedInq = await tx.inquiry.findUnique({ where: { id: currentBooking.inquiryId } });
+      if (linkedInq) {
+        const updatedReqs = updateRequirementsWithSchedule(
+          linkedInq.requirements,
+          {
+            approvedStartTime: targetStartTime,
+            approvedEndTime: targetEndTime,
+          },
+          linkedInq.selectedServices,
+          linkedInq.packageId
+        );
+        await tx.inquiry.update({
+          where: { id: linkedInq.id },
+          data: { requirements: updatedReqs },
+        }).catch(() => {});
+      }
+    }
+
+    return enrichBooking(updated);
+  }, INTERACTIVE_TX_OPTIONS);
 };
 
 export const rescheduleBooking = async (
@@ -729,6 +907,13 @@ export const rescheduleBooking = async (
   newEndTime: string,
   reason: string
 ) => {
+  const timeVal = validateEventTimeRange(newStartTime, newEndTime, { required: true });
+  if (!timeVal.valid || !timeVal.normalizedStartTime || !timeVal.normalizedEndTime) {
+    throw new Error(timeVal.message || 'Invalid event start time and end time.');
+  }
+  const normalizedStart = timeVal.normalizedStartTime;
+  const normalizedEnd = timeVal.normalizedEndTime;
+
   let bId = typeof id === 'string' ? parseInt(id, 10) : id;
   if (isNaN(bId)) {
     const found = await prisma.booking.findUnique({ where: { bookingRef: String(id) } });
@@ -736,8 +921,8 @@ export const rescheduleBooking = async (
     bId = found.id;
   }
 
-  const parsedNewDate = typeof newDate === 'string' ? new Date(newDate) : newDate;
-  const dateStr = parsedNewDate.toISOString().split('T')[0];
+  const dateStr = normalizeEventDateStr(newDate);
+  const parsedNewDate = toEventDateDbValue(dateStr);
 
   return await prisma.$transaction(async (tx) => {
     const lockKey = `jad_date_lock_${dateStr}`;
@@ -758,8 +943,8 @@ export const rescheduleBooking = async (
     // Check conflicts on new date inside transaction
     const conflictCheck = await checkScheduleAvailability({
       eventDate: parsedNewDate,
-      startTime: newStartTime,
-      endTime: newEndTime,
+      startTime: normalizedStart,
+      endTime: normalizedEnd,
       venue: currentBooking.venue,
       excludeBookingId: bId,
       requestedStaffIds: currentBooking.bookingStaff.map(s => s.staffId),
@@ -767,7 +952,7 @@ export const rescheduleBooking = async (
       client: tx,
     });
 
-    if (conflictCheck.hasHighConflicts) {
+    if (!conflictCheck.isAvailable || conflictCheck.hasHighConflicts) {
       const errorMsg = conflictCheck.conflicts.map(c => c.message).join(' | ');
       throw new Error(`Rescheduling conflict: ${errorMsg}`);
     }
@@ -777,8 +962,8 @@ export const rescheduleBooking = async (
       data: {
         rescheduledFrom: currentBooking.eventDate,
         eventDate: parsedNewDate,
-        startTime: newStartTime,
-        endTime: newEndTime,
+        startTime: normalizedStart,
+        endTime: normalizedEnd,
         status: 'Rescheduled',
         notes: `${currentBooking.notes ? currentBooking.notes + ' | ' : ''}Rescheduled on ${new Date().toISOString().split('T')[0]}: ${reason}`,
       },
@@ -789,21 +974,40 @@ export const rescheduleBooking = async (
       create: {
         bookingId: bId,
         eventDate: parsedNewDate,
-        startTime: newStartTime,
-        endTime: newEndTime,
+        startTime: normalizedStart,
+        endTime: normalizedEnd,
         venue: currentBooking.venue,
         status: 'Active',
       },
       update: {
         eventDate: parsedNewDate,
-        startTime: newStartTime,
-        endTime: newEndTime,
+        startTime: normalizedStart,
+        endTime: normalizedEnd,
         status: 'Active',
       },
     });
 
-    return updated;
-  });
+    if (currentBooking.inquiryId) {
+      const linkedInq = await tx.inquiry.findUnique({ where: { id: currentBooking.inquiryId } });
+      if (linkedInq) {
+        const updatedReqs = updateRequirementsWithSchedule(
+          linkedInq.requirements,
+          {
+            approvedStartTime: normalizedStart,
+            approvedEndTime: normalizedEnd,
+          },
+          linkedInq.selectedServices,
+          linkedInq.packageId
+        );
+        await tx.inquiry.update({
+          where: { id: linkedInq.id },
+          data: { requirements: updatedReqs },
+        }).catch(() => {});
+      }
+    }
+
+    return enrichBooking(updated);
+  }, INTERACTIVE_TX_OPTIONS);
 };
 
 export const cancelBooking = async (id: number | string, reason: string) => {
@@ -831,7 +1035,7 @@ export const cancelBooking = async (id: number | string, reason: string) => {
     });
 
     return booking;
-  });
+  }, INTERACTIVE_TX_OPTIONS);
 };
 
 export const normalizeBookingStatus = (status: string): string => {
@@ -858,11 +1062,19 @@ export const updateBookingStatus = async (id: number | string, status: string) =
           { id: numId },
           { bookingRef: String(id).trim() }
         ]
-      }
+      },
+      include: {
+        bookingStaff: true,
+        bookingResources: true,
+      },
     });
   } else {
     bookingRecord = await prisma.booking.findFirst({
-      where: { bookingRef: String(id).trim() }
+      where: { bookingRef: String(id).trim() },
+      include: {
+        bookingStaff: true,
+        bookingResources: true,
+      },
     });
   }
 
@@ -871,14 +1083,32 @@ export const updateBookingStatus = async (id: number | string, status: string) =
   }
 
   const bId = bookingRecord.id;
+  const current = bookingRecord;
 
   const updatedBooking = await prisma.$transaction(async (tx) => {
-    const current = await tx.booking.findUnique({
-      where: { id: bId },
-    });
+    const dateStr = normalizeEventDateStr(current.eventDate);
+    const lockKey = `jad_date_lock_${dateStr}`;
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${lockKey}))`;
 
-    if (!current) {
-      throw new Error('Booking not found');
+    if (isQualifyingBookingStatus(normStatus)) {
+      const availabilityCheck = await checkScheduleAvailability({
+        eventDate: current.eventDate,
+        startTime: current.startTime,
+        endTime: current.endTime,
+        venue: current.venue,
+        excludeBookingId: bId,
+        requestedStaffIds: current.bookingStaff.map(s => s.staffId),
+        requestedResourceAllocations: current.bookingResources.map(r => ({
+          resourceId: r.resourceId,
+          quantity: r.quantity,
+        })),
+        client: tx,
+      });
+
+      if (!availabilityCheck.isAvailable || availabilityCheck.hasHighConflicts) {
+        const errorMsg = availabilityCheck.conflicts.map(c => c.message).join(' | ');
+        throw new Error(`Scheduling conflict detected: ${errorMsg}`);
+      }
     }
 
     const booking = await tx.booking.update({
@@ -892,12 +1122,12 @@ export const updateBookingStatus = async (id: number | string, status: string) =
     await tx.eventSchedule.updateMany({
       where: { bookingId: bId },
       data: {
-        status: normStatus === 'Cancelled' ? 'Cancelled' : 'Active',
+        status: !isQualifyingBookingStatus(normStatus) ? 'Cancelled' : 'Active',
       },
     });
 
     return booking;
-  });
+  }, INTERACTIVE_TX_OPTIONS);
 
   // Sync Quotation status safely outside transaction
   if (bookingRecord.quotationId) {

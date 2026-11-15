@@ -1,4 +1,25 @@
 import { prisma } from './prisma';
+import {
+  validateEventTimeRange,
+  normalizeTime24Hour,
+  formatTime12Hour,
+  formatEventTimeRange,
+  calculateEventDurationLabel,
+  calculateEventDurationMinutes,
+  resolveEventTimes,
+  updateRequirementsWithSchedule,
+} from '../components/jad/types';
+
+export {
+  validateEventTimeRange,
+  normalizeTime24Hour,
+  formatTime12Hour,
+  formatEventTimeRange,
+  calculateEventDurationLabel,
+  calculateEventDurationMinutes,
+  resolveEventTimes,
+  updateRequirementsWithSchedule,
+};
 
 export interface CheckAvailabilityParams {
   eventDate: string | Date;
@@ -35,7 +56,62 @@ export interface AvailabilityResult {
   equipmentConflicts: Array<{ resourceId: number; resourceName: string; available: number; requested: number }>;
 }
 
-export const DEFAULT_MAX_DAILY_CAPACITY = 3;
+export const MANILA_TIMEZONE = 'Asia/Manila';
+export const DEFAULT_MAX_DAILY_CAPACITY = 1;
+export const NON_OCCUPYING_BOOKING_STATUSES = ['Cancelled', 'Canceled', 'Rejected'] as const;
+export const INTERACTIVE_TX_OPTIONS = { maxWait: 15000, timeout: 30000 } as const;
+
+export function isQualifyingBookingStatus(status?: string | null): boolean {
+  if (!status) return true;
+  const normalized = status.trim().toLowerCase();
+  return normalized !== 'cancelled' && normalized !== 'canceled' && normalized !== 'rejected';
+}
+
+export function getTodayManilaDateStr(now: Date = new Date()): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: MANILA_TIMEZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(now);
+}
+
+export function normalizeEventDateStr(input: string | Date): string {
+  if (typeof input === 'string') {
+    const trimmed = input.trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+      return trimmed;
+    }
+    if (/^\d{4}-\d{2}-\d{2}T00:00:00(?:\.000)?Z$/i.test(trimmed)) {
+      return trimmed.slice(0, 10);
+    }
+    const parsed = new Date(trimmed);
+    if (isNaN(parsed.getTime())) {
+      throw new Error(`Invalid event date: "${input}"`);
+    }
+    return getTodayManilaDateStr(parsed);
+  }
+
+  if (input instanceof Date) {
+    if (isNaN(input.getTime())) {
+      throw new Error('Invalid event date');
+    }
+    return getTodayManilaDateStr(input);
+  }
+
+  throw new Error('Invalid event date');
+}
+
+export function toEventDateDbValue(input: string | Date): Date {
+  const dateStr = normalizeEventDateStr(input);
+  return new Date(`${dateStr}T00:00:00.000Z`);
+}
+
+export function isPastManilaDate(input: string | Date, now: Date = new Date()): boolean {
+  const dateStr = normalizeEventDateStr(input);
+  const todayStr = getTodayManilaDateStr(now);
+  return dateStr < todayStr;
+}
 
 export function timeToMinutes(timeStr: string): number {
   if (!timeStr) return 0;
@@ -74,40 +150,64 @@ export async function checkScheduleAvailability(params: CheckAvailabilityParams)
 
   const db = client || prisma;
 
-  const dateObj = typeof eventDate === 'string' ? new Date(eventDate) : eventDate;
-  // Normalize date to YYYY-MM-DD for SQL comparison
-  const dateStr = dateObj.toISOString().split('T')[0];
+  // Normalize date to YYYY-MM-DD in Asia/Manila for consistent SQL comparison
+  const dateStr = normalizeEventDateStr(eventDate);
+  const dbEventDate = toEventDateDbValue(dateStr);
 
   const conflicts: ConflictDetail[] = [];
   const staffConflictsList: Array<{ staffId: number; staffName: string; bookingRef: string; timeRange: string }> = [];
   const equipmentConflictsList: Array<{ resourceId: number; resourceName: string; available: number; requested: number }> = [];
 
-  // 1. Fetch all active bookings on the given date (excluding Cancelled)
-  const activeBookings = await db.booking.findMany({
+  const needStaffJoin = Array.isArray(requestedStaffIds) && requestedStaffIds.length > 0;
+  const needResourceJoin =
+    Array.isArray(requestedResourceAllocations) && requestedResourceAllocations.length > 0;
+
+  // 1. Fetch all active qualifying bookings on the given date (excluding Cancelled/Rejected)
+  const rawBookingsOnDate = await db.booking.findMany({
     where: {
-      eventDate: new Date(dateStr),
-      status: { not: 'Cancelled' },
+      eventDate: dbEventDate,
+      status: { notIn: [...NON_OCCUPYING_BOOKING_STATUSES] },
       ...(excludeBookingId ? { id: { not: excludeBookingId } } : {}),
     },
-    include: {
-      bookingStaff: {
-        include: { staff: true },
-      },
-      bookingResources: {
-        include: { resource: true },
-      },
-    },
+    ...(needStaffJoin || needResourceJoin
+      ? {
+          include: {
+            ...(needStaffJoin ? { bookingStaff: { include: { staff: true } } } : {}),
+            ...(needResourceJoin ? { bookingResources: { include: { resource: true } } } : {}),
+          },
+        }
+      : {
+          select: {
+            id: true,
+            bookingRef: true,
+            eventTitle: true,
+            eventDate: true,
+            startTime: true,
+            endTime: true,
+            venue: true,
+            status: true,
+          },
+        }),
   });
 
+  const activeBookings = rawBookingsOnDate.filter((b: any) => isQualifyingBookingStatus(b.status));
   const activeBookingsCount = activeBookings.length;
   const remainingSlots = Math.max(0, maxDailyCapacity - activeBookingsCount);
 
-  // 2. Check Date Overbooking Capacity
+  // 2. Check One-Booking-Per-Day / Daily Capacity Rule (High severity so it blocks booking creation/confirmation)
   if (activeBookingsCount >= maxDailyCapacity) {
+    const occupyingBooking = activeBookings[0];
+    const occupyingDetail = occupyingBooking
+      ? ` by Booking [${occupyingBooking.bookingRef}] "${occupyingBooking.eventTitle}"`
+      : '';
     conflicts.push({
       type: 'Date Overbooking',
-      severity: 'Warning',
-      message: `Date ${dateStr} has reached maximum crew operational capacity (${activeBookingsCount}/${maxDailyCapacity} active bookings).`,
+      severity: 'High',
+      message: `Date ${dateStr} is already occupied${occupyingDetail}. JAD Events can only accommodate ${maxDailyCapacity} booking per calendar day (${activeBookingsCount}/${maxDailyCapacity} occupied).`,
+      conflictingBookingId: occupyingBooking?.id,
+      conflictingBookingRef: occupyingBooking?.bookingRef,
+      conflictingTitle: occupyingBooking?.eventTitle,
+      timeRange: occupyingBooking ? `${occupyingBooking.startTime || '17:00'} - ${occupyingBooking.endTime || '23:00'}` : undefined,
     });
   }
 
@@ -218,19 +318,24 @@ export async function checkScheduleAvailability(params: CheckAvailabilityParams)
   };
 }
 
-export async function getDailyAvailabilityRadar(year: number, month: number) {
+export async function getDailyAvailabilityRadar(year: number, month: number, client?: any) {
+  const db = client || prisma;
   // month is 1-indexed (1 = Jan, 8 = August, etc.)
-  const startDate = new Date(year, month - 1, 1);
-  const daysInMonth = new Date(year, month, 0).getDate();
-  const endDate = new Date(year, month - 1, daysInMonth);
+  const monthStr = month.toString().padStart(2, '0');
+  const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const daysInMonthStr = daysInMonth.toString().padStart(2, '0');
 
-  const bookingsInMonth = await prisma.booking.findMany({
+  // Use deterministic UTC date boundaries matching PostgreSQL @db.Date
+  const startDate = new Date(`${year}-${monthStr}-01T00:00:00.000Z`);
+  const endDate = new Date(`${year}-${monthStr}-${daysInMonthStr}T00:00:00.000Z`);
+
+  const rawBookingsInMonth = await db.booking.findMany({
     where: {
       eventDate: {
         gte: startDate,
         lte: endDate,
       },
-      status: { not: 'Cancelled' },
+      status: { notIn: [...NON_OCCUPYING_BOOKING_STATUSES] },
     },
     select: {
       id: true,
@@ -243,12 +348,13 @@ export async function getDailyAvailabilityRadar(year: number, month: number) {
     },
   });
 
+  const bookingsInMonth = rawBookingsInMonth.filter((b: any) => isQualifyingBookingStatus(b.status));
   const dailyRadar = [];
 
   for (let day = 1; day <= daysInMonth; day++) {
-    const dayDateStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-    const dayBookings = bookingsInMonth.filter(b => {
-      const bDateStr = b.eventDate.toISOString().split('T')[0];
+    const dayDateStr = `${year}-${monthStr}-${day.toString().padStart(2, '0')}`;
+    const dayBookings = bookingsInMonth.filter((b: any) => {
+      const bDateStr = normalizeEventDateStr(b.eventDate);
       return bDateStr === dayDateStr;
     });
 
@@ -258,7 +364,7 @@ export async function getDailyAvailabilityRadar(year: number, month: number) {
     let status: 'available' | 'limited' | 'booked' = 'available';
     if (remainingSlots <= 0) {
       status = 'booked';
-    } else if (remainingSlots === 1) {
+    } else if (DEFAULT_MAX_DAILY_CAPACITY > 1 && remainingSlots === 1) {
       status = 'limited';
     } else {
       status = 'available';

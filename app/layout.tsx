@@ -3,7 +3,7 @@ import "./globals.css";
 
 import type { Metadata } from "next";
 import NextTopLoader from "nextjs-toploader";
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { Providers } from "./providers";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
@@ -22,6 +22,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable)}>
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+          crossOrigin="anonymous"
+          referrerPolicy="no-referrer"
+        />
+      </head>
       <body>
         <Providers>
           <NextTopLoader color="#EA580C" showSpinner={false} />

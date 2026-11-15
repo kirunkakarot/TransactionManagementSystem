@@ -29,6 +29,14 @@ async function handleVerify(req: Request, params: Promise<{ id: string }>) {
       payment: updated,
     });
   } catch (error: any) {
-    return NextResponse.json({ message: error.message || 'Server error' }, { status: 500 });
+    const isConflict = error.message && (
+      error.message.includes('conflict') ||
+      error.message.includes('occupied') ||
+      error.message.includes('accommodate')
+    );
+    return NextResponse.json(
+      { message: error.message || 'Server error' },
+      { status: isConflict ? 409 : 500 }
+    );
   }
 }

@@ -1,15 +1,136 @@
 import { prisma } from '../lib/prisma';
 import { Prisma } from '../generated/prisma/client';
+import {
+  checkScheduleAvailability,
+  toEventDateDbValue,
+  validateEventTimeRange,
+  resolveEventTimes,
+  updateRequirementsWithSchedule,
+} from '../lib/schedulingEngine';
+
+const QUOTATION_SCHEDULE_PREFIX = '__JAD_EVENT_SCHEDULE__:';
+
+const DEFAULT_QUOTATION_TERMS = [
+  '50% Non-refundable Reservation Downpayment required to lock event calendar & production crew.',
+  'Remaining 50% balance must be settled 3 days prior to the target ingress date.',
+  'Inclement weather postponement requires minimum 7 days advance notice with zero penalty.',
+  'Food & Beverage guest count buffer of +10% included in operational provisions.',
+];
+
+export function extractQuotationScheduleFromTerms(rawTerms: any): {
+  cleanTerms: string[];
+  schedule: {
+    requestedStartTime?: string;
+    requestedEndTime?: string;
+    approvedStartTime?: string;
+    approvedEndTime?: string;
+  };
+} {
+  const arr = Array.isArray(rawTerms) ? rawTerms : DEFAULT_QUOTATION_TERMS;
+  const cleanTerms: string[] = [];
+  let schedule: {
+    requestedStartTime?: string;
+    requestedEndTime?: string;
+    approvedStartTime?: string;
+    approvedEndTime?: string;
+  } = {};
+
+  for (const item of arr) {
+    if (typeof item === 'string' && item.startsWith(QUOTATION_SCHEDULE_PREFIX)) {
+      try {
+        const jsonPart = item.slice(QUOTATION_SCHEDULE_PREFIX.length);
+        const parsed = JSON.parse(jsonPart);
+        if (parsed && typeof parsed === 'object') {
+          schedule = {
+            requestedStartTime: parsed.requestedStartTime || undefined,
+            requestedEndTime: parsed.requestedEndTime || undefined,
+            approvedStartTime: parsed.approvedStartTime || undefined,
+            approvedEndTime: parsed.approvedEndTime || undefined,
+          };
+        }
+      } catch {
+        // ignore malformed marker
+      }
+    } else if (typeof item === 'string') {
+      cleanTerms.push(item);
+    }
+  }
+
+  return { cleanTerms, schedule };
+}
+
+export function serializeQuotationTermsWithSchedule(
+  rawTerms: string[] | undefined,
+  schedule: {
+    requestedStartTime?: string;
+    requestedEndTime?: string;
+    approvedStartTime?: string;
+    approvedEndTime?: string;
+  }
+): string[] {
+  const { cleanTerms } = extractQuotationScheduleFromTerms(rawTerms ?? DEFAULT_QUOTATION_TERMS);
+  const hasSchedule = Boolean(
+    schedule.requestedStartTime ||
+      schedule.requestedEndTime ||
+      schedule.approvedStartTime ||
+      schedule.approvedEndTime
+  );
+  if (!hasSchedule) return cleanTerms;
+  return [
+    ...cleanTerms,
+    `${QUOTATION_SCHEDULE_PREFIX}${JSON.stringify({
+      ...(schedule.requestedStartTime ? { requestedStartTime: schedule.requestedStartTime } : {}),
+      ...(schedule.requestedEndTime ? { requestedEndTime: schedule.requestedEndTime } : {}),
+      ...(schedule.approvedStartTime ? { approvedStartTime: schedule.approvedStartTime } : {}),
+      ...(schedule.approvedEndTime ? { approvedEndTime: schedule.approvedEndTime } : {}),
+    })}`,
+  ];
+}
+
+export function enrichQuotation<T extends Record<string, any> | null>(q: T): T {
+  if (!q) return q;
+  const { cleanTerms, schedule } = extractQuotationScheduleFromTerms(q.terms);
+  const activeBooking = Array.isArray(q.bookings)
+    ? q.bookings.find((b: any) => b.status !== 'Cancelled' && b.status !== 'Rejected')
+    : null;
+
+  const resolved = resolveEventTimes({
+    requirementsRaw: q.inquiry?.requirements || null,
+    requestedStartTime: q.requestedStartTime || schedule.requestedStartTime,
+    requestedEndTime: q.requestedEndTime || schedule.requestedEndTime,
+    approvedStartTime:
+      q.approvedStartTime || schedule.approvedStartTime || q.startTime || activeBooking?.startTime,
+    approvedEndTime:
+      q.approvedEndTime || schedule.approvedEndTime || q.endTime || activeBooking?.endTime,
+  });
+
+  return {
+    ...q,
+    terms: cleanTerms,
+    requestedStartTime: resolved.requestedStartTime || undefined,
+    requestedEndTime: resolved.requestedEndTime || undefined,
+    approvedStartTime: resolved.approvedStartTime || undefined,
+    approvedEndTime: resolved.approvedEndTime || undefined,
+    startTime: resolved.effectiveStartTime || undefined,
+    endTime: resolved.effectiveEndTime || undefined,
+  };
+}
 
 export interface QuotationInput {
   quotationRef?: string;
-  inquiryId?: number | null;
+  inquiryId?: number | string | null;
   userId?: number | null;
   clientName: string;
   clientEmail: string;
   clientPhone?: string | null;
   eventType: string;
   eventDate: string | Date;
+  startTime?: string | null;
+  endTime?: string | null;
+  requestedStartTime?: string | null;
+  requestedEndTime?: string | null;
+  approvedStartTime?: string | null;
+  approvedEndTime?: string | null;
   venue: string;
   guestCount: number;
   items: Array<{
@@ -60,18 +181,40 @@ export const generateQuotationRef = async (): Promise<string> => {
   return ref;
 };
 
-export const getQuotations = async (limit = 100, offset = 0, search = '') => {
-  const where = search
-    ? {
-        OR: [
-          { quotationRef: { contains: search, mode: 'insensitive' as const } },
-          { clientName: { contains: search, mode: 'insensitive' as const } },
-          { clientEmail: { contains: search, mode: 'insensitive' as const } },
-          { eventType: { contains: search, mode: 'insensitive' as const } },
-          { venue: { contains: search, mode: 'insensitive' as const } },
-        ],
-      }
-    : {};
+export const getQuotations = async (
+  limit = 100,
+  offset = 0,
+  search = '',
+  customerFilter?: { userId?: number | null; email?: string | null }
+) => {
+  const andConditions: Prisma.QuotationWhereInput[] = [];
+
+  if (customerFilter) {
+    const ownerConditions: Prisma.QuotationWhereInput[] = [];
+    if (customerFilter.userId) {
+      ownerConditions.push({ userId: customerFilter.userId });
+    }
+    const cleanEmail = (customerFilter.email || '').trim();
+    if (cleanEmail) {
+      ownerConditions.push({ clientEmail: { equals: cleanEmail, mode: 'insensitive' as const } });
+    }
+    andConditions.push(ownerConditions.length > 0 ? { OR: ownerConditions } : { id: -1 });
+  }
+
+  if (search) {
+    andConditions.push({
+      OR: [
+        { quotationRef: { contains: search, mode: 'insensitive' as const } },
+        { clientName: { contains: search, mode: 'insensitive' as const } },
+        { clientEmail: { contains: search, mode: 'insensitive' as const } },
+        { eventType: { contains: search, mode: 'insensitive' as const } },
+        { venue: { contains: search, mode: 'insensitive' as const } },
+      ],
+    });
+  }
+
+  const where: Prisma.QuotationWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
 
   const [quotations, total] = await Promise.all([
     prisma.quotation.findMany({
@@ -85,7 +228,7 @@ export const getQuotations = async (limit = 100, offset = 0, search = '') => {
           select: { id: true, name: true, email: true, phone: true },
         },
         bookings: {
-          select: { id: true, bookingRef: true, status: true },
+          select: { id: true, bookingRef: true, status: true, startTime: true, endTime: true },
         },
         payments: true,
       },
@@ -93,7 +236,7 @@ export const getQuotations = async (limit = 100, offset = 0, search = '') => {
     prisma.quotation.count({ where }),
   ]);
 
-  return { quotations, total };
+  return { quotations: quotations.map((q) => enrichQuotation(q)), total };
 };
 
 export type QuotationWithRelations = Prisma.QuotationGetPayload<{
@@ -132,12 +275,12 @@ export const getQuotationById = async (id: number | string): Promise<QuotationWi
     return await getQuotationByRef(idStr);
   }
 
-  return found;
+  return enrichQuotation(found);
 };
 
 export const getQuotationByRef = async (quotationRef: string): Promise<QuotationWithRelations | null> => {
   const ref = quotationRef.trim();
-  return await prisma.quotation.findFirst({
+  const found = await prisma.quotation.findFirst({
     where: {
       OR: [
         { quotationRef: { equals: ref, mode: 'insensitive' as const } },
@@ -153,10 +296,11 @@ export const getQuotationByRef = async (quotationRef: string): Promise<Quotation
       payments: true,
     },
   });
+  return enrichQuotation(found);
 };
 
 export const getQuotationsByUserEmail = async (email: string) => {
-  return await prisma.quotation.findMany({
+  const list = await prisma.quotation.findMany({
     where: { clientEmail: { equals: email, mode: 'insensitive' as const } },
     orderBy: { createdAt: 'desc' },
     include: {
@@ -165,6 +309,7 @@ export const getQuotationsByUserEmail = async (email: string) => {
       payments: true,
     },
   });
+  return list.map((q) => enrichQuotation(q));
 };
 
 export const createQuotation = async (data: QuotationInput) => {
@@ -211,11 +356,46 @@ export const createQuotation = async (data: QuotationInput) => {
     ? new Date(data.validUntil) 
     : data.validUntil || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
 
-  const eventDateParsed = typeof data.eventDate === 'string' 
-    ? new Date(data.eventDate) 
-    : data.eventDate;
+  const eventDateParsed = toEventDateDbValue(data.eventDate);
 
   const quotationStatus = data.status || 'Quotation Sent';
+
+  // Validate and resolve event times
+  const rawAdminStart = data.approvedStartTime ?? data.startTime;
+  const rawAdminEnd = data.approvedEndTime ?? data.endTime;
+  if (rawAdminStart !== undefined || rawAdminEnd !== undefined) {
+    const timeVal = validateEventTimeRange(rawAdminStart, rawAdminEnd, { required: false });
+    if (!timeVal.valid) {
+      throw new Error(timeVal.message || 'Invalid event time range.');
+    }
+  }
+
+  const inqTimes = resolveEventTimes({
+    requirementsRaw: inqRecord?.requirements || null,
+    requestedStartTime: data.requestedStartTime,
+    requestedEndTime: data.requestedEndTime,
+    approvedStartTime: rawAdminStart,
+    approvedEndTime: rawAdminEnd,
+  });
+
+  if (quotationStatus !== 'Cancelled' && quotationStatus !== 'Declined' && quotationStatus !== 'Expired') {
+    const availability = await checkScheduleAvailability({
+      eventDate: eventDateParsed,
+      startTime: inqTimes.effectiveStartTime || '17:00',
+      endTime: inqTimes.effectiveEndTime || '23:00',
+    });
+    if (!availability.isAvailable || availability.hasHighConflicts) {
+      const errorMsg = availability.conflicts.map(c => c.message).join(' | ');
+      throw new Error(`Scheduling conflict detected: ${errorMsg}`);
+    }
+  }
+
+  const serializedTerms = serializeQuotationTermsWithSchedule(data.terms, {
+    requestedStartTime: inqTimes.requestedStartTime,
+    requestedEndTime: inqTimes.requestedEndTime,
+    approvedStartTime: inqTimes.approvedStartTime || inqTimes.effectiveStartTime,
+    approvedEndTime: inqTimes.approvedEndTime || inqTimes.effectiveEndTime,
+  });
 
   const quotation = await prisma.quotation.create({
     data: {
@@ -240,25 +420,38 @@ export const createQuotation = async (data: QuotationInput) => {
       status: quotationStatus,
       adminComment: data.adminComment !== undefined ? data.adminComment : null,
       notes: data.notes || inqRecord?.notes || null,
-      terms: data.terms || [
-        '50% Non-refundable Reservation Downpayment required to lock event calendar & production crew.',
-        'Remaining 50% balance must be settled 3 days prior to the target ingress date.',
-        'Inclement weather postponement requires minimum 7 days advance notice with zero penalty.',
-        'Food & Beverage guest count buffer of +10% included in operational provisions.'
-      ],
+      terms: serializedTerms,
       sentAt: new Date(),
+    },
+    include: {
+      inquiry: true,
+      bookings: true,
     },
   });
 
-  // Sync status to the linked inquiry in database
-  if (resolvedInquiryId) {
+  // Sync status and approved schedule to the linked inquiry in database (preserving customer's requested time)
+  if (resolvedInquiryId && inqRecord) {
+    const updatedReqs = updateRequirementsWithSchedule(
+      inqRecord.requirements,
+      {
+        requestedStartTime: inqTimes.requestedStartTime,
+        requestedEndTime: inqTimes.requestedEndTime,
+        approvedStartTime: inqTimes.approvedStartTime || inqTimes.effectiveStartTime,
+        approvedEndTime: inqTimes.approvedEndTime || inqTimes.effectiveEndTime,
+      },
+      inqRecord.selectedServices,
+      inqRecord.packageId
+    );
     await prisma.inquiry.update({
       where: { id: resolvedInquiryId },
-      data: { status: quotationStatus },
+      data: {
+        status: quotationStatus,
+        requirements: updatedReqs,
+      },
     }).catch(() => {});
   }
 
-  return quotation;
+  return enrichQuotation(quotation);
 };
 
 export const updateQuotation = async (id: number | string, data: Partial<QuotationInput>) => {
@@ -273,11 +466,53 @@ export const updateQuotation = async (id: number | string, data: Partial<Quotati
   
   const existingQuotation = await prisma.quotation.findUnique({
     where: { id: targetId },
-    include: { inquiry: true }
+    include: { inquiry: true, bookings: true }
   });
   
   if (existingQuotation?.inquiry?.status === 'CANCELLED') {
     throw new Error('This inquiry has been cancelled by the customer and its quotation cannot be updated or sent.');
+  }
+
+  const targetEventDate = data.eventDate !== undefined
+    ? toEventDateDbValue(data.eventDate)
+    : existingQuotation?.eventDate;
+  const targetStatus = data.status !== undefined ? data.status : existingQuotation?.status;
+  const ownBookingId = existingQuotation?.bookings?.[0]?.id || null;
+
+  const rawAdminStart = data.approvedStartTime ?? data.startTime;
+  const rawAdminEnd = data.approvedEndTime ?? data.endTime;
+  if (rawAdminStart !== undefined || rawAdminEnd !== undefined) {
+    const timeVal = validateEventTimeRange(rawAdminStart, rawAdminEnd, { required: false });
+    if (!timeVal.valid) {
+      throw new Error(timeVal.message || 'Invalid event time range.');
+    }
+  }
+
+  const existingExtracted = extractQuotationScheduleFromTerms(existingQuotation?.terms);
+  const resolvedTimes = resolveEventTimes({
+    requirementsRaw: existingQuotation?.inquiry?.requirements || null,
+    requestedStartTime: data.requestedStartTime || existingExtracted.schedule.requestedStartTime,
+    requestedEndTime: data.requestedEndTime || existingExtracted.schedule.requestedEndTime,
+    approvedStartTime: rawAdminStart || existingExtracted.schedule.approvedStartTime,
+    approvedEndTime: rawAdminEnd || existingExtracted.schedule.approvedEndTime,
+  });
+
+  if (
+    targetEventDate &&
+    targetStatus !== 'Cancelled' &&
+    targetStatus !== 'Declined' &&
+    targetStatus !== 'Expired'
+  ) {
+    const availability = await checkScheduleAvailability({
+      eventDate: targetEventDate,
+      startTime: resolvedTimes.effectiveStartTime || '17:00',
+      endTime: resolvedTimes.effectiveEndTime || '23:00',
+      excludeBookingId: ownBookingId,
+    });
+    if (!availability.isAvailable || availability.hasHighConflicts) {
+      const errorMsg = availability.conflicts.map(c => c.message).join(' | ');
+      throw new Error(`Scheduling conflict detected: ${errorMsg}`);
+    }
   }
 
   const updateData: any = {};
@@ -285,7 +520,7 @@ export const updateQuotation = async (id: number | string, data: Partial<Quotati
   if (data.clientEmail !== undefined) updateData.clientEmail = data.clientEmail;
   if (data.clientPhone !== undefined) updateData.clientPhone = data.clientPhone;
   if (data.eventType !== undefined) updateData.eventType = data.eventType;
-  if (data.eventDate !== undefined) updateData.eventDate = typeof data.eventDate === 'string' ? new Date(data.eventDate) : data.eventDate;
+  if (data.eventDate !== undefined) updateData.eventDate = targetEventDate;
   if (data.venue !== undefined) updateData.venue = data.venue;
   if (data.guestCount !== undefined) updateData.guestCount = Number(data.guestCount);
   if (data.items !== undefined) updateData.items = data.items;
@@ -299,27 +534,70 @@ export const updateQuotation = async (id: number | string, data: Partial<Quotati
   if (data.status !== undefined) updateData.status = data.status;
   if (data.adminComment !== undefined) updateData.adminComment = data.adminComment;
   if (data.notes !== undefined) updateData.notes = data.notes;
-  if (data.terms !== undefined) updateData.terms = data.terms;
+
+  if (
+    data.terms !== undefined ||
+    rawAdminStart !== undefined ||
+    rawAdminEnd !== undefined ||
+    data.requestedStartTime !== undefined ||
+    data.requestedEndTime !== undefined
+  ) {
+    const baseTerms = data.terms !== undefined ? data.terms : existingExtracted.cleanTerms;
+    updateData.terms = serializeQuotationTermsWithSchedule(baseTerms, {
+      requestedStartTime: resolvedTimes.requestedStartTime,
+      requestedEndTime: resolvedTimes.requestedEndTime,
+      approvedStartTime: resolvedTimes.approvedStartTime || resolvedTimes.effectiveStartTime,
+      approvedEndTime: resolvedTimes.approvedEndTime || resolvedTimes.effectiveEndTime,
+    });
+  }
   updateData.sentAt = new Date();
 
   const updated = await prisma.quotation.update({
     where: { id: targetId },
     data: updateData,
+    include: { inquiry: true, bookings: true },
   });
 
-  if (updated.inquiryId && data.status) {
-    await prisma.inquiry.update({
-      where: { id: updated.inquiryId },
-      data: { status: data.status },
-    }).catch(() => {});
+  if (updated.inquiryId) {
+    const inqUpdateData: any = {};
+    if (data.status) inqUpdateData.status = data.status;
+    if (existingQuotation?.inquiry) {
+      inqUpdateData.requirements = updateRequirementsWithSchedule(
+        existingQuotation.inquiry.requirements,
+        {
+          requestedStartTime: resolvedTimes.requestedStartTime,
+          requestedEndTime: resolvedTimes.requestedEndTime,
+          approvedStartTime: resolvedTimes.approvedStartTime || resolvedTimes.effectiveStartTime,
+          approvedEndTime: resolvedTimes.approvedEndTime || resolvedTimes.effectiveEndTime,
+        },
+        existingQuotation.inquiry.selectedServices,
+        existingQuotation.inquiry.packageId
+      );
+    }
+    if (Object.keys(inqUpdateData).length > 0) {
+      await prisma.inquiry.update({
+        where: { id: updated.inquiryId },
+        data: inqUpdateData,
+      }).catch(() => {});
+    }
   }
 
-  return updated;
+  return enrichQuotation(updated);
 };
 
 export const acceptQuotation = async (id: number | string) => {
   const quotation = await getQuotationById(id);
   if (!quotation) return null;
+
+  const ownBookingId = quotation.bookings?.[0]?.id || null;
+  const availability = await checkScheduleAvailability({
+    eventDate: quotation.eventDate,
+    excludeBookingId: ownBookingId,
+  });
+  if (!availability.isAvailable || availability.hasHighConflicts) {
+    const errorMsg = availability.conflicts.map(c => c.message).join(' | ');
+    throw new Error(`Scheduling conflict detected: ${errorMsg}`);
+  }
 
   const updated = await prisma.quotation.update({
     where: { id: quotation.id },
@@ -336,7 +614,7 @@ export const acceptQuotation = async (id: number | string) => {
     }).catch(() => {});
   }
 
-  return updated;
+  return enrichQuotation(updated);
 };
 
 export const payQuotationDeposit = async (id: number | string) => {
@@ -349,6 +627,7 @@ export const payQuotationDeposit = async (id: number | string) => {
       status: 'Deposit Paid',
       depositPaidAt: new Date(),
     },
+    include: { inquiry: true, bookings: true },
   });
 
   if (updated.inquiryId) {
@@ -358,7 +637,7 @@ export const payQuotationDeposit = async (id: number | string) => {
     }).catch(() => {});
   }
 
-  return updated;
+  return enrichQuotation(updated);
 };
 
 export const deleteQuotation = async (id: number | string) => {

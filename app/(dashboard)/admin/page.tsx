@@ -5,6 +5,16 @@ import { useRouter } from 'next/navigation';
 import { AdminDashboard } from '@/components/jad/admin/AdminDashboard';
 import { Toaster } from '@/components/ui/sonner';
 import { toast } from 'sonner';
+import {
+  FileText,
+  CalendarCheck,
+  Wallet,
+  BadgeCheck,
+  ClipboardList,
+  UserRound,
+  Save,
+  MessageSquare,
+} from 'lucide-react';
 
 import { 
   ServiceItem, 
@@ -15,7 +25,10 @@ import {
   PaymentTransaction,
   StaffMember,
   EventType,
-  EquipmentResource
+  EquipmentResource,
+  extractPlainInquiryNotes,
+  parseInquirySelectionDetails,
+  resolveEventTimes
 } from '@/components/jad/types';
 import { 
   fetchServices, 
@@ -95,8 +108,8 @@ export default function AdminPage() {
         bookingsRes,
         paymentsRes
       ] = await Promise.all([
-        fetchServices('', 100),
-        fetchPackages('', 100),
+        fetchServices('', 100, 0, token),
+        fetchPackages('', 100, 0, token),
         fetchInquiries(100, 0, token),
         fetchStaff('', 100),
         fetchEquipment('', 100),
@@ -156,6 +169,16 @@ export default function AdminPage() {
       // 3. Map Inquiries
       if (inquiriesRes.inquiries && inquiriesRes.inquiries.length > 0) {
         setInquiries(inquiriesRes.inquiries.map((inq: any) => {
+          const parsedSelection = parseInquirySelectionDetails(inq.requirements, inq.selectedServices, inq.packageId);
+          const resolvedTimes = resolveEventTimes({
+            startTime: inq.startTime,
+            endTime: inq.endTime,
+            requestedStartTime: inq.requestedStartTime,
+            requestedEndTime: inq.requestedEndTime,
+            approvedStartTime: inq.approvedStartTime,
+            approvedEndTime: inq.approvedEndTime,
+            requirements: inq.requirements,
+          });
           return {
             id: inq.trackingId || inq.id.toString(),
             dbId: inq.id,
@@ -163,12 +186,22 @@ export default function AdminPage() {
             email: inq.clientEmail || inq.user?.email || 'client@example.com',
             phone: inq.clientPhone || inq.user?.phone || '0900-000-0000',
             eventType: inq.eventType,
+            eventTypeId: inq.eventTypeId ?? null,
+            customEventDescription: inq.customEventDescription || null,
             eventDate: inq.eventDate ? inq.eventDate.split('T')[0] : '',
+            startTime: resolvedTimes.startTime || undefined,
+            endTime: resolvedTimes.endTime || undefined,
+            requestedStartTime: resolvedTimes.requestedStartTime || undefined,
+            requestedEndTime: resolvedTimes.requestedEndTime || undefined,
+            approvedStartTime: resolvedTimes.approvedStartTime || undefined,
+            approvedEndTime: resolvedTimes.approvedEndTime || undefined,
             venue: inq.eventVenue,
             guestCount: inq.guestsCount,
             selectedServices: Array.isArray(inq.selectedServices) ? inq.selectedServices : [],
             packageId: inq.packageId || undefined,
-            notes: inq.notes || inq.requirements || '',
+            notes: extractPlainInquiryNotes(inq.notes, inq.requirements),
+            requirements: inq.requirements || undefined,
+            selectionDetails: parsedSelection,
             budgetRange: inq.estimatedBudget || undefined,
             status: inq.status || 'Pending Review',
             submittedAt: inq.createdAt ? new Date(inq.createdAt).toLocaleDateString() : 'Recent',
@@ -217,70 +250,102 @@ export default function AdminPage() {
 
       // 6. Map Quotations
       if (quotationsRes.quotations && quotationsRes.quotations.length > 0) {
-        setQuotations(quotationsRes.quotations.map((q: any) => ({
-          id: q.quotationRef || q.id.toString(),
-          dbId: q.id,
-          inquiryId: q.inquiryId ? q.inquiryId.toString() : (q.inquiry?.trackingId || ''),
-          clientName: q.clientName,
-          clientEmail: q.clientEmail,
-          clientPhone: q.clientPhone || '',
-          eventType: q.eventType,
-          eventDate: q.eventDate ? q.eventDate.split('T')[0] : '',
-          venue: q.venue,
-          guestCount: q.guestCount,
-          items: Array.isArray(q.items) ? q.items : [],
-          subtotal: Number(q.subtotal) || 0,
-          discounts: Array.isArray(q.discounts) ? q.discounts : [],
-          additionalCharges: Array.isArray(q.additionalCharges) ? q.additionalCharges : [],
-          grandTotal: Number(q.grandTotal) || 0,
-          requiredDownpayment: Number(q.requiredDownpayment) || Number(q.grandTotal) * 0.5,
-          validUntil: q.validUntil ? q.validUntil.split('T')[0] : '',
-          validityDays: q.validityDays || 14,
-          status: q.status || 'Draft',
-          notes: q.notes || '',
-          terms: Array.isArray(q.terms) ? q.terms : [],
-          createdAt: q.createdAt ? q.createdAt.split('T')[0] : '',
-          sentAt: q.sentAt ? q.sentAt.split('T')[0] : undefined,
-          depositPaidAt: q.depositPaidAt ? q.depositPaidAt.split('T')[0] : undefined,
-          confirmedAt: q.confirmedAt ? q.confirmedAt.split('T')[0] : undefined,
-        })));
+        setQuotations(quotationsRes.quotations.map((q: any) => {
+          const resolvedTimes = resolveEventTimes({
+            startTime: q.startTime,
+            endTime: q.endTime,
+            requestedStartTime: q.requestedStartTime,
+            requestedEndTime: q.requestedEndTime,
+            approvedStartTime: q.approvedStartTime,
+            approvedEndTime: q.approvedEndTime,
+            requirements: q.inquiry?.requirements,
+          });
+          return {
+            id: q.quotationRef || q.id.toString(),
+            dbId: q.id,
+            inquiryId: q.inquiryId ? q.inquiryId.toString() : (q.inquiry?.trackingId || ''),
+            clientName: q.clientName,
+            clientEmail: q.clientEmail,
+            clientPhone: q.clientPhone || '',
+            eventType: q.eventType,
+            eventDate: q.eventDate ? q.eventDate.split('T')[0] : '',
+            startTime: resolvedTimes.startTime || undefined,
+            endTime: resolvedTimes.endTime || undefined,
+            requestedStartTime: resolvedTimes.requestedStartTime || undefined,
+            requestedEndTime: resolvedTimes.requestedEndTime || undefined,
+            approvedStartTime: resolvedTimes.approvedStartTime || undefined,
+            approvedEndTime: resolvedTimes.approvedEndTime || undefined,
+            venue: q.venue,
+            guestCount: q.guestCount,
+            items: Array.isArray(q.items) ? q.items : [],
+            subtotal: Number(q.subtotal) || 0,
+            discounts: Array.isArray(q.discounts) ? q.discounts : [],
+            additionalCharges: Array.isArray(q.additionalCharges) ? q.additionalCharges : [],
+            grandTotal: Number(q.grandTotal) || 0,
+            requiredDownpayment: Number(q.requiredDownpayment) || Number(q.grandTotal) * 0.5,
+            validUntil: q.validUntil ? q.validUntil.split('T')[0] : '',
+            validityDays: q.validityDays || 14,
+            status: q.status || 'Draft',
+            notes: q.notes || '',
+            terms: Array.isArray(q.terms) ? q.terms : [],
+            createdAt: q.createdAt ? q.createdAt.split('T')[0] : '',
+            sentAt: q.sentAt ? q.sentAt.split('T')[0] : undefined,
+            depositPaidAt: q.depositPaidAt ? q.depositPaidAt.split('T')[0] : undefined,
+            confirmedAt: q.confirmedAt ? q.confirmedAt.split('T')[0] : undefined,
+          };
+        }));
       }
 
       // 7. Map Bookings
       if (bookingsRes.bookings && bookingsRes.bookings.length > 0) {
-        setBookings(bookingsRes.bookings.map((b: any) => ({
-          id: b.bookingRef || b.id.toString(),
-          dbId: b.id,
-          inquiryId: b.inquiryId ? b.inquiryId.toString() : undefined,
-          quotationId: b.quotationId ? b.quotationId.toString() : undefined,
-          clientName: b.clientName,
-          clientEmail: b.clientEmail,
-          clientPhone: b.clientPhone,
-          eventTitle: b.eventTitle,
-          eventType: b.eventType,
-          eventDate: b.eventDate ? b.eventDate.split('T')[0] : '',
-          startTime: b.startTime || '17:00',
-          endTime: b.endTime || '23:00',
-          venue: b.venue,
-          guestCount: b.guestCount,
-          status: b.status || 'Tentative',
-          cancellationReason: b.cancellationReason || undefined,
-          rescheduledFrom: b.rescheduledFrom ? b.rescheduledFrom.split('T')[0] : undefined,
-          assignedStaff: b.bookingStaff?.map((bs: any) => ({
-            id: bs.staff?.staffCode || bs.staffId.toString(),
-            name: bs.staff?.name || 'Staff Member',
-            role: bs.role || bs.staff?.role || 'Crew',
-            phone: bs.staff?.phone || '',
-          })) || [],
-          assignedServices: b.bookingServices?.map((bs: any) => bs.serviceCode || bs.name) || [],
-          assignedPackages: b.bookingPackages?.map((bp: any) => bp.packageCode || bp.name) || [],
-          assignedEquipmentIds: b.bookingResources?.map((br: any) => br.resource?.resourceCode || br.resourceId.toString()) || [],
-          totalAmount: Number(b.totalAmount) || 0,
-          notes: b.notes || '',
-          createdAt: b.createdAt ? b.createdAt.split('T')[0] : '',
-          confirmedAt: b.confirmedAt ? b.confirmedAt.split('T')[0] : undefined,
-          feedback: b.feedback || null,
-        })));
+        setBookings(bookingsRes.bookings.map((b: any) => {
+          const resolvedTimes = resolveEventTimes({
+            startTime: b.startTime,
+            endTime: b.endTime,
+            requestedStartTime: b.requestedStartTime,
+            requestedEndTime: b.requestedEndTime,
+            approvedStartTime: b.approvedStartTime,
+            approvedEndTime: b.approvedEndTime,
+            requirements: b.inquiry?.requirements,
+          });
+          return {
+            id: b.bookingRef || b.id.toString(),
+            dbId: b.id,
+            inquiryId: b.inquiryId ? b.inquiryId.toString() : undefined,
+            quotationId: b.quotationId ? b.quotationId.toString() : undefined,
+            clientName: b.clientName,
+            clientEmail: b.clientEmail,
+            clientPhone: b.clientPhone,
+            eventTitle: b.eventTitle,
+            eventType: b.eventType,
+            eventDate: b.eventDate ? b.eventDate.split('T')[0] : '',
+            startTime: b.startTime || resolvedTimes.startTime || '17:00',
+            endTime: b.endTime || resolvedTimes.endTime || '23:00',
+            requestedStartTime: resolvedTimes.requestedStartTime || undefined,
+            requestedEndTime: resolvedTimes.requestedEndTime || undefined,
+            approvedStartTime: resolvedTimes.approvedStartTime || b.startTime || undefined,
+            approvedEndTime: resolvedTimes.approvedEndTime || b.endTime || undefined,
+            venue: b.venue,
+            guestCount: b.guestCount,
+            status: b.status || 'Tentative',
+            cancellationReason: b.cancellationReason || undefined,
+            rescheduledFrom: b.rescheduledFrom ? b.rescheduledFrom.split('T')[0] : undefined,
+            assignedStaff: b.bookingStaff?.map((bs: any) => ({
+              id: bs.staff?.staffCode || bs.staffId.toString(),
+              name: bs.staff?.name || 'Staff Member',
+              role: bs.role || bs.staff?.role || 'Crew',
+              phone: bs.staff?.phone || '',
+            })) || [],
+            assignedServices: b.bookingServices?.map((bs: any) => bs.serviceCode || bs.name) || [],
+            assignedPackages: b.bookingPackages?.map((bp: any) => bp.packageCode || bp.name) || [],
+            assignedEquipmentIds: b.bookingResources?.map((br: any) => br.resource?.resourceCode || br.resourceId.toString()) || [],
+            totalAmount: Number(b.totalAmount) || 0,
+            notes: b.notes || '',
+            createdAt: b.createdAt ? b.createdAt.split('T')[0] : '',
+            confirmedAt: b.confirmedAt ? b.confirmedAt.split('T')[0] : undefined,
+            feedback: b.feedback || null,
+          };
+        }));
       }
 
       // 8. Map Payments
@@ -334,7 +399,9 @@ export default function AdminPage() {
         const parsed = JSON.parse(saved);
         if (parsed.email) setUserEmail(parsed.email);
         if (parsed.role !== 'Administrator' && parsed.role !== 'admin') {
-          toast.warning('Administrative privileges required.');
+          toast.warning('Administrator access required.', {
+            description: 'You do not have permission to view the administrator portal.',
+          });
           router.replace('/customer');
           return;
         }
@@ -350,7 +417,9 @@ export default function AdminPage() {
     })
       .then(res => {
         if (!res.ok) {
-          toast.error('Session expired or invalid.');
+          toast.error('Session expired', {
+            description: 'Please sign in again to continue.',
+          });
           router.replace('/homepage');
           return null;
         }
@@ -359,7 +428,9 @@ export default function AdminPage() {
       .then(data => {
         if (data && data.user) {
           if (data.user.role !== 'Administrator') {
-            toast.error('Access Denied: Your account role does not have Administrator clearance.');
+            toast.error('Access denied', {
+              description: 'You do not have permission to access the administrator portal.',
+            });
             router.replace('/customer');
             return;
           }
@@ -426,6 +497,12 @@ export default function AdminPage() {
         clientPhone: quotation.clientPhone,
         eventType: quotation.eventType,
         eventDate: quotation.eventDate,
+        startTime: quotation.startTime,
+        endTime: quotation.endTime,
+        requestedStartTime: quotation.requestedStartTime,
+        requestedEndTime: quotation.requestedEndTime,
+        approvedStartTime: quotation.approvedStartTime || quotation.startTime,
+        approvedEndTime: quotation.approvedEndTime || quotation.endTime,
         venue: quotation.venue,
         guestCount: quotation.guestCount,
         items: quotation.items,
@@ -444,19 +521,35 @@ export default function AdminPage() {
       if (existing) {
         const targetId = existing.dbId || existing.id;
         await updateQuotationApi(targetId, payload, token);
-        toast.success(`Quotation ${quotation.id} updated and resent to customer!`);
+        toast.success('Quotation updated successfully.', {
+          description: `Quotation ${quotation.id} has been updated and sent to ${quotation.clientName}.`,
+          icon: <FileText className="w-4 h-4 text-emerald-600" />,
+        });
       } else {
         await createQuotationApi(payload, token);
-        toast.success(`Quotation ${quotation.id} dispatched and saved to database!`);
+        toast.success('Quotation sent successfully.', {
+          description: `Quotation ${quotation.id} has been sent to ${quotation.clientName}.`,
+          icon: <FileText className="w-4 h-4 text-emerald-600" />,
+        });
       }
 
       await loadAllAdminData();
     } catch (err: any) {
       console.error('Error saving quotation:', err);
-      if (err.message?.includes('409') || err.message?.toLowerCase().includes('cancelled')) {
-        toast.error('Quotation Blocked', { description: 'Cannot create quotation because the customer has already cancelled this inquiry.' });
+      if (err.message?.toLowerCase().includes('cancelled')) {
+        toast.error('Unable to send quotation', {
+          description: 'This inquiry has already been cancelled by the customer.',
+        });
+      } else if (
+        err.message?.toLowerCase().includes('conflict') ||
+        err.message?.toLowerCase().includes('occupied') ||
+        err.message?.toLowerCase().includes('accommodate')
+      ) {
+        toast.error('Date Already Occupied (1 Booking/Day Limit)', { description: err.message });
       } else {
-        toast.error('Failed to save quotation', { description: err.message });
+        toast.error('Unable to save quotation', {
+          description: err.message || 'Please review the quotation details and try again.',
+        });
       }
       throw err;
     }
@@ -491,6 +584,11 @@ export default function AdminPage() {
   const handleSaveService = async (service: ServiceItem) => {
     const token = getAdminToken();
     const isNumericId = !isNaN(parseInt(service.id, 10));
+    const eventTypeIds = Array.isArray(service.eventTypes)
+      ? service.eventTypes
+          .map((et: any) => (typeof et === 'number' ? et : Number(et?.id)))
+          .filter((id: number) => !isNaN(id) && id > 0)
+      : undefined;
 
     try {
       if (isNumericId) {
@@ -506,9 +604,13 @@ export default function AdminPage() {
           features: service.features,
           inclusions: service.inclusions,
           isActive: service.isActive !== false,
+          eventTypes: eventTypeIds,
         }, token);
 
-        toast.success(`Service "${service.name}" updated successfully in database.`);
+        toast.success('Service updated successfully.', {
+          description: `Changes to "${service.name}" have been saved.`,
+          icon: <Save className="w-4 h-4 text-emerald-600" />,
+        });
       } else {
         await createServiceApi({
           name: service.name,
@@ -522,14 +624,19 @@ export default function AdminPage() {
           features: service.features,
           inclusions: service.inclusions,
           isActive: service.isActive !== false,
+          eventTypes: eventTypeIds,
         }, token);
 
-        toast.success(`New service "${service.name}" created in database.`);
+        toast.success('Service added successfully.', {
+          description: `"${service.name}" is now available in the service catalog.`,
+        });
       }
       loadAllAdminData();
     } catch (err: any) {
       console.error('Error saving service:', err);
-      toast.error('Failed to save service', { description: err.message });
+      toast.error('Unable to save service', {
+        description: err.message || 'Please check the service details and try again.',
+      });
     }
   };
 
@@ -537,11 +644,13 @@ export default function AdminPage() {
     const token = getAdminToken();
     try {
       await deleteServiceApi(serviceId, token);
-      toast.info('Service removed from database catalog.');
+      toast.success('Service deleted successfully.');
       loadAllAdminData();
     } catch (err: any) {
       console.error('Error deleting service:', err);
-      toast.error('Failed to delete service', { description: err.message });
+      toast.error('Unable to delete service', {
+        description: err.message || 'Please try again.',
+      });
     }
   };
 
@@ -552,11 +661,15 @@ export default function AdminPage() {
 
     try {
       await updateServiceApi(serviceId, { isActive: !service.isActive }, token);
-      toast.info(`Service "${service.name}" status updated.`);
+      toast.success('Service visibility updated.', {
+        description: `"${service.name}" is now ${!service.isActive ? 'active' : 'hidden'}.`,
+      });
       loadAllAdminData();
     } catch (err: any) {
       console.error('Error toggling service:', err);
-      toast.error('Failed to update service status', { description: err.message });
+      toast.error('Unable to update service status', {
+        description: err.message || 'Please try again.',
+      });
     }
   };
 
@@ -566,6 +679,11 @@ export default function AdminPage() {
   const handleSavePackage = async (pkg: PackageItem) => {
     const token = getAdminToken();
     const isNumericId = !isNaN(parseInt(pkg.id, 10));
+    const eventTypeIds = Array.isArray(pkg.eventTypes)
+      ? pkg.eventTypes
+          .map((et: any) => (typeof et === 'number' ? et : Number(et?.id)))
+          .filter((id: number) => !isNaN(id) && id > 0)
+      : undefined;
 
     try {
       if (isNumericId) {
@@ -582,9 +700,13 @@ export default function AdminPage() {
           inclusions: pkg.inclusions,
           features: pkg.features,
           servicesIncluded: pkg.servicesIncluded,
+          eventTypes: eventTypeIds,
         }, token);
 
-        toast.success(`Package "${pkg.name}" updated successfully in database.`);
+        toast.success('Package updated successfully.', {
+          description: `Changes to "${pkg.name}" have been saved.`,
+          icon: <Save className="w-4 h-4 text-emerald-600" />,
+        });
       } else {
         await createPackageApi({
           name: pkg.name,
@@ -599,14 +721,19 @@ export default function AdminPage() {
           inclusions: pkg.inclusions,
           features: pkg.features,
           servicesIncluded: pkg.servicesIncluded,
+          eventTypes: eventTypeIds,
         }, token);
 
-        toast.success(`Package bundle "${pkg.name}" created and saved to database.`);
+        toast.success('Package added successfully.', {
+          description: `"${pkg.name}" is now available in the package catalog.`,
+        });
       }
       loadAllAdminData();
     } catch (err: any) {
       console.error('Error saving package:', err);
-      toast.error('Failed to save package', { description: err.message });
+      toast.error('Unable to save package', {
+        description: err.message || 'Please check the package details and try again.',
+      });
     }
   };
 
@@ -614,11 +741,13 @@ export default function AdminPage() {
     const token = getAdminToken();
     try {
       await deletePackageApi(packageId, token);
-      toast.info('Package removed from database catalog.');
+      toast.success('Package deleted successfully.');
       loadAllAdminData();
     } catch (err: any) {
       console.error('Error deleting package:', err);
-      toast.error('Failed to delete package', { description: err.message });
+      toast.error('Unable to delete package', {
+        description: err.message || 'Please try again.',
+      });
     }
   };
 
@@ -629,11 +758,15 @@ export default function AdminPage() {
 
     try {
       await updatePackageApi(packageId, { isActive: !pkg.isActive }, token);
-      toast.info(`Package "${pkg.name}" status updated.`);
+      toast.success('Package visibility updated.', {
+        description: `"${pkg.name}" is now ${!pkg.isActive ? 'active' : 'hidden'}.`,
+      });
       loadAllAdminData();
     } catch (err: any) {
       console.error('Error toggling package status:', err);
-      toast.error('Failed to update package status', { description: err.message });
+      toast.error('Unable to update package status', {
+        description: err.message || 'Please try again.',
+      });
     }
   };
 
@@ -655,7 +788,10 @@ export default function AdminPage() {
           assignedServiceId: equipment.assignedServiceId,
           notes: equipment.notes,
         }, token);
-        toast.success(`Hardware spec for "${equipment.name}" saved.`);
+        toast.success('Equipment updated successfully.', {
+          description: `Changes to "${equipment.name}" have been saved.`,
+          icon: <ClipboardList className="w-4 h-4 text-emerald-600" />,
+        });
       } else {
         await createEquipmentApi({
           resourceCode: equipment.id,
@@ -667,12 +803,17 @@ export default function AdminPage() {
           assignedServiceId: equipment.assignedServiceId,
           notes: equipment.notes,
         }, token);
-        toast.success(`New equipment "${equipment.name}" added to inventory.`);
+        toast.success('Equipment added successfully.', {
+          description: `"${equipment.name}" has been added to inventory.`,
+          icon: <ClipboardList className="w-4 h-4 text-emerald-600" />,
+        });
       }
       loadAllAdminData();
     } catch (err: any) {
       console.error('Error saving equipment:', err);
-      toast.error('Failed to save equipment', { description: err.message });
+      toast.error('Unable to save equipment', {
+        description: err.message || 'Please check the equipment details and try again.',
+      });
     }
   };
 
@@ -682,11 +823,16 @@ export default function AdminPage() {
       if (!staffMember) return;
       const newStatus = staffMember.status === 'Available' ? 'Unavailable' : 'Available';
       await toggleStaffStatusApi(staffId, newStatus, getAdminToken() || undefined);
-      toast.success(`Staff status updated to ${newStatus}`);
+      toast.success('Staff availability updated.', {
+        description: `${staffMember.name} is now marked as ${newStatus}.`,
+        icon: <UserRound className="w-4 h-4 text-emerald-600" />,
+      });
       loadAllAdminData();
     } catch (err: any) {
       console.error('Error toggling staff status:', err);
-      toast.error('Failed to update staff status', { description: err.message });
+      toast.error('Unable to update staff status', {
+        description: err.message || 'Please try again.',
+      });
     }
   };
 
@@ -694,11 +840,13 @@ export default function AdminPage() {
     const token = getAdminToken();
     try {
       await deleteEquipmentApi(equipmentId, token);
-      toast.info('Equipment resource deleted.');
+      toast.success('Equipment deleted successfully.');
       loadAllAdminData();
     } catch (err: any) {
       console.error('Error deleting equipment:', err);
-      toast.error('Failed to delete equipment', { description: err.message });
+      toast.error('Unable to delete equipment', {
+        description: err.message || 'Please try again.',
+      });
     }
   };
 
@@ -729,7 +877,10 @@ export default function AdminPage() {
           assignedStaff: booking.assignedStaff.map(s => ({ id: s.id, role: s.role })),
           assignedEquipment: booking.assignedEquipmentIds?.map(eqId => ({ resourceId: eqId, quantity: 1 })) || [],
         }, token);
-        toast.success(`Booking ${booking.id} updated in database.`);
+        toast.success('Booking updated successfully.', {
+          description: `Changes to Booking ${booking.id} have been saved.`,
+          icon: <CalendarCheck className="w-4 h-4 text-emerald-600" />,
+        });
       } else {
         // Resolve inquiry primary key ID or tracking ID
         let resolvedInqId: string | number | undefined = booking.inquiryId;
@@ -768,12 +919,17 @@ export default function AdminPage() {
           assignedServices: booking.assignedServices || [],
           assignedPackages: booking.assignedPackages || [],
         }, token);
-        toast.success(`New booking ${booking.id} confirmed and scheduled!`);
+        toast.success('Booking confirmed and scheduled.', {
+          description: `Booking ${booking.id} has been added to the event schedule.`,
+          icon: <CalendarCheck className="w-4 h-4 text-emerald-600" />,
+        });
       }
       loadAllAdminData();
     } catch (err: any) {
       console.error('Error saving booking:', err);
-      toast.error('Failed to save booking', { description: err.message });
+      toast.error('Unable to save booking', {
+        description: err.message || 'Please review the booking details and try again.',
+      });
     }
   };
 
@@ -781,11 +937,15 @@ export default function AdminPage() {
     const token = getAdminToken();
     try {
       await deleteBookingApi(bookingId, token);
-      toast.info(`Booking ${bookingId} removed.`);
+      toast.success('Booking deleted successfully.', {
+        description: `Booking ${bookingId} has been removed.`,
+      });
       loadAllAdminData();
     } catch (err: any) {
       console.error('Error deleting booking:', err);
-      toast.error('Failed to delete booking', { description: err.message });
+      toast.error('Unable to delete booking', {
+        description: err.message || 'Please try again.',
+      });
     }
   };
 
@@ -800,11 +960,23 @@ export default function AdminPage() {
 
     try {
       await updateBookingStatusApi(bookingId, status, token);
-      toast.success(`Booking ${bookingId} status updated to ${status}.`);
+      if (status === 'Completed') {
+        toast.success('Event marked as completed.', {
+          description: `Booking ${bookingId} has been marked as completed.`,
+          icon: <CalendarCheck className="w-4 h-4 text-emerald-600" />,
+        });
+      } else {
+        toast.success('Booking status updated.', {
+          description: `Booking ${bookingId} is now ${status}.`,
+          icon: <CalendarCheck className="w-4 h-4 text-emerald-600" />,
+        });
+      }
       await loadAllAdminData();
     } catch (err: any) {
       console.error('Error updating booking status:', err);
-      toast.error('Failed to update booking status', { description: err.message });
+      toast.error('Unable to update booking status', {
+        description: err.message || 'Please try again.',
+      });
       await loadAllAdminData();
     }
   };
@@ -824,11 +996,16 @@ export default function AdminPage() {
         newEndTime,
         reason,
       }, token);
-      toast.success(`Booking ${bookingId} rescheduled to ${newDate} (${newStartTime} - ${newEndTime}).`);
+      toast.success('Booking rescheduled successfully.', {
+        description: `Booking ${bookingId} is now scheduled for ${newDate} (${newStartTime} - ${newEndTime}).`,
+        icon: <CalendarCheck className="w-4 h-4 text-emerald-600" />,
+      });
       loadAllAdminData();
     } catch (err: any) {
       console.error('Error rescheduling booking:', err);
-      toast.error('Rescheduling Failed', { description: err.message });
+      toast.error('Unable to reschedule booking', {
+        description: err.message || 'Please select an available date and try again.',
+      });
     }
   };
 
@@ -836,11 +1013,15 @@ export default function AdminPage() {
     const token = getAdminToken();
     try {
       await cancelBookingApi(bookingId, reason, token);
-      toast.warning(`Booking ${bookingId} has been cancelled and schedule released.`);
+      toast.warning('Booking cancelled.', {
+        description: `Booking ${bookingId} has been cancelled and its event date is now available.`,
+      });
       loadAllAdminData();
     } catch (err: any) {
       console.error('Error cancelling booking:', err);
-      toast.error('Cancellation Failed', { description: err.message });
+      toast.error('Unable to cancel booking', {
+        description: err.message || 'Please try again.',
+      });
     }
   };
 
@@ -873,11 +1054,16 @@ export default function AdminPage() {
         notes: payment.notes,
       }, token);
 
-      toast.success(`Payment receipt #${payment.receiptNumber} recorded in ledger!`);
+      toast.success('Payment recorded successfully.', {
+        description: `Official Receipt #${payment.receiptNumber} has been issued for ₱${Number(payment.amount).toLocaleString()} PHP.`,
+        icon: <Wallet className="w-4 h-4 text-emerald-600" />,
+      });
       loadAllAdminData();
     } catch (err: any) {
       console.error('Error saving payment:', err);
-      toast.error('Failed to save payment', { description: err.message });
+      toast.error('Unable to record payment', {
+        description: err.message || 'Please check the payment details and try again.',
+      });
     }
   };
 
@@ -885,11 +1071,16 @@ export default function AdminPage() {
     const token = getAdminToken();
     try {
       await verifyPaymentApi(paymentId, token);
-      toast.success('Payment verified and officially settled in ledger.');
+      toast.success('Payment verified successfully.', {
+        description: 'The customer payment has been verified and applied to the booking balance.',
+        icon: <BadgeCheck className="w-4 h-4 text-emerald-600" />,
+      });
       loadAllAdminData();
     } catch (err: any) {
       console.error('Error verifying payment:', err);
-      toast.error('Verification failed', { description: err.message });
+      toast.error('Unable to verify payment', {
+        description: err.message || 'Please try again.',
+      });
     }
   };
 
@@ -897,11 +1088,15 @@ export default function AdminPage() {
     const token = getAdminToken();
     try {
       await rejectPaymentApi(paymentId, reason, token);
-      toast.warning('Payment proof rejected and marked in audit ledger.');
+      toast.warning('Payment proof rejected.', {
+        description: 'The customer will be notified to review the reason and submit a new payment proof.',
+      });
       loadAllAdminData();
     } catch (err: any) {
       console.error('Error rejecting payment:', err);
-      toast.error('Rejection failed', { description: err.message });
+      toast.error('Unable to reject payment proof', {
+        description: err.message || 'Please try again.',
+      });
     }
   };
 
@@ -909,11 +1104,13 @@ export default function AdminPage() {
     const token = getAdminToken();
     try {
       await deletePaymentApi(paymentId, token);
-      toast.info('Payment receipt removed from database ledger.');
+      toast.success('Payment record deleted successfully.');
       loadAllAdminData();
     } catch (err: any) {
       console.error('Error deleting payment:', err);
-      toast.error('Failed to delete payment', { description: err.message });
+      toast.error('Unable to delete payment record', {
+        description: err.message || 'Please try again.',
+      });
     }
   };
 
@@ -924,7 +1121,9 @@ export default function AdminPage() {
       loadAllAdminData();
     } catch (err: any) {
       console.error('Error updating inquiry classification:', err);
-      toast.error('Failed to update classification', { description: err.message });
+      toast.error('Unable to update event classification', {
+        description: err.message || 'Please try again.',
+      });
     }
   };
 
@@ -932,11 +1131,16 @@ export default function AdminPage() {
     const token = getAdminToken();
     try {
       await deleteInquiryApi(inquiryId, token);
-      toast.info(`Inquiry #${inquiryId} removed from database.`);
+      toast.success('Inquiry deleted successfully.', {
+        description: `Inquiry #${inquiryId} has been removed.`,
+        icon: <MessageSquare className="w-4 h-4 text-emerald-600" />,
+      });
       loadAllAdminData();
     } catch (err: any) {
       console.error('Error deleting inquiry:', err);
-      toast.error('Failed to delete inquiry', { description: err.message });
+      toast.error('Unable to delete inquiry', {
+        description: err.message || 'Please try again.',
+      });
     }
   };
 
@@ -944,11 +1148,16 @@ export default function AdminPage() {
     const token = getAdminToken();
     try {
       await deleteQuotationApi(quotationId, token);
-      toast.info(`Quotation #${quotationId} deleted from database.`);
+      toast.success('Quotation deleted successfully.', {
+        description: `Quotation #${quotationId} has been removed.`,
+        icon: <FileText className="w-4 h-4 text-emerald-600" />,
+      });
       loadAllAdminData();
     } catch (err: any) {
       console.error('Error deleting quotation:', err);
-      toast.error('Failed to delete quotation', { description: err.message });
+      toast.error('Unable to delete quotation', {
+        description: err.message || 'Please try again.',
+      });
     }
   };
 

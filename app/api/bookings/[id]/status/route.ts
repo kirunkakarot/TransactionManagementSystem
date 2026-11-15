@@ -22,6 +22,15 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       booking: updated,
     });
   } catch (error: any) {
-    return NextResponse.json({ message: error.message || 'Server error' }, { status: 400 });
+    const isConflict = error.message && (
+      error.message.includes('conflict') ||
+      error.message.includes('collision') ||
+      error.message.includes('double-booking') ||
+      error.message.includes('inventory') ||
+      error.message.includes('capacity') ||
+      error.message.includes('occupied') ||
+      error.message.includes('accommodate')
+    );
+    return NextResponse.json({ message: error.message || 'Server error' }, { status: isConflict ? 409 : 400 });
   }
 }

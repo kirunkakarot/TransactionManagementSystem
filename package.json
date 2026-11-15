@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "prisma generate && prisma migrate deploy && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:check": "node scripts/verify-db-connection.js",
+    "use:local": "node -e \"const fs=require('fs'); fs.copyFileSync('.env.local.offline', '.env.local'); console.log('Switched to LOCAL database (jad_events_local_test)')\"",
+    "use:supabase": "node -e \"const fs=require('fs'); fs.copyFileSync('.env.local.supabase', '.env.local'); console.log('Switched to CLOUD database (Supabase)')\""
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

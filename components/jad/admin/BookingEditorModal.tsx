@@ -24,7 +24,12 @@ import {
   ServiceItem, 
   PackageItem, 
   StaffMember, 
-  EquipmentResource 
+  EquipmentResource,
+  EVENT_TIME_OPTIONS,
+  calculateEventDurationLabel,
+  formatEventTimeRange,
+  formatTime12Hour,
+  validateEventTimeRange
 } from '../types';
 import { toast } from 'sonner';
 
@@ -109,26 +114,27 @@ export const BookingEditorModal: React.FC<BookingEditorModalProps> = ({
       setClientPhone('');
       setEventTitle('');
       setEventType('Grand Wedding');
-      setEventDate('2026-09-25');
-      setStartTime('16:00');
-      setEndTime('22:00');
-      setVenue('The Glass Garden Pasig');
-      setGuestCount(150);
+      setEventDate('');
+      setStartTime('17:00');
+      setEndTime('23:00');
+      setVenue('');
+      setGuestCount(100);
       setStatus('Confirmed');
-      setTotalAmount(85000);
+      setTotalAmount(0);
       setNotes('');
-      setSelectedStaffIds(['st-1', 'st-2', 'st-4']);
-      setSelectedServiceIds(['event-decoration', 'entertainment']);
-      setSelectedPackageIds(['pkg-wedding']);
-      setSelectedEquipmentIds(['eq-1', 'eq-2', 'eq-3']);
+      setSelectedStaffIds([]);
+      setSelectedServiceIds([]);
+      setSelectedPackageIds([]);
+      setSelectedEquipmentIds([]);
     }
   }, [bookingToEdit, isOpen]);
 
   if (!isOpen) return null;
 
-  // Conflict Detection
+  // Conflict Detection (1 Booking Per Day Rule)
   const conflictingBookingsOnDate = existingBookings.filter(b => 
     b.id !== bookingId && 
+    (!bookingToEdit?.dbId || b.dbId !== bookingToEdit.dbId) &&
     b.eventDate === eventDate && 
     b.status !== 'Cancelled'
   );
@@ -183,6 +189,22 @@ export const BookingEditorModal: React.FC<BookingEditorModalProps> = ({
     if (!clientName.trim() || !eventTitle.trim() || !venue.trim() || !eventDate) {
       toast.error('Please fill in required fields', {
         description: 'Client Name, Event Title, Venue, and Event Date are required.'
+      });
+      return;
+    }
+
+    const timeValidation = validateEventTimeRange(startTime, endTime);
+    if (!timeValidation.valid) {
+      toast.error('Invalid Event Time Range', {
+        description: timeValidation.error || 'Event end time must be later than start time.'
+      });
+      return;
+    }
+
+    if (status !== 'Cancelled' && conflictingBookingsOnDate.length > 0) {
+      const occupying = conflictingBookingsOnDate[0];
+      toast.error('Date Already Occupied (1 Booking/Day Limit)', {
+        description: `${eventDate} is already occupied by Booking ${occupying.id} ("${occupying.eventTitle}"). JAD Events can only accommodate one booking per calendar day.`
       });
       return;
     }
@@ -263,16 +285,17 @@ export const BookingEditorModal: React.FC<BookingEditorModalProps> = ({
 
         {/* Conflict Warning Banner if Collision Detected */}
         {conflictingBookingsOnDate.length > 0 && (
-          <div className="px-6 py-2.5 bg-amber-50 border-b border-amber-200 text-amber-900 text-xs flex items-center justify-between gap-3">
+          <div className="px-6 py-2.5 bg-rose-50 border-b border-rose-200 text-rose-900 text-xs flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+              <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
               <span>
-                <strong>Date Notice:</strong> There {conflictingBookingsOnDate.length === 1 ? 'is 1 other event' : `are ${conflictingBookingsOnDate.length} other events`} booked on <strong>{eventDate}</strong>.
+                <strong>Date Already Occupied:</strong> <strong>{eventDate}</strong> is already booked by{' '}
+                <strong>{conflictingBookingsOnDate.map(b => `${b.id} (${b.eventTitle})`).join(', ')}</strong>. Only 1 booking per day is accommodated.
                 {isVenueConflicted && <span className="text-red-700 font-bold ml-1">âš ï¸ Venue Double-Booking Warning!</span>}
               </span>
             </div>
-            <Badge variant="outline" className="text-[10px] bg-amber-100 text-amber-800 border-amber-300">
-              Capacity: {conflictingBookingsOnDate.length + 1} / 3 Max Daily
+            <Badge variant="outline" className="text-[10px] bg-rose-100 text-rose-800 border-rose-300 shrink-0">
+              Capacity: 1 / 1 Max Daily Occupied
             </Badge>
           </div>
         )}
@@ -402,32 +425,73 @@ export const BookingEditorModal: React.FC<BookingEditorModalProps> = ({
                   value={eventDate}
                   onChange={e => setEventDate(e.target.value)}
                   required
-                  className="rounded-md text-xs font-bold text-[#1E3A8A]"
+                  className={`rounded-md text-xs font-bold text-[#1E3A8A] ${
+                    conflictingBookingsOnDate.length > 0 && status !== 'Cancelled'
+                      ? 'border-rose-400 bg-rose-50/40'
+                      : ''
+                  }`}
                 />
+                {conflictingBookingsOnDate.length > 0 && status !== 'Cancelled' && (
+                  <p className="text-[10px] font-semibold text-rose-600 mt-1">
+                    Occupied by {conflictingBookingsOnDate[0].id} (1 booking/day limit)
+                  </p>
+                )}
               </div>
 
               <div>
                 <label className="block text-[11px] font-semibold text-slate-700 mb-1">
                   Start Time (Program)
                 </label>
-                <Input
-                  type="time"
+                <select
                   value={startTime}
                   onChange={e => setStartTime(e.target.value)}
-                  className="rounded-md text-xs"
-                />
+                  className="w-full h-9 rounded-md border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-900 focus:ring-2 focus:ring-[#1E3A8A]"
+                >
+                  {!EVENT_TIME_OPTIONS.some(opt => opt.value === startTime) && startTime && (
+                    <option value={startTime}>{formatTime12Hour(startTime) || startTime}</option>
+                  )}
+                  {EVENT_TIME_OPTIONS.map(opt => (
+                    <option key={`start-${opt.value}`} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                  End Time (Wrap-up)
-                </label>
-                <Input
-                  type="time"
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-[11px] font-semibold text-slate-700">
+                    End Time (Wrap-up)
+                  </label>
+                  {calculateEventDurationLabel(startTime, endTime) && (
+                    <span className="text-[10px] font-bold text-[#1E3A8A]">
+                      {calculateEventDurationLabel(startTime, endTime)}
+                    </span>
+                  )}
+                </div>
+                <select
                   value={endTime}
                   onChange={e => setEndTime(e.target.value)}
-                  className="rounded-md text-xs"
-                />
+                  className={`w-full h-9 rounded-md border bg-white px-2.5 text-xs font-semibold text-slate-900 focus:ring-2 focus:ring-[#1E3A8A] ${
+                    !validateEventTimeRange(startTime, endTime).valid
+                      ? 'border-rose-400 bg-rose-50/40'
+                      : 'border-slate-200'
+                  }`}
+                >
+                  {!EVENT_TIME_OPTIONS.some(opt => opt.value === endTime) && endTime && (
+                    <option value={endTime}>{formatTime12Hour(endTime) || endTime}</option>
+                  )}
+                  {EVENT_TIME_OPTIONS.map(opt => (
+                    <option key={`end-${opt.value}`} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+                {!validateEventTimeRange(startTime, endTime).valid && (
+                  <p className="text-[10px] font-semibold text-rose-600 mt-1">
+                    {validateEventTimeRange(startTime, endTime).error}
+                  </p>
+                )}
               </div>
 
               <div>

@@ -109,7 +109,7 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
         availableResources.filter(r => r.assignedServiceId === serviceToEdit.id).map(r => r.id)
       );
       setSelectedEventTypeIds(
-        (serviceToEdit.eventTypes as EventType[])?.map((et: EventType) => et.id) || []
+        (serviceToEdit.eventTypes as any[])?.map((et: any) => (typeof et === 'number' ? et : et.id)).filter(Boolean) || []
       );
     } else {
       // Default new service values
@@ -212,7 +212,9 @@ export const ServiceEditorModal: React.FC<ServiceEditorModalProps> = ({
 
         finalImageUrl = data.imageUrl;
       } catch (err: any) {
-        toast.error('Upload Error', { description: err.message });
+        toast.error('Unable to upload service image', {
+          description: err.message || 'Please select another image and try again.',
+        });
         setIsUploading(false);
         return; // Stop submission on upload failure
       }

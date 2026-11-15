@@ -174,14 +174,14 @@ export async function updateEventTypeApi(id: number | string, data: any, token?:
   return resData;
 }
 
-export async function fetchServices(search = '', limit = 100, offset = 0) {
+export async function fetchServices(search = '', limit = 100, offset = 0, token?: string) {
   try {
     const params = new URLSearchParams({
       search,
       limit: limit.toString(),
       offset: offset.toString(),
     });
-    const res = await fetch(`${API_URL}/services?${params.toString()}`, { cache: 'no-store' });
+    const res = await fetch(`${API_URL}/services?${params.toString()}`, { headers: getAuthHeaders(token, null), cache: 'no-store' });
     if (!res.ok) return { services: [], total: 0 };
     return await parseResponseJson(res);
   } catch (error) {
@@ -222,14 +222,14 @@ export async function deleteServiceApi(id: number | string, token?: string) {
   return data;
 }
 
-export async function fetchPackages(search = '', limit = 100, offset = 0) {
+export async function fetchPackages(search = '', limit = 100, offset = 0, token?: string) {
   try {
     const params = new URLSearchParams({
       search,
       limit: limit.toString(),
       offset: offset.toString(),
     });
-    const res = await fetch(`${API_URL}/packages?${params.toString()}`, { cache: 'no-store' });
+    const res = await fetch(`${API_URL}/packages?${params.toString()}`, { headers: getAuthHeaders(token, null), cache: 'no-store' });
     if (!res.ok) return { packages: [], total: 0 };
     return await parseResponseJson(res);
   } catch (error) {
@@ -292,8 +292,8 @@ export async function submitInquiry(data: {
   trackingId?: string;
   eventType: string;
   eventTypeId?: number;
-  customEventDescription?: string;
-  eventDate: string;
+  customEventDescription?: string; startTime?: string; endTime?: string;
+  eventDate: string; requestedStartTime?: string; requestedEndTime?: string;
   eventVenue?: string;
   venue?: string;
   guestsCount?: number;
@@ -316,15 +316,15 @@ export async function submitInquiry(data: {
     eventType: data.eventType,
     eventTypeId: data.eventTypeId || null,
     customEventDescription: data.customEventDescription || null,
-    eventDate: data.eventDate,
+    eventDate: data.eventDate, startTime: data.startTime || data.requestedStartTime || undefined, endTime: data.endTime || data.requestedEndTime || undefined,
     venue: data.venue || data.eventVenue || '',
     guestCount: Number(data.guestCount || data.guestsCount) || 100,
     clientName: data.clientName || data.fullName || 'Anonymous Client',
     clientEmail: data.clientEmail || data.email || '',
     clientPhone: data.clientPhone || data.phone || '',
     selectedServices: data.selectedServices || [],
-    packageId: data.packageId ? (Number(data.packageId) || null) : null,
-    notes: data.notes || data.requirements || '',
+    packageId: data.packageId ? String(data.packageId) : null,
+    requirements: data.requirements || data.notes || '', notes: data.notes || '',
     estimatedBudget: data.estimatedBudget || data.budgetRange || '',
   };
 
@@ -771,7 +771,7 @@ export async function fetchAvailabilityRadar(year: number, month: number) {
 }
 
 export async function checkClashApi(params: {
-  eventDate: string;
+  eventDate: string; requestedStartTime?: string; requestedEndTime?: string;
   startTime?: string;
   endTime?: string;
   venue?: string;
@@ -849,9 +849,12 @@ export async function deletePaymentApi(id: number | string, token?: string) {
   return data;
 }
 
-export async function uploadPaymentProofApi(file: File, token?: string) {
+export async function uploadPaymentProofApi(file: File, token?: string, replaceProofUrl?: string) {
   const formData = new FormData();
   formData.append('proof', file);
+  if (replaceProofUrl) {
+    formData.append('replaceProofUrl', replaceProofUrl);
+  }
 
   const res = await fetch(`${API_URL}/payments/upload-proof`, {
     method: 'POST',
@@ -861,6 +864,19 @@ export async function uploadPaymentProofApi(file: File, token?: string) {
   const data = await parseResponseJson(res);
   if (!res.ok) throw new Error(data.message || 'Failed to upload payment proof');
   return data;
+}
+
+export async function deleteTemporaryPaymentProofApi(proofUrl: string, token?: string) {
+  try {
+    const res = await fetch(`${API_URL}/payments/upload-proof`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(token),
+      body: JSON.stringify({ proofUrl }),
+    });
+    return await parseResponseJson(res);
+  } catch {
+    return { success: false };
+  }
 }
 
 // ==========================================

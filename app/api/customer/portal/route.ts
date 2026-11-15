@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '../../../../lib/prisma';
 import { checkAuth } from '../../../../lib/auth';
+import { sanitizeBookingForCustomer, enrichBooking } from '../../../../models/bookingModel';
+import { enrichInquiry } from '../../../../models/inquiryModel';
+import { enrichQuotation } from '../../../../models/quotationModel';
 
 export async function GET(req: Request) {
   const auth = await checkAuth(req, false);
@@ -77,6 +80,14 @@ export async function GET(req: Request) {
       orderBy: { createdAt: 'desc' },
     });
 
+    const isAdmin = auth.user.role === 'Administrator';
+    const enrichedInquiries = inquiries.map((i) => enrichInquiry(i));
+    const enrichedQuotations = quotations.map((q) => enrichQuotation(q));
+    const enrichedBookings = bookings.map((b) => enrichBooking(b));
+    const sanitizedBookings = isAdmin
+      ? enrichedBookings
+      : enrichedBookings.map(sanitizeBookingForCustomer);
+
     return NextResponse.json({
       user: {
         id: auth.user.id,
@@ -86,9 +97,9 @@ export async function GET(req: Request) {
         address: auth.user.address,
         profileImage: auth.user.profileImage,
       },
-      inquiries,
-      quotations,
-      bookings,
+      inquiries: enrichedInquiries,
+      quotations: enrichedQuotations,
+      bookings: sanitizedBookings,
       payments,
     });
   } catch (error: any) {

@@ -123,7 +123,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
 
     if (!referenceNumber.trim()) {
       toast.error('Reference Number Required', {
-        description: 'Please input the bank transfer or GCash transaction reference.'
+        description: 'Please enter the bank transfer or GCash reference number.'
       });
       return;
     }
@@ -147,9 +147,6 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
     };
 
     onSavePayment(newPayment);
-    toast.success('Payment Recorded Successfully!', {
-      description: `Official Receipt #${newPayment.receiptNumber} issued for ₱${newPayment.amount.toLocaleString()} PHP.`
-    });
     onClose();
   };
 

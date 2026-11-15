@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getQuotationById, updateQuotation, deleteQuotation } from '../../../../models/quotationModel';
 import { checkAuth } from '../../../../lib/auth';
+import { validateEventTimeRange } from '../../../../lib/schedulingEngine';
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = await checkAuth(req, false);
@@ -14,8 +15,19 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     }
 
     // Customer can only view their own quotation
-    if (auth.user.role !== 'Administrator' && quotation.clientEmail !== auth.user.email) {
-      return NextResponse.json({ message: 'Not authorized to view this quotation' }, { status: 403 });
+    if (auth.user.role !== 'Administrator') {
+      const userEmail = (auth.user.email || '').trim().toLowerCase();
+      const qEmail = (quotation.clientEmail || '').trim().toLowerCase();
+      const inqEmail = (quotation.inquiry?.clientEmail || '').trim().toLowerCase();
+      const isOwner =
+        (quotation.userId && quotation.userId === auth.user.id) ||
+        (userEmail && qEmail === userEmail) ||
+        (quotation.inquiry?.userId && quotation.inquiry.userId === auth.user.id) ||
+        (userEmail && inqEmail === userEmail);
+
+      if (!isOwner) {
+        return NextResponse.json({ message: 'Not authorized to view this quotation' }, { status: 403 });
+      }
     }
 
     return NextResponse.json(quotation);
@@ -31,13 +43,32 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   try {
     const { id } = await params;
     const body = await req.json();
+
+    const rawStart = body.approvedStartTime ?? body.startTime;
+    const rawEnd = body.approvedEndTime ?? body.endTime;
+    if (rawStart !== undefined || rawEnd !== undefined) {
+      const timeVal = validateEventTimeRange(rawStart, rawEnd, { required: false });
+      if (!timeVal.valid) {
+        return NextResponse.json(
+          { message: timeVal.message || 'Invalid event time range.' },
+          { status: 400 }
+        );
+      }
+    }
+
     const updated = await updateQuotation(id, body);
     if (!updated) {
       return NextResponse.json({ message: 'Quotation not found' }, { status: 404 });
     }
     return NextResponse.json(updated);
   } catch (error: any) {
-    if (error.message?.includes('cancelled')) {
+    const isConflict = error.message && (
+      error.message.includes('cancelled') ||
+      error.message.includes('conflict') ||
+      error.message.includes('occupied') ||
+      error.message.includes('accommodate')
+    );
+    if (isConflict) {
       return NextResponse.json({ message: error.message }, { status: 409 });
     }
     return NextResponse.json({ message: error.message || 'Server error' }, { status: 400 });

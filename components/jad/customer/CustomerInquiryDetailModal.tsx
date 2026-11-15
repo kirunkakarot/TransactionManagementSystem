@@ -1,19 +1,21 @@
 "use client";
 import React from 'react';
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  Calendar, 
-  MapPin, 
-  Users, 
-  FileText, 
+import {
+  User,
+  Mail,
+  Phone,
+  Calendar,
+  MapPin,
+  Users,
+  FileText,
   Layers,
-  Check, 
-  Package, 
+  Check,
+  Package,
   Clock,
   Receipt,
-  CheckCircle2
+  Utensils,
+  Music,
+  Palette
 } from 'lucide-react';
 import {
   Dialog,
@@ -25,7 +27,14 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { InquiryFormData } from '../types';
+import {
+  InquiryFormData,
+  parseInquirySelectionDetails,
+  extractPlainInquiryNotes,
+  formatSelectionModeLabel,
+  formatEventTimeRange,
+  resolveEventTimes,
+} from '../types';
 
 interface CustomerInquiryDetailModalProps {
   isOpen: boolean;
@@ -40,7 +49,7 @@ export const CustomerInquiryDetailModal: React.FC<CustomerInquiryDetailModalProp
   onClose,
   inquiry,
   onReviewQuotation,
-  onCancelInquiry
+  onCancelInquiry,
 }) => {
   const [isCancelling, setIsCancelling] = React.useState(false);
   const [cancelReason, setCancelReason] = React.useState('');
@@ -55,6 +64,41 @@ export const CustomerInquiryDetailModal: React.FC<CustomerInquiryDetailModalProp
   }, [isOpen]);
 
   if (!inquiry) return null;
+
+  const selectionDetails =
+    inquiry.selectionDetails ||
+    parseInquirySelectionDetails(
+      inquiry.requirements,
+      inquiry.selectedServices,
+      inquiry.packageId
+    );
+  const plainNotes = extractPlainInquiryNotes(inquiry.notes, inquiry.requirements);
+  const packageCustom = selectionDetails?.packageSelection || null;
+  const resolvedTimes = resolveEventTimes({
+    startTime: inquiry.startTime,
+    endTime: inquiry.endTime,
+    requestedStartTime: inquiry.requestedStartTime,
+    requestedEndTime: inquiry.requestedEndTime,
+    approvedStartTime: inquiry.approvedStartTime,
+    approvedEndTime: inquiry.approvedEndTime,
+    requirements: inquiry.requirements,
+    selectionDetails,
+  });
+  const requestedTimeLabel = formatEventTimeRange(
+    resolvedTimes.requestedStartTime || resolvedTimes.startTime,
+    resolvedTimes.requestedEndTime || resolvedTimes.endTime,
+    { includeDuration: true, fallback: 'Not recorded' }
+  );
+  const approvedTimeLabel =
+    resolvedTimes.approvedStartTime && resolvedTimes.approvedEndTime
+      ? formatEventTimeRange(resolvedTimes.approvedStartTime, resolvedTimes.approvedEndTime, {
+          includeDuration: true,
+        })
+      : '';
+  const hasAdjustedApprovedTime =
+    Boolean(approvedTimeLabel) &&
+    (resolvedTimes.approvedStartTime !== resolvedTimes.requestedStartTime ||
+      resolvedTimes.approvedEndTime !== resolvedTimes.requestedEndTime);
 
   const handleConfirmCancel = async () => {
     if (!inquiry.id || !onCancelInquiry) return;
@@ -88,7 +132,7 @@ export const CustomerInquiryDetailModal: React.FC<CustomerInquiryDetailModalProp
                   </span>
                 </div>
                 <DialogDescription className="text-xs text-slate-500">
-                  Your submitted specifications for quotation review & production planning
+                  Your submitted specifications for quotation review &amp; production planning
                 </DialogDescription>
               </div>
             </div>
@@ -143,6 +187,12 @@ export const CustomerInquiryDetailModal: React.FC<CustomerInquiryDetailModalProp
                 <CardContent className="p-0 space-y-1">
                   <span className="text-[10px] font-semibold uppercase text-slate-400 block">Event Type</span>
                   <span className="text-xs font-extrabold text-[#1E3A8A] block">{inquiry.eventType}</span>
+                  {inquiry.customEventDescription &&
+                    inquiry.customEventDescription !== inquiry.eventType && (
+                      <span className="text-[10px] text-slate-500 block">
+                        {inquiry.customEventDescription}
+                      </span>
+                    )}
                 </CardContent>
               </Card>
 
@@ -156,10 +206,30 @@ export const CustomerInquiryDetailModal: React.FC<CustomerInquiryDetailModalProp
                 </CardContent>
               </Card>
 
+              <Card className="p-3.5 rounded-md bg-white border-slate-200 shadow-2xs sm:col-span-2">
+                <CardContent className="p-0 space-y-1">
+                  <span className="text-[10px] font-semibold uppercase text-slate-400 block">
+                    Event Time Schedule
+                  </span>
+                  <span className="text-xs font-extrabold text-[#1E3A8A] flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                    <span>{approvedTimeLabel || requestedTimeLabel}</span>
+                  </span>
+                  {hasAdjustedApprovedTime && (
+                    <span className="text-[10px] font-medium text-slate-500 block pt-0.5">
+                      Originally Requested: {requestedTimeLabel}
+                    </span>
+                  )}
+                </CardContent>
+              </Card>
+
               <Card className="p-3.5 rounded-md bg-white border-slate-200 shadow-2xs">
                 <CardContent className="p-0 space-y-1">
                   <span className="text-[10px] font-semibold uppercase text-slate-400 block">Venue Location</span>
-                  <span className="text-xs font-bold text-slate-900 flex items-center gap-1 block truncate" title={inquiry.venue}>
+                  <span
+                    className="text-xs font-bold text-slate-900 flex items-center gap-1 block truncate"
+                    title={inquiry.venue}
+                  >
                     <MapPin className="w-3.5 h-3.5 text-red-500 shrink-0 inline" />
                     <span className="truncate">{inquiry.venue}</span>
                   </span>
@@ -178,53 +248,188 @@ export const CustomerInquiryDetailModal: React.FC<CustomerInquiryDetailModalProp
             </div>
           </div>
 
-          {/* Section 3: Selected Services & Packages */}
+          {/* Section 3: Selected Services, Packages, Options & Preferences */}
           <div className="space-y-2.5">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-              <Layers className="w-3.5 h-3.5 text-blue-600" />
-              <span>Requested Inclusions</span>
-            </h4>
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5 text-blue-600" />
+                <span>Requested Inclusions &amp; Preferences</span>
+              </h4>
+              {selectionDetails?.selectionMode && (
+                <Badge variant="outline" className="text-[10px] bg-blue-50 text-[#1E3A8A] border-blue-200 font-bold">
+                  {formatSelectionModeLabel(selectionDetails.selectionMode)}
+                </Badge>
+              )}
+            </div>
 
             <div className="p-4 rounded-md bg-slate-50 border border-slate-200/80 space-y-3">
               {inquiry.packageId && (
-                <div className="flex items-center justify-between p-3 rounded-md bg-purple-50 border border-purple-200">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center font-bold">
-                      <Package className="w-4 h-4" />
+                <div className="p-3.5 rounded-md bg-purple-50 border border-purple-200 space-y-2.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center font-bold shrink-0">
+                        <Package className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-purple-900">
+                          {packageCustom?.packageName && packageCustom.packageName !== inquiry.packageId
+                            ? `Selected Package: ${packageCustom.packageName}`
+                            : 'Selected Package Bundle'}
+                        </div>
+                        <div className="text-[10px] text-purple-700">
+                          Reference ID: {inquiry.packageId}
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="text-xs font-bold text-purple-900">Selected Package Bundle</div>
-                      <div className="text-[10px] text-purple-700">Code: {inquiry.packageId}</div>
-                    </div>
+                    <Badge variant="blue" className="text-[10px]">
+                      Package Inclusions
+                    </Badge>
                   </div>
-                  <Badge variant="blue" className="text-[10px]">Package Inclusions</Badge>
+
+                  {packageCustom?.selectedOptions && packageCustom.selectedOptions.length > 0 && (
+                    <div className="space-y-1 pt-2 border-t border-purple-200/60">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-purple-800 block">
+                        Selected Package Options ({packageCustom.selectedOptions.length}):
+                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {packageCustom.selectedOptions.map((opt, idx) => (
+                          <Badge
+                            key={idx}
+                            variant="secondary"
+                            className="text-[10px] bg-white text-purple-900 border border-purple-200 font-medium"
+                          >
+                            <Check className="w-2.5 h-2.5 mr-1 text-purple-700" />
+                            {opt}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {packageCustom?.customNotes && packageCustom.customNotes.trim() && (
+                    <div className="p-2 rounded bg-white/90 border border-purple-200 text-xs text-slate-700">
+                      <span className="font-bold text-purple-900">Your Package Note: </span>
+                      {packageCustom.customNotes}
+                    </div>
+                  )}
                 </div>
               )}
 
               {inquiry.selectedServices && inquiry.selectedServices.length > 0 ? (
-                <div className="space-y-1.5">
-                  <span className="text-[11px] font-semibold text-slate-600 block">Selected Services:</span>
-                  <div className="flex flex-wrap gap-2">
-                    {inquiry.selectedServices.map(srvId => (
-                      <Badge key={srvId} variant="secondary" className="px-2.5 py-1 text-xs bg-white border border-slate-200 text-slate-800 font-semibold gap-1.5 shadow-2xs">
-                        <Check className="w-3 h-3 text-blue-600" />
-                        <span>{srvId.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</span>
-                      </Badge>
-                    ))}
+                <div className="space-y-2">
+                  <span className="text-[11px] font-bold text-slate-700 block">
+                    {inquiry.packageId ? 'Selected Add-On Services:' : 'Selected Services:'}
+                  </span>
+                  <div className="space-y-2">
+                    {inquiry.selectedServices.map((srvId) => {
+                      const c = selectionDetails?.serviceCustomizations?.[srvId];
+                      const displayName =
+                        c?.serviceName && c.serviceName !== srvId
+                          ? c.serviceName
+                          : srvId.replace(/-/g, ' ').replace(/\b\w/g, (ch) => ch.toUpperCase());
+                      const hasPrefs = Boolean(
+                        c?.preferredDishes?.trim() ||
+                          c?.dietaryRestrictions?.trim() ||
+                          c?.preferredActivities?.trim() ||
+                          c?.stylingThemeNotes?.trim() ||
+                          c?.customNotes?.trim()
+                      );
+
+                      return (
+                        <div
+                          key={srvId}
+                          className="p-3 rounded-md bg-white border border-slate-200 space-y-2 shadow-2xs"
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-1.5">
+                              <Check className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                              <span className="text-xs font-extrabold text-slate-900">
+                                {displayName}
+                              </span>
+                            </div>
+                            {c?.category && (
+                              <Badge variant="outline" className="text-[9px] text-slate-500">
+                                {c.category}
+                              </Badge>
+                            )}
+                          </div>
+
+                          {c?.selectedOptions && c.selectedOptions.length > 0 && (
+                            <div className="space-y-1 pt-1 border-t border-slate-100">
+                              <span className="text-[10px] font-semibold text-slate-500 block">
+                                Selected Options ({c.selectedOptions.length}):
+                              </span>
+                              <div className="flex flex-wrap gap-1.5">
+                                {c.selectedOptions.map((opt, idx) => (
+                                  <Badge
+                                    key={idx}
+                                    variant="secondary"
+                                    className="text-[10px] bg-blue-50/70 text-[#1E3A8A] border border-blue-200 font-medium"
+                                  >
+                                    <Check className="w-2.5 h-2.5 mr-1 text-blue-600" />
+                                    {opt}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {hasPrefs && (
+                            <div className="p-2.5 rounded bg-slate-50 border border-slate-200/80 space-y-1 text-xs">
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-[#1E3A8A] block">
+                                Your Submitted Preferences:
+                              </span>
+                              {c?.preferredDishes?.trim() && (
+                                <div className="flex items-start gap-1.5 text-slate-700">
+                                  <Utensils className="w-3.5 h-3.5 text-orange-500 shrink-0 mt-0.5" />
+                                  <div>
+                                    <span className="font-bold">Preferred Dishes / Menu: </span>
+                                    <span>{c.preferredDishes}</span>
+                                  </div>
+                                </div>
+                              )}
+                              {c?.dietaryRestrictions?.trim() && (
+                                <div className="text-slate-700 pl-5">
+                                  <span className="font-bold">Dietary Restrictions: </span>
+                                  <span>{c.dietaryRestrictions}</span>
+                                </div>
+                              )}
+                              {c?.preferredActivities?.trim() && (
+                                <div className="flex items-start gap-1.5 text-slate-700">
+                                  <Music className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
+                                  <div>
+                                    <span className="font-bold">Preferred Activities / Program: </span>
+                                    <span>{c.preferredActivities}</span>
+                                  </div>
+                                </div>
+                              )}
+                              {c?.stylingThemeNotes?.trim() && (
+                                <div className="flex items-start gap-1.5 text-slate-700">
+                                  <Palette className="w-3.5 h-3.5 text-purple-600 shrink-0 mt-0.5" />
+                                  <div>
+                                    <span className="font-bold">Theme &amp; Color Palette: </span>
+                                    <span>{c.stylingThemeNotes}</span>
+                                  </div>
+                                </div>
+                              )}
+                              {c?.customNotes?.trim() && (
+                                <div className="text-slate-700">
+                                  <span className="font-bold">Specific Instructions: </span>
+                                  <span>{c.customNotes}</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               ) : !inquiry.packageId ? (
-                <div className="text-xs text-slate-500 italic">Custom event requirements requested.</div>
-              ) : null}
-
-              {inquiry.budgetRange && (
-                <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-xs">
-                  <span className="text-slate-500 font-medium">Estimated Budget:</span>
-                  <span className="font-extrabold text-emerald-700 flex items-center gap-1">
-                    {inquiry.budgetRange.startsWith('₱') ? inquiry.budgetRange : `₱${inquiry.budgetRange}`}
-                  </span>
+                <div className="text-xs text-slate-500 italic">
+                  Custom event requirements requested.
                 </div>
-              )}
+              ) : null}
             </div>
           </div>
 
@@ -232,10 +437,10 @@ export const CustomerInquiryDetailModal: React.FC<CustomerInquiryDetailModalProp
           <div className="space-y-2">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
               <FileText className="w-3.5 h-3.5 text-blue-600" />
-              <span>Event Requirements & Notes</span>
+              <span>Overall Event Notes</span>
             </h4>
             <div className="p-4 rounded-md bg-slate-50 border border-slate-200/80 text-xs text-slate-700 whitespace-pre-wrap min-h-[70px]">
-              {inquiry.notes || 'No special requirements noted.'}
+              {plainNotes || 'No special requirements noted.'}
             </div>
           </div>
 
@@ -258,7 +463,9 @@ export const CustomerInquiryDetailModal: React.FC<CustomerInquiryDetailModalProp
               <h4 className="text-xs font-bold uppercase tracking-wider text-red-500">
                 Cancel this Inquiry?
               </h4>
-              <p className="text-[11px] text-slate-500">Please provide a reason for cancellation. This action cannot be undone.</p>
+              <p className="text-[11px] text-slate-500">
+                Please provide a reason for cancellation. This action cannot be undone.
+              </p>
               <textarea
                 className="w-full text-xs p-3 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                 rows={3}
@@ -267,8 +474,21 @@ export const CustomerInquiryDetailModal: React.FC<CustomerInquiryDetailModalProp
                 onChange={(e) => setCancelReason(e.target.value)}
               />
               <div className="flex items-center justify-end gap-2 mt-2">
-                <Button variant="ghost" size="sm" onClick={() => setIsCancelling(false)} className="text-xs h-7">Keep Inquiry</Button>
-                <Button variant="destructive" size="sm" onClick={handleConfirmCancel} disabled={isSubmittingCancel} className="text-xs h-7">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsCancelling(false)}
+                  className="text-xs h-7"
+                >
+                  Keep Inquiry
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleConfirmCancel}
+                  disabled={isSubmittingCancel}
+                  className="text-xs h-7"
+                >
                   {isSubmittingCancel ? 'Cancelling...' : 'Confirm Cancel'}
                 </Button>
               </div>
@@ -311,20 +531,23 @@ export const CustomerInquiryDetailModal: React.FC<CustomerInquiryDetailModalProp
             Close
           </Button>
 
-          {onReviewQuotation && (inquiry.status === 'Quotation Sent' || inquiry.status === 'Accepted' || inquiry.status === 'Deposit Paid') && (
-            <Button
-              variant="brand"
-              size="sm"
-              onClick={() => {
-                onClose();
-                onReviewQuotation();
-              }}
-              className="rounded-md text-xs font-bold gap-1.5 bg-orange-500 hover:bg-orange-600 text-white shadow-xs"
-            >
-              <Receipt className="w-4 h-4" />
-              <span>Review Quotation</span>
-            </Button>
-          )}
+          {onReviewQuotation &&
+            (inquiry.status === 'Quotation Sent' ||
+              inquiry.status === 'Accepted' ||
+              inquiry.status === 'Deposit Paid') && (
+              <Button
+                variant="brand"
+                size="sm"
+                onClick={() => {
+                  onClose();
+                  onReviewQuotation();
+                }}
+                className="rounded-md text-xs font-bold gap-1.5 bg-orange-500 hover:bg-orange-600 text-white shadow-xs"
+              >
+                <Receipt className="w-4 h-4" />
+                <span>Review Quotation</span>
+              </Button>
+            )}
         </div>
       </DialogContent>
     </Dialog>

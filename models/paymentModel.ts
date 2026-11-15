@@ -1,5 +1,16 @@
 import { prisma } from '../lib/prisma';
 import { Prisma } from '../generated/prisma/client';
+import {
+  checkScheduleAvailability,
+  INTERACTIVE_TX_OPTIONS,
+  normalizeEventDateStr,
+  toEventDateDbValue,
+} from '../lib/schedulingEngine';
+import {
+  extractSafeProofFilename,
+  normalizeProofUrlReference,
+} from '../lib/paymentProofStorage';
+import { enrichQuotation } from './quotationModel';
 
 export interface PaymentInput {
   paymentRef?: string;
@@ -164,7 +175,16 @@ export const createPaymentTransaction = async (data: PaymentInput) => {
     }
   }
 
-  let resolvedQuotationId: number | null = data.quotationId ? Number(data.quotationId) : null;
+  let resolvedQuotationId: number | null = null;
+  if (data.quotationId) {
+    const parsedQId = Number(data.quotationId);
+    if (!isNaN(parsedQId)) {
+      resolvedQuotationId = parsedQId;
+    } else {
+      const qFound = await prisma.quotation.findUnique({ where: { quotationRef: String(data.quotationId) } });
+      if (qFound) resolvedQuotationId = qFound.id;
+    }
+  }
   if (!resolvedQuotationId && resolvedBookingId) {
     const b = await prisma.booking.findUnique({ where: { id: resolvedBookingId } });
     if (b && b.quotationId) resolvedQuotationId = b.quotationId;
@@ -173,19 +193,189 @@ export const createPaymentTransaction = async (data: PaymentInput) => {
   const paymentDate = data.date ? new Date(data.date) : new Date();
   const isVerified = data.verified === true;
   const initialStatus = data.status || (isVerified ? 'Verified' : 'Pending Verification');
+  const isFull = data.type.includes('Full') || data.type.includes('Settlement');
+  const isDown = data.type.includes('Downpayment');
+
+  // Pre-fetch booking and quotation outside the transaction to minimize interactive transaction duration
+  let preFetchedBooking = resolvedBookingId
+    ? await prisma.booking.findUnique({ where: { id: resolvedBookingId } })
+    : null;
+  if (!preFetchedBooking && resolvedQuotationId) {
+    preFetchedBooking = await prisma.booking.findFirst({
+      where: { quotationId: resolvedQuotationId },
+    });
+    if (preFetchedBooking) {
+      resolvedBookingId = preFetchedBooking.id;
+    }
+  }
+  const rawPreFetchedQuotation = resolvedQuotationId
+    ? await prisma.quotation.findUnique({
+        where: { id: resolvedQuotationId },
+        include: { inquiry: true, bookings: true },
+      })
+    : null;
+  const preFetchedQuotation = enrichQuotation(rawPreFetchedQuotation);
+  const resolvedCreateStartTime =
+    preFetchedBooking?.startTime || (preFetchedQuotation as any)?.startTime || '17:00';
+  const resolvedCreateEndTime =
+    preFetchedBooking?.endTime || (preFetchedQuotation as any)?.endTime || '23:00';
 
   return await prisma.$transaction(async (tx) => {
-    let normalizedProofUrl = data.proofUrl || null;
-    if (normalizedProofUrl && normalizedProofUrl.startsWith('/uploads/payments/')) {
-      const fn = normalizedProofUrl.replace('/uploads/payments/', '');
-      normalizedProofUrl = `/api/payments/proof/${fn}`;
+    const normalizedProofUrl = normalizeProofUrlReference(data.proofUrl);
+    const safeFilename = normalizedProofUrl
+      ? extractSafeProofFilename(normalizedProofUrl)
+      : null;
+
+    // 1. Atomic proof-consumption lock & check: prevent concurrent reuse of the same proof image
+    if (safeFilename) {
+      const proofLockKey = `jad_proof_${safeFilename}`;
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${proofLockKey}))`;
+
+      const existingWithProof = await tx.paymentTransaction.findFirst({
+        where: {
+          proofUrl: {
+            contains: safeFilename,
+          },
+        },
+        select: { id: true },
+      });
+
+      if (existingWithProof) {
+        throw new Error(
+          'Conflict: This payment proof image has already been used for a payment submission. Please upload a new payment receipt.'
+        );
+      }
+    }
+
+    // 2. Atomic duplicate Pending Verification check for customer submissions
+    if (!isVerified && (resolvedQuotationId || resolvedBookingId)) {
+      const targetLockKey = `jad_pay_target_q${resolvedQuotationId || 0}_b${resolvedBookingId || 0}`;
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${targetLockKey}))`;
+
+      const targetConditions: Prisma.PaymentTransactionWhereInput[] = [];
+      if (resolvedQuotationId) targetConditions.push({ quotationId: resolvedQuotationId });
+      if (resolvedBookingId) targetConditions.push({ bookingId: resolvedBookingId });
+
+      const existingPending = await tx.paymentTransaction.findFirst({
+        where: {
+          OR: targetConditions,
+          verified: false,
+          status: 'Pending Verification',
+        },
+        select: { id: true },
+      });
+
+      if (existingPending) {
+        throw new Error('Conflict: A payment proof is already pending verification.');
+      }
+    }
+
+    let activeBookingId = resolvedBookingId;
+
+    if (isVerified && (isDown || isFull)) {
+      const targetEventDate = preFetchedBooking?.eventDate || preFetchedQuotation?.eventDate;
+      if (targetEventDate) {
+        const dateStr = normalizeEventDateStr(targetEventDate);
+        const lockKey = `jad_date_lock_${dateStr}`;
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${lockKey}))`;
+
+        const availabilityCheck = await checkScheduleAvailability({
+          eventDate: toEventDateDbValue(dateStr),
+          startTime: resolvedCreateStartTime,
+          endTime: resolvedCreateEndTime,
+          venue: preFetchedBooking?.venue || preFetchedQuotation?.venue || '',
+          excludeBookingId: activeBookingId || null,
+          client: tx,
+        });
+
+        if (!availabilityCheck.isAvailable || availabilityCheck.hasHighConflicts) {
+          const errorMsg = availabilityCheck.conflicts.map(c => c.message).join(' | ');
+          throw new Error(`Scheduling conflict detected: ${errorMsg}`);
+        }
+      }
+
+      let resolvedQuotationRecord = preFetchedQuotation;
+      if (resolvedQuotationId) {
+        const updatedQuote = await tx.quotation.update({
+          where: { id: resolvedQuotationId },
+          data: {
+            status: isFull ? 'Confirmed' : 'Deposit Paid',
+            depositPaidAt: new Date(),
+            confirmedAt: isFull ? new Date() : undefined,
+          },
+        });
+        resolvedQuotationRecord = preFetchedQuotation
+          ? { ...preFetchedQuotation, ...updatedQuote }
+          : (updatedQuote as any);
+        if (updatedQuote.inquiryId) {
+          await tx.inquiry.update({
+            where: { id: updatedQuote.inquiryId },
+            data: { status: isFull ? 'Confirmed' : 'Deposit Paid' },
+          }).catch(() => {});
+        }
+      }
+
+      if (!activeBookingId && resolvedQuotationRecord) {
+        const year = new Date().getFullYear();
+        const random = Math.floor(1000 + Math.random() * 9000);
+        const bookingRef = `BK-${year}-${random}`;
+        const eventDateParsed = toEventDateDbValue(resolvedQuotationRecord.eventDate);
+
+        const createdBooking = await tx.booking.create({
+          data: {
+            bookingRef,
+            userId: resolvedQuotationRecord.userId,
+            inquiryId: resolvedQuotationRecord.inquiryId,
+            quotationId: resolvedQuotationRecord.id,
+            clientName: resolvedQuotationRecord.clientName,
+            clientEmail: resolvedQuotationRecord.clientEmail,
+            clientPhone: resolvedQuotationRecord.clientPhone || '0900-000-0000',
+            eventTitle: `${resolvedQuotationRecord.clientName}'s ${resolvedQuotationRecord.eventType}`,
+            eventType: resolvedQuotationRecord.eventType,
+            eventDate: eventDateParsed,
+            startTime: resolvedCreateStartTime,
+            endTime: resolvedCreateEndTime,
+            venue: resolvedQuotationRecord.venue,
+            guestCount: resolvedQuotationRecord.guestCount || 100,
+            totalAmount: resolvedQuotationRecord.grandTotal,
+            status: 'Confirmed',
+            notes: resolvedQuotationRecord.notes,
+            confirmedAt: new Date(),
+          },
+        });
+
+        await tx.eventSchedule.create({
+          data: {
+            bookingId: createdBooking.id,
+            eventDate: eventDateParsed,
+            startTime: resolvedCreateStartTime,
+            endTime: resolvedCreateEndTime,
+            venue: resolvedQuotationRecord.venue,
+            status: 'Active',
+          },
+        });
+
+        activeBookingId = createdBooking.id;
+      } else if (activeBookingId && preFetchedBooking && preFetchedBooking.status !== 'Completed') {
+        await tx.booking.update({
+          where: { id: activeBookingId },
+          data: {
+            status: 'Confirmed',
+            confirmedAt: preFetchedBooking.confirmedAt || new Date(),
+          },
+        });
+        await tx.eventSchedule.updateMany({
+          where: { bookingId: activeBookingId },
+          data: { status: 'Active' },
+        });
+      }
     }
 
     const payment = await tx.paymentTransaction.create({
       data: {
         paymentRef,
         receiptNumber,
-        bookingId: resolvedBookingId,
+        bookingId: activeBookingId,
         quotationId: resolvedQuotationId,
         clientName: data.clientName,
         clientEmail: data.clientEmail,
@@ -203,123 +393,145 @@ export const createPaymentTransaction = async (data: PaymentInput) => {
       },
     });
 
-    if (isVerified) {
-      const isFull = data.type.includes('Full') || data.type.includes('Settlement');
-      const isDown = data.type.includes('Downpayment');
-
-      let resolvedQuotationRecord = null;
-      if (resolvedQuotationId && (isDown || isFull)) {
-        const q = await tx.quotation.update({
-          where: { id: resolvedQuotationId },
-          data: {
-            status: isFull ? 'Confirmed' : 'Deposit Paid',
-            depositPaidAt: new Date(),
-            confirmedAt: isFull ? new Date() : undefined,
-          },
-        });
-        resolvedQuotationRecord = q;
-        if (q.inquiryId) {
-          await tx.inquiry.update({
-            where: { id: q.inquiryId },
-            data: { status: isFull ? 'Confirmed' : 'Deposit Paid' },
-          }).catch(() => {});
-        }
-      }
-
-      let activeBookingId = resolvedBookingId;
-
-      if (!activeBookingId && resolvedQuotationId && (isDown || isFull)) {
-        const existingForQuote = await tx.booking.findFirst({
-          where: { quotationId: resolvedQuotationId },
-        });
-        if (existingForQuote) {
-          activeBookingId = existingForQuote.id;
-          await tx.paymentTransaction.update({
-            where: { id: payment.id },
-            data: { bookingId: existingForQuote.id },
-          });
-        } else if (resolvedQuotationRecord) {
-          const year = new Date().getFullYear();
-          const random = Math.floor(1000 + Math.random() * 9000);
-          const bookingRef = `BK-${year}-${random}`;
-          const eventDateParsed = resolvedQuotationRecord.eventDate;
-
-          const createdBooking = await tx.booking.create({
-            data: {
-              bookingRef,
-              userId: resolvedQuotationRecord.userId,
-              inquiryId: resolvedQuotationRecord.inquiryId,
-              quotationId: resolvedQuotationRecord.id,
-              clientName: resolvedQuotationRecord.clientName,
-              clientEmail: resolvedQuotationRecord.clientEmail,
-              clientPhone: resolvedQuotationRecord.clientPhone || '0900-000-0000',
-              eventTitle: `${resolvedQuotationRecord.clientName}'s ${resolvedQuotationRecord.eventType}`,
-              eventType: resolvedQuotationRecord.eventType,
-              eventDate: eventDateParsed,
-              startTime: '17:00',
-              endTime: '23:00',
-              venue: resolvedQuotationRecord.venue,
-              guestCount: resolvedQuotationRecord.guestCount || 100,
-              totalAmount: resolvedQuotationRecord.grandTotal,
-              status: 'Confirmed',
-              notes: resolvedQuotationRecord.notes,
-              confirmedAt: new Date(),
-            },
-          });
-
-          await tx.eventSchedule.create({
-            data: {
-              bookingId: createdBooking.id,
-              eventDate: eventDateParsed,
-              startTime: '17:00',
-              endTime: '23:00',
-              venue: resolvedQuotationRecord.venue,
-              status: 'Active',
-            },
-          });
-
-          await tx.paymentTransaction.update({
-            where: { id: payment.id },
-            data: { bookingId: createdBooking.id },
-          });
-
-          activeBookingId = createdBooking.id;
-        }
-      }
-
-      if (activeBookingId && (isDown || isFull)) {
-        const currentB = await tx.booking.findUnique({ where: { id: activeBookingId } });
-        if (currentB && currentB.status !== 'Completed') {
-          await tx.booking.update({
-            where: { id: activeBookingId },
-            data: {
-              status: 'Confirmed',
-              confirmedAt: currentB.confirmedAt || new Date(),
-            },
-          });
-        }
-      }
-    }
-
     return payment;
-  });
+  }, INTERACTIVE_TX_OPTIONS);
 };
 
 export const verifyPaymentTransaction = async (id: number | string, verifiedBy: string) => {
   const pId = typeof id === 'string' ? parseInt(id, 10) : id;
   const lookupByRef = isNaN(pId) ? String(id) : undefined;
 
-  return await prisma.$transaction(async (tx) => {
-    const existing = lookupByRef
-      ? await tx.paymentTransaction.findUnique({ where: { paymentRef: lookupByRef } })
-      : await tx.paymentTransaction.findUnique({ where: { id: pId } });
+  // Pre-fetch payment, linked booking, and linked quotation before opening the interactive transaction
+  const existing = lookupByRef
+    ? await prisma.paymentTransaction.findUnique({
+        where: { paymentRef: lookupByRef },
+        include: { booking: true, quotation: { include: { bookings: true, inquiry: true } } },
+      })
+    : await prisma.paymentTransaction.findUnique({
+        where: { id: pId },
+        include: { booking: true, quotation: { include: { bookings: true, inquiry: true } } },
+      });
 
-    if (!existing) return null;
-    const targetId = existing.id;
+  if (!existing) return null;
+  const targetId = existing.id;
+  const isFull = existing.type.includes('Full') || existing.type.includes('Settlement');
+  const isDown = existing.type.includes('Downpayment');
+
+  const existingBookingRecord =
+    existing.booking ||
+    (existing.quotation?.bookings && existing.quotation.bookings.length > 0
+      ? existing.quotation.bookings[0]
+      : null);
+  const quoteForDate = enrichQuotation(existing.quotation || null);
+  const resolvedVerifyStartTime =
+    existingBookingRecord?.startTime || (quoteForDate as any)?.startTime || '17:00';
+  const resolvedVerifyEndTime =
+    existingBookingRecord?.endTime || (quoteForDate as any)?.endTime || '23:00';
+
+  return await prisma.$transaction(async (tx) => {
+    let activeBookingId = existing.bookingId || existingBookingRecord?.id || null;
+
+    if (isDown || isFull) {
+      const targetEventDate = existingBookingRecord?.eventDate || quoteForDate?.eventDate;
+      if (targetEventDate) {
+        const dateStr = normalizeEventDateStr(targetEventDate);
+        const lockKey = `jad_date_lock_${dateStr}`;
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${lockKey}))`;
+
+        const availabilityCheck = await checkScheduleAvailability({
+          eventDate: toEventDateDbValue(dateStr),
+          startTime: resolvedVerifyStartTime,
+          endTime: resolvedVerifyEndTime,
+          venue: existingBookingRecord?.venue || quoteForDate?.venue || '',
+          excludeBookingId: activeBookingId || null,
+          client: tx,
+        });
+
+        if (!availabilityCheck.isAvailable || availabilityCheck.hasHighConflicts) {
+          const errorMsg = availabilityCheck.conflicts.map(c => c.message).join(' | ');
+          throw new Error(`Scheduling conflict detected: ${errorMsg}`);
+        }
+      }
+
+      let resolvedQuotationRecord = quoteForDate;
+      if (existing.quotationId) {
+        resolvedQuotationRecord = await tx.quotation.update({
+          where: { id: existing.quotationId },
+          data: {
+            status: isFull ? 'Confirmed' : 'Deposit Paid',
+            depositPaidAt: new Date(),
+            confirmedAt: isFull ? new Date() : undefined,
+          },
+        }) as any;
+        if (resolvedQuotationRecord?.inquiryId) {
+          await tx.inquiry.update({
+            where: { id: resolvedQuotationRecord.inquiryId },
+            data: { status: isFull ? 'Confirmed' : 'Deposit Paid' },
+          }).catch(() => {});
+        }
+      }
+
+      if (!activeBookingId && resolvedQuotationRecord) {
+        // Auto-generate confirmed booking from quotation upon verified deposit
+        const year = new Date().getFullYear();
+        const random = Math.floor(1000 + Math.random() * 9000);
+        const bookingRef = `BK-${year}-${random}`;
+        const eventDateParsed = toEventDateDbValue(resolvedQuotationRecord.eventDate);
+
+        const createdBooking = await tx.booking.create({
+          data: {
+            bookingRef,
+            userId: resolvedQuotationRecord.userId,
+            inquiryId: resolvedQuotationRecord.inquiryId,
+            quotationId: resolvedQuotationRecord.id,
+            clientName: resolvedQuotationRecord.clientName,
+            clientEmail: resolvedQuotationRecord.clientEmail,
+            clientPhone: resolvedQuotationRecord.clientPhone || '0900-000-0000',
+            eventTitle: `${resolvedQuotationRecord.clientName}'s ${resolvedQuotationRecord.eventType}`,
+            eventType: resolvedQuotationRecord.eventType,
+            eventDate: eventDateParsed,
+            startTime: resolvedVerifyStartTime,
+            endTime: resolvedVerifyEndTime,
+            venue: resolvedQuotationRecord.venue,
+            guestCount: resolvedQuotationRecord.guestCount || 100,
+            totalAmount: resolvedQuotationRecord.grandTotal,
+            status: 'Confirmed',
+            notes: resolvedQuotationRecord.notes,
+            confirmedAt: new Date(),
+          },
+        });
+
+        await tx.eventSchedule.create({
+          data: {
+            bookingId: createdBooking.id,
+            eventDate: eventDateParsed,
+            startTime: resolvedVerifyStartTime,
+            endTime: resolvedVerifyEndTime,
+            venue: resolvedQuotationRecord.venue,
+            status: 'Active',
+          },
+        });
+
+        activeBookingId = createdBooking.id;
+      } else if (activeBookingId && existingBookingRecord && existingBookingRecord.status !== 'Completed') {
+        await tx.booking.update({
+          where: { id: activeBookingId },
+          data: {
+            status: 'Confirmed',
+            confirmedAt: existingBookingRecord.confirmedAt || new Date(),
+          },
+        });
+        await tx.eventSchedule.updateMany({
+          where: { bookingId: activeBookingId },
+          data: { status: 'Active' },
+        });
+      }
+    }
 
     const payment = await tx.paymentTransaction.update({
       where: { id: targetId },
       data: {
+        bookingId: activeBookingId,
         status: 'Verified',
         verified: true,
         verifiedBy,
@@ -328,109 +540,8 @@ export const verifyPaymentTransaction = async (id: number | string, verifiedBy: 
       },
     });
 
-    const isFull = payment.type.includes('Full') || payment.type.includes('Settlement');
-    const isDown = payment.type.includes('Downpayment');
-
-    if (isDown || isFull) {
-      let resolvedQuotationRecord = null;
-      if (payment.quotationId) {
-        const q = await tx.quotation.update({
-          where: { id: payment.quotationId },
-          data: {
-            status: isFull ? 'Confirmed' : 'Deposit Paid',
-            depositPaidAt: new Date(),
-            confirmedAt: isFull ? new Date() : undefined,
-          },
-        });
-        resolvedQuotationRecord = q;
-        if (q.inquiryId) {
-          await tx.inquiry.update({
-            where: { id: q.inquiryId },
-            data: { status: isFull ? 'Confirmed' : 'Deposit Paid' },
-          }).catch(() => {});
-        }
-      }
-
-      let activeBookingId = payment.bookingId;
-
-      // If no booking exists yet for this quotation, check if one exists in database
-      if (!activeBookingId && payment.quotationId) {
-        const existingForQuote = await tx.booking.findFirst({
-          where: { quotationId: payment.quotationId },
-        });
-        if (existingForQuote) {
-          activeBookingId = existingForQuote.id;
-          await tx.paymentTransaction.update({
-            where: { id: payment.id },
-            data: { bookingId: existingForQuote.id },
-          });
-        } else if (resolvedQuotationRecord) {
-          // Auto-generate confirmed booking from quotation upon verified deposit
-          const year = new Date().getFullYear();
-          const random = Math.floor(1000 + Math.random() * 9000);
-          const bookingRef = `BK-${year}-${random}`;
-          const eventDateParsed = resolvedQuotationRecord.eventDate;
-
-          const createdBooking = await tx.booking.create({
-            data: {
-              bookingRef,
-              userId: resolvedQuotationRecord.userId,
-              inquiryId: resolvedQuotationRecord.inquiryId,
-              quotationId: resolvedQuotationRecord.id,
-              clientName: resolvedQuotationRecord.clientName,
-              clientEmail: resolvedQuotationRecord.clientEmail,
-              clientPhone: resolvedQuotationRecord.clientPhone || '0900-000-0000',
-              eventTitle: `${resolvedQuotationRecord.clientName}'s ${resolvedQuotationRecord.eventType}`,
-              eventType: resolvedQuotationRecord.eventType,
-              eventDate: eventDateParsed,
-              startTime: '17:00',
-              endTime: '23:00',
-              venue: resolvedQuotationRecord.venue,
-              guestCount: resolvedQuotationRecord.guestCount || 100,
-              totalAmount: resolvedQuotationRecord.grandTotal,
-              status: 'Confirmed',
-              notes: resolvedQuotationRecord.notes,
-              confirmedAt: new Date(),
-            },
-          });
-
-          await tx.eventSchedule.create({
-            data: {
-              bookingId: createdBooking.id,
-              eventDate: eventDateParsed,
-              startTime: '17:00',
-              endTime: '23:00',
-              venue: resolvedQuotationRecord.venue,
-              status: 'Active',
-            },
-          });
-
-          // Link payment transaction to new booking
-          await tx.paymentTransaction.update({
-            where: { id: payment.id },
-            data: { bookingId: createdBooking.id },
-          });
-
-          activeBookingId = createdBooking.id;
-        }
-      }
-
-      if (activeBookingId) {
-        const currentB = await tx.booking.findUnique({ where: { id: activeBookingId } });
-        if (currentB && currentB.status !== 'Completed') {
-          await tx.booking.update({
-            where: { id: activeBookingId },
-            data: {
-              status: 'Confirmed',
-              confirmedAt: currentB.confirmedAt || new Date(),
-            },
-          });
-        }
-      }
-    }
-
     return payment;
-  });
+  }, INTERACTIVE_TX_OPTIONS);
 };
 
 export const rejectPaymentTransaction = async (
@@ -477,7 +588,7 @@ export const rejectPaymentTransaction = async (
     }
 
     return payment;
-  });
+  }, INTERACTIVE_TX_OPTIONS);
 };
 
 export const deletePaymentTransaction = async (id: number | string) => {

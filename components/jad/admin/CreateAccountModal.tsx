@@ -92,14 +92,16 @@ export const CreateAccountModal: React.FC<CreateAccountModalProps> = ({
         token
       );
 
-      toast.success(res.message || `Account for "${name}" created successfully.`);
+      toast.success('Account created successfully.', {
+        description: res.message || `${role} account for "${name.trim()}" is now active.`,
+      });
       resetForm();
       onSuccess();
       onClose();
     } catch (err: any) {
       console.error('Error creating privileged account:', err);
-      toast.error('Failed to create account', {
-        description: err.message || 'Server error occurred while creating privileged account.'
+      toast.error('Unable to create account', {
+        description: err.message || 'Please check the account details and try again.'
       });
     } finally {
       setIsLoading(false);

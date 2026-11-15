@@ -5,10 +5,17 @@ import { del } from '@vercel/blob';
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const auth = await checkAuth(req, true);
+    const isAdmin = !auth.error;
+
     const { id } = await params;
     const service = await getServiceById(id);
     if (!service) {
       return NextResponse.json({ message: 'Service not found' }, { status: 404 });
+    }
+    if (!isAdmin) {
+      const { price, ...publicService } = service as any;
+      return NextResponse.json(publicService);
     }
     return NextResponse.json(service);
   } catch (error: any) {

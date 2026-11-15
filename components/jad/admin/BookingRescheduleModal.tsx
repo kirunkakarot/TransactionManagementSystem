@@ -12,7 +12,14 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Booking } from '../types';
+import { 
+  Booking,
+  EVENT_TIME_OPTIONS,
+  calculateEventDurationLabel,
+  formatEventTimeRange,
+  formatTime12Hour,
+  validateEventTimeRange
+} from '../types';
 import { toast } from 'sonner';
 
 interface BookingRescheduleModalProps {
@@ -35,6 +42,14 @@ export const BookingRescheduleModal: React.FC<BookingRescheduleModalProps> = ({
   const [newEndTime, setNewEndTime] = useState(booking?.endTime || '23:00');
   const [reason, setReason] = useState('Client requested schedule movement due to venue availability.');
 
+  React.useEffect(() => {
+    if (booking && isOpen) {
+      setNewDate(booking.eventDate || '');
+      setNewStartTime(booking.startTime || '17:00');
+      setNewEndTime(booking.endTime || '23:00');
+    }
+  }, [booking, isOpen]);
+
   if (!isOpen || !booking) return null;
 
   // Conflict Detection on Target Date
@@ -51,9 +66,17 @@ export const BookingRescheduleModal: React.FC<BookingRescheduleModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (newDate === booking.eventDate && newStartTime === booking.startTime) {
-      toast.warning('No Date Change Detected', {
-        description: 'Please pick a new event date or time to reschedule.'
+    if (newDate === booking.eventDate && newStartTime === booking.startTime && newEndTime === booking.endTime) {
+      toast.warning('No Schedule Change Detected', {
+        description: 'Please pick a new event date or time range to reschedule.'
+      });
+      return;
+    }
+
+    const timeValidation = validateEventTimeRange(newStartTime, newEndTime);
+    if (!timeValidation.valid) {
+      toast.error('Invalid Event Time Range', {
+        description: timeValidation.error || 'New event end time must be later than start time.'
       });
       return;
     }
@@ -65,10 +88,15 @@ export const BookingRescheduleModal: React.FC<BookingRescheduleModalProps> = ({
       return;
     }
 
+    if (conflictingBookingsOnNewDate.length > 0) {
+      const occupying = conflictingBookingsOnNewDate[0];
+      toast.error('Date Already Occupied (1 Booking/Day Limit)', {
+        description: `Cannot reschedule to ${newDate}: Date is already occupied by Booking ${occupying.id} ("${occupying.eventTitle}"). JAD Events only accommodates one booking per day.`
+      });
+      return;
+    }
+
     onConfirmReschedule(booking.id, newDate, newStartTime, newEndTime, reason.trim());
-    toast.success(`Booking ${booking.id} Rescheduled!`, {
-      description: `Moved from ${booking.eventDate} to ${newDate}. Calendar slot and crew re-allocated.`
-    });
     onClose();
   };
 
@@ -108,7 +136,9 @@ export const BookingRescheduleModal: React.FC<BookingRescheduleModalProps> = ({
             <div>
               <div className="font-bold text-slate-900 flex items-center gap-1.5">
                 <Calendar className="w-3.5 h-3.5 text-orange-500" />
-                <span>{booking.eventDate} ({booking.startTime || '17:00'} - {booking.endTime || '23:00'})</span>
+                <span>
+                  {booking.eventDate} ({formatEventTimeRange(booking.startTime || '17:00', booking.endTime || '23:00', { includeDuration: true })})
+                </span>
               </div>
               <div className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
                 <MapPin className="w-3 h-3 text-slate-400" />
@@ -137,13 +167,13 @@ export const BookingRescheduleModal: React.FC<BookingRescheduleModalProps> = ({
 
           {/* Conflict Feedback */}
           {conflictingBookingsOnNewDate.length > 0 && (
-            <div className="p-3 rounded-md bg-amber-50 border border-amber-200 text-amber-900 space-y-1">
+            <div className="p-3 rounded-md bg-rose-50 border border-rose-200 text-rose-900 space-y-1">
               <div className="font-bold flex items-center gap-1.5">
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
-                <span>Schedule Clash Alert</span>
+                <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
+                <span>Date Unavailable — 1 Booking Per Day Limit</span>
               </div>
-              <p className="text-[11px] text-amber-800">
-                There {conflictingBookingsOnNewDate.length === 1 ? 'is 1 other event' : `are ${conflictingBookingsOnNewDate.length} other events`} booked on this date ({conflictingBookingsOnNewDate.map(b => b.id).join(', ')}).
+              <p className="text-[11px] text-rose-800">
+                <strong>{newDate}</strong> is already occupied by {conflictingBookingsOnNewDate.map(b => `${b.id} (${b.eventTitle})`).join(', ')}. JAD Events can only accommodate 1 booking per calendar day.
                 {isSameVenueBooked && <strong className="text-red-700 block mt-1">âš ï¸ Warning: Same venue "{booking.venue}" is already booked!</strong>}
               </p>
             </div>
@@ -154,26 +184,58 @@ export const BookingRescheduleModal: React.FC<BookingRescheduleModalProps> = ({
               <label className="block text-[11px] font-semibold text-slate-700 mb-1">
                 New Start Time
               </label>
-              <Input
-                type="time"
+              <select
                 value={newStartTime}
                 onChange={e => setNewStartTime(e.target.value)}
-                className="rounded-md text-xs"
-              />
+                className="w-full h-9 rounded-md border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-900 focus:ring-2 focus:ring-indigo-600"
+              >
+                {!EVENT_TIME_OPTIONS.some(opt => opt.value === newStartTime) && newStartTime && (
+                  <option value={newStartTime}>{formatTime12Hour(newStartTime) || newStartTime}</option>
+                )}
+                {EVENT_TIME_OPTIONS.map(opt => (
+                  <option key={`resched-start-${opt.value}`} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>
-              <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                New End Time
-              </label>
-              <Input
-                type="time"
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-[11px] font-semibold text-slate-700">
+                  New End Time
+                </label>
+                {calculateEventDurationLabel(newStartTime, newEndTime) && (
+                  <span className="text-[10px] font-bold text-indigo-700">
+                    {calculateEventDurationLabel(newStartTime, newEndTime)}
+                  </span>
+                )}
+              </div>
+              <select
                 value={newEndTime}
                 onChange={e => setNewEndTime(e.target.value)}
-                className="rounded-md text-xs"
-              />
+                className={`w-full h-9 rounded-md border bg-white px-2.5 text-xs font-semibold text-slate-900 focus:ring-2 focus:ring-indigo-600 ${
+                  !validateEventTimeRange(newStartTime, newEndTime).valid
+                    ? 'border-rose-400 bg-rose-50/40'
+                    : 'border-slate-200'
+                }`}
+              >
+                {!EVENT_TIME_OPTIONS.some(opt => opt.value === newEndTime) && newEndTime && (
+                  <option value={newEndTime}>{formatTime12Hour(newEndTime) || newEndTime}</option>
+                )}
+                {EVENT_TIME_OPTIONS.map(opt => (
+                  <option key={`resched-end-${opt.value}`} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
+          {!validateEventTimeRange(newStartTime, newEndTime).valid && (
+            <p className="text-[10px] font-semibold text-rose-600">
+              {validateEventTimeRange(newStartTime, newEndTime).error}
+            </p>
+          )}
 
           <div>
             <label className="block text-[11px] font-semibold text-slate-700 mb-1">
@@ -204,7 +266,8 @@ export const BookingRescheduleModal: React.FC<BookingRescheduleModalProps> = ({
               type="submit"
               variant="brand"
               size="sm"
-              className="rounded-md text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white"
+              disabled={conflictingBookingsOnNewDate.length > 0}
+              className="rounded-md text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-50"
             >
               <RefreshCw className="w-3.5 h-3.5 mr-1" />
               <span>Confirm Reschedule</span>

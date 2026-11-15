@@ -30,7 +30,8 @@ import {
   Shield,
   Layers,
   FileCheck,
-  Star
+  Star,
+  MessageSquare
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -39,7 +40,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
-import { Quotation, InquiryFormData, PaymentTransaction, Booking, Feedback } from '../types';
+import { Quotation, InquiryFormData, PaymentTransaction, Booking, Feedback, formatEventTimeRange, resolveEventTimes, formatQuotationItemNotesForDisplay } from '../types';
 import { CustomerInquiryDetailModal } from './CustomerInquiryDetailModal';
 import { SubmitPaymentProofModal } from './SubmitPaymentProofModal';
 import { CustomerFeedbackModal } from './CustomerFeedbackModal';
@@ -149,6 +150,12 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
     clientPhone: activeBooking.clientPhone || '',
     eventType: activeBooking.eventType,
     eventDate: activeBooking.eventDate,
+    startTime: activeBooking.startTime,
+    endTime: activeBooking.endTime,
+    requestedStartTime: activeBooking.requestedStartTime || activeInquiry?.requestedStartTime,
+    requestedEndTime: activeBooking.requestedEndTime || activeInquiry?.requestedEndTime,
+    approvedStartTime: activeBooking.approvedStartTime || activeBooking.startTime,
+    approvedEndTime: activeBooking.approvedEndTime || activeBooking.endTime,
     venue: activeBooking.venue,
     guestCount: activeBooking.guestCount,
     items: [],
@@ -166,6 +173,49 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
   } as unknown as Quotation) : null);
 
   const displayName = userName || effectiveQuotation?.clientName || activeBooking?.clientName || activeInquiry?.fullName || (userEmail ? userEmail.split('@')[0] : '') || 'Client';
+
+  const activeResolvedTimes = resolveEventTimes({
+    startTime: activeBooking?.startTime || effectiveQuotation?.startTime || activeInquiry?.startTime,
+    endTime: activeBooking?.endTime || effectiveQuotation?.endTime || activeInquiry?.endTime,
+    requestedStartTime:
+      activeBooking?.requestedStartTime ||
+      effectiveQuotation?.requestedStartTime ||
+      activeInquiry?.requestedStartTime,
+    requestedEndTime:
+      activeBooking?.requestedEndTime ||
+      effectiveQuotation?.requestedEndTime ||
+      activeInquiry?.requestedEndTime,
+    approvedStartTime:
+      activeBooking?.approvedStartTime ||
+      activeBooking?.startTime ||
+      effectiveQuotation?.approvedStartTime ||
+      effectiveQuotation?.startTime ||
+      activeInquiry?.approvedStartTime,
+    approvedEndTime:
+      activeBooking?.approvedEndTime ||
+      activeBooking?.endTime ||
+      effectiveQuotation?.approvedEndTime ||
+      effectiveQuotation?.endTime ||
+      activeInquiry?.approvedEndTime,
+    requirements: activeInquiry?.requirements,
+    selectionDetails: activeInquiry?.selectionDetails,
+  });
+  const activeTimeRangeLabel = formatEventTimeRange(
+    activeResolvedTimes.startTime,
+    activeResolvedTimes.endTime,
+    { includeDuration: true, fallback: 'Time not recorded' }
+  );
+  const activeRequestedTimeRangeLabel =
+    activeResolvedTimes.requestedStartTime && activeResolvedTimes.requestedEndTime
+      ? formatEventTimeRange(activeResolvedTimes.requestedStartTime, activeResolvedTimes.requestedEndTime, {
+          includeDuration: true,
+        })
+      : '';
+  const hasAdjustedActiveTime =
+    Boolean(activeRequestedTimeRangeLabel) &&
+    Boolean(activeResolvedTimes.approvedStartTime && activeResolvedTimes.approvedEndTime) &&
+    (activeResolvedTimes.requestedStartTime !== activeResolvedTimes.approvedStartTime ||
+      activeResolvedTimes.requestedEndTime !== activeResolvedTimes.approvedEndTime);
 
   const contractTotal = activeBooking 
     ? Number(activeBooking.totalAmount) 
@@ -289,10 +339,15 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
     try {
       const token = Cookies.get('jad_token');
       await cancelInquiryApi(id, reason, token);
-      toast.success('Inquiry cancelled successfully');
+      toast.success('Inquiry cancelled successfully.', {
+        description: 'Your event inquiry has been cancelled.',
+        icon: <MessageSquare className="w-4 h-4 text-emerald-600" />,
+      });
       if (onRefreshData) onRefreshData();
     } catch (error: any) {
-      toast.error(error.message || 'Failed to cancel inquiry');
+      toast.error('Unable to cancel inquiry', {
+        description: error.message || 'Please try again.',
+      });
       throw error;
     }
   };
@@ -306,13 +361,16 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
       await acceptQuotationApi(targetQuote.id, token);
       setQuotation(prev => prev ? ({ ...prev, status: 'Accepted' }) : null);
       if (effectiveQuotation) effectiveQuotation.status = 'Accepted';
-      toast.success('Quotation Accepted!', {
-        description: 'You can now proceed to upload your 50% reservation downpayment proof to lock your event date.'
+      toast.success('Quotation accepted successfully.', {
+        description: 'Please submit your 50% reservation downpayment proof to confirm your booking date.',
+        icon: <FileText className="w-4 h-4 text-emerald-600" />,
       });
       if (onRefreshData) onRefreshData();
     } catch (err: any) {
       console.error('Error accepting quotation:', err);
-      toast.error('Failed to accept quotation', { description: err.message });
+      toast.error('Unable to accept quotation', {
+        description: err.message || 'Please try again.',
+      });
     } finally {
       setIsAccepting(false);
     }
@@ -330,13 +388,16 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
       const token = localStorage.getItem('jad_token') || Cookies.get('token') || Cookies.get('jad_token') || '';
       await declineQuotationApi(targetQuote.id, reason || 'Customer declined quotation', token);
       
-      toast.info('Quotation Declined', {
-        description: 'The quotation has been declined and your inquiry has been cancelled.'
+      toast.info('Quotation declined.', {
+        description: 'This quotation has been declined and the associated inquiry has been closed.',
+        icon: <FileText className="w-4 h-4 text-blue-600" />,
       });
       if (onRefreshData) onRefreshData();
     } catch (err: any) {
       console.error('Error declining quotation:', err);
-      toast.error('Failed to decline quotation', { description: err.message });
+      toast.error('Unable to decline quotation', {
+        description: err.message || 'Please try again.',
+      });
     } finally {
       setIsDeclining(false);
     }
@@ -353,8 +414,9 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
 
   const handleDownloadBookingDetails = () => {
     if (!activeBooking && !effectiveQuotation) return;
-    toast.info('Preparing Official Voucher', {
-      description: `Reference #${activeBooking?.id || effectiveQuotation?.id} summary document is ready for printing.`
+    toast.info('Preparing booking summary.', {
+      description: `Reference #${activeBooking?.id || effectiveQuotation?.id} is ready to print.`,
+      icon: <CalendarCheck className="w-4 h-4 text-blue-600" />,
     });
     window.print();
   };
@@ -722,7 +784,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
               <Card className="rounded-xl border-slate-200 shadow-sm bg-white p-5">
                 <CardContent className="p-0 space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold uppercase text-slate-400">Event Date</span>
+                    <span className="text-[11px] font-bold uppercase text-slate-400">Event Schedule</span>
                     <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#1E3A8A] flex items-center justify-center">
                       <Calendar className="w-4 h-4" />
                     </div>
@@ -730,8 +792,8 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                   <div className="text-xl font-extrabold text-[#1E3A8A] truncate">
                     {activeBooking?.eventDate || effectiveQuotation?.eventDate || currentInquiry?.eventDate || 'Date pending'}
                   </div>
-                  <span className="text-[11px] text-slate-500 block truncate">
-                    {activeBooking?.venue || effectiveQuotation?.venue || currentInquiry?.venue || 'Venue pending'}
+                  <span className="text-[11px] font-semibold text-slate-600 block truncate">
+                    {activeTimeRangeLabel}
                   </span>
                 </CardContent>
               </Card>
@@ -823,13 +885,28 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                 </div>
 
                 {/* Event Specifications Highlights */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="p-4 rounded-md bg-slate-50 border border-slate-200/80">
                     <span className="text-[10px] font-bold uppercase text-slate-400 block">Event Venue</span>
                     <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5 mt-1">
                       <MapPin className="w-3.5 h-3.5 text-red-500 shrink-0" />
                       <span className="truncate">{activeBooking?.venue || effectiveQuotation?.venue || currentInquiry?.venue || 'Not specified'}</span>
                     </span>
+                  </div>
+
+                  <div className="p-4 rounded-md bg-slate-50 border border-slate-200/80">
+                    <span className="text-[10px] font-bold uppercase text-slate-400 block">
+                      {activeResolvedTimes.approvedStartTime ? 'Approved Event Time' : 'Requested Event Time'}
+                    </span>
+                    <span className="text-xs font-bold text-[#1E3A8A] flex items-center gap-1.5 mt-1">
+                      <Clock className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                      <span>{activeTimeRangeLabel}</span>
+                    </span>
+                    {hasAdjustedActiveTime && (
+                      <span className="text-[10px] text-slate-500 block mt-0.5">
+                        Requested: {activeRequestedTimeRangeLabel}
+                      </span>
+                    )}
                   </div>
 
                   <div className="p-4 rounded-md bg-slate-50 border border-slate-200/80">
@@ -966,6 +1043,19 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                             <Calendar className="w-3.5 h-3.5 text-orange-500" />
                             {inq.eventDate || 'Date TBD'}
                           </span>
+                          {(inq.startTime || inq.requestedStartTime) && (
+                            <>
+                              <span>•</span>
+                              <span className="flex items-center gap-1 font-semibold text-[#1E3A8A]">
+                                <Clock className="w-3.5 h-3.5 text-blue-600" />
+                                {formatEventTimeRange(
+                                  inq.startTime || inq.requestedStartTime,
+                                  inq.endTime || inq.requestedEndTime,
+                                  { includeDuration: true }
+                                )}
+                              </span>
+                            </>
+                          )}
                           <span>•</span>
                           <span className="flex items-center gap-1 truncate max-w-[200px]" title={inq.venue}>
                             <MapPin className="w-3.5 h-3.5 text-red-500 shrink-0" />
@@ -1076,7 +1166,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
               </div>
 
               {/* Quotation Summary Meta Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                 <div className="p-3.5 rounded-md bg-slate-50 border border-slate-200/80">
                   <span className="text-[10px] font-bold uppercase text-slate-400 block">Event Type</span>
                   <span className="text-xs font-bold text-[#1E3A8A] block mt-0.5">{effectiveQuotation.eventType}</span>
@@ -1084,6 +1174,21 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                 <div className="p-3.5 rounded-md bg-slate-50 border border-slate-200/80">
                   <span className="text-[10px] font-bold uppercase text-slate-400 block">Event Date</span>
                   <span className="text-xs font-bold text-slate-900 block mt-0.5">{effectiveQuotation.eventDate}</span>
+                </div>
+                <div className="p-3.5 rounded-md bg-slate-50 border border-slate-200/80">
+                  <span className="text-[10px] font-bold uppercase text-slate-400 block">Approved Event Time</span>
+                  <span className="text-xs font-bold text-[#1E3A8A] block mt-0.5">
+                    {formatEventTimeRange(
+                      effectiveQuotation.startTime || activeResolvedTimes.startTime,
+                      effectiveQuotation.endTime || activeResolvedTimes.endTime,
+                      { includeDuration: true, fallback: 'Not recorded' }
+                    )}
+                  </span>
+                  {hasAdjustedActiveTime && (
+                    <span className="text-[10px] text-slate-500 block mt-0.5">
+                      Requested: {activeRequestedTimeRangeLabel}
+                    </span>
+                  )}
                 </div>
                 <div className="p-3.5 rounded-md bg-slate-50 border border-slate-200/80">
                   <span className="text-[10px] font-bold uppercase text-slate-400 block">Venue Location</span>
@@ -1120,7 +1225,11 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                           <tr key={item.id || i} className="hover:bg-slate-50/60">
                             <td className="py-3 px-4">
                               <div className="font-bold text-slate-900">{item.name}</div>
-                              {item.notes && <div className="text-[11px] text-slate-500 mt-0.5">{item.notes}</div>}
+                              {formatQuotationItemNotesForDisplay(item.notes) && (
+                                <div className="text-[11px] text-slate-500 mt-0.5 whitespace-pre-wrap">
+                                  {formatQuotationItemNotesForDisplay(item.notes)}
+                                </div>
+                              )}
                             </td>
                             <td className="py-3 px-4 text-center">
                               <Badge variant="outline" className="text-[10px] uppercase font-semibold">
@@ -1495,7 +1604,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
               </div>
 
               {/* Booking Specifications Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div className="p-4 rounded-md bg-slate-50 border border-slate-200/80">
                   <span className="text-[10px] font-bold uppercase text-slate-400 block">Event Title</span>
                   <span className="text-xs font-bold text-[#1E3A8A] block mt-1">{activeBooking.eventTitle}</span>
@@ -1503,6 +1612,21 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({
                 <div className="p-4 rounded-md bg-slate-50 border border-slate-200/80">
                   <span className="text-[10px] font-bold uppercase text-slate-400 block">Event Date</span>
                   <span className="text-xs font-bold text-slate-900 block mt-1">{activeBooking.eventDate}</span>
+                </div>
+                <div className="p-4 rounded-md bg-slate-50 border border-slate-200/80">
+                  <span className="text-[10px] font-bold uppercase text-slate-400 block">Approved Schedule</span>
+                  <span className="text-xs font-bold text-[#1E3A8A] block mt-1">
+                    {formatEventTimeRange(
+                      activeBooking.startTime || activeResolvedTimes.startTime,
+                      activeBooking.endTime || activeResolvedTimes.endTime,
+                      { includeDuration: true, fallback: '5:00 PM – 11:00 PM (6 hours)' }
+                    )}
+                  </span>
+                  {hasAdjustedActiveTime && (
+                    <span className="text-[10px] text-slate-500 block mt-0.5">
+                      Requested: {activeRequestedTimeRangeLabel}
+                    </span>
+                  )}
                 </div>
                 <div className="p-4 rounded-md bg-slate-50 border border-slate-200/80">
                   <span className="text-[10px] font-bold uppercase text-slate-400 block">Venue</span>

@@ -56,10 +56,25 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
   const [viewMode, setViewMode] = useState<'split' | 'receipt' | 'proof'>('split');
   const [zoomLevel, setZoomLevel] = useState(1);
   const [rotation, setRotation] = useState(0);
+  const [imageLoading, setImageLoading] = useState(true);
+  const [imageLoadError, setImageLoadError] = useState(false);
+  const [imageRetryKey, setImageRetryKey] = useState(0);
+
+  React.useEffect(() => {
+    setImageLoading(Boolean(payment?.proofUrl));
+    setImageLoadError(false);
+    setZoomLevel(1);
+    setRotation(0);
+  }, [payment?.proofUrl, payment?.id, isOpen]);
 
   if (!isOpen || !payment) return null;
 
   const hasProof = Boolean(payment.proofUrl);
+  const proofSrc = payment.proofUrl
+    ? imageRetryKey > 0
+      ? `${payment.proofUrl}${payment.proofUrl.includes('?') ? '&' : '?'}retry=${imageRetryKey}`
+      : payment.proofUrl
+    : '';
 
   const handlePrint = () => {
     window.print();
@@ -90,7 +105,7 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
   const handleCopyRefNumber = () => {
     if (payment.referenceNumber) {
       navigator.clipboard.writeText(payment.referenceNumber);
-      toast.success('Reference Number Copied', {
+      toast.success('Reference number copied.', {
         description: payment.referenceNumber
       });
     }
@@ -393,24 +408,70 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                 </div>
 
                 {/* Scalable Image Viewport */}
-                <div 
+                <div
                   className="relative rounded-md border border-slate-200 bg-slate-900/5 min-h-[380px] max-h-[540px] flex items-center justify-center overflow-auto p-4 select-none"
-                  style={{ cursor: zoomLevel > 1 ? 'grab' : 'zoom-in' }}
+                  style={{ cursor: !imageLoadError && zoomLevel > 1 ? 'grab' : !imageLoadError ? 'zoom-in' : 'default' }}
                   onClick={() => {
-                    if (zoomLevel === 1) setShowImageZoom(true);
+                    if (!imageLoadError && !imageLoading && zoomLevel === 1) setShowImageZoom(true);
                   }}
                 >
-                  { }
-                  <img
-                    src={payment.proofUrl}
-                    alt="Payment Proof Screenshot"
-                    className="max-h-[500px] w-auto object-contain rounded-md shadow-sm transition-transform duration-200"
-                    style={{
-                      transform: `scale(${zoomLevel}) rotate(${rotation}deg)`,
-                      transformOrigin: 'center center'
-                    }}
-                  />
-                  {zoomLevel !== 1 && (
+                  {imageLoading && !imageLoadError && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-slate-50/90 z-10 text-xs text-slate-600">
+                      <RefreshCw className="w-5 h-5 text-[#1E3A8A] animate-spin" />
+                      <span className="font-semibold">Loading payment proof image...</span>
+                    </div>
+                  )}
+
+                  {imageLoadError ? (
+                    <div className="p-6 text-center space-y-3 max-w-xs">
+                      <div className="w-10 h-10 rounded-full bg-red-50 text-red-600 flex items-center justify-center mx-auto">
+                        <AlertTriangle className="w-5 h-5" />
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-xs font-bold text-slate-800 block">
+                          Unable to Load Payment Proof
+                        </span>
+                        <span className="text-[11px] text-slate-500 block">
+                          The uploaded payment proof image could not be retrieved or may be inaccessible.
+                        </span>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setImageLoadError(false);
+                          setImageLoading(true);
+                          setImageRetryKey((k) => k + 1);
+                        }}
+                        className="h-7 px-3 text-xs font-bold gap-1.5"
+                      >
+                        <RefreshCw className="w-3 h-3" />
+                        <span>Retry Loading Image</span>
+                      </Button>
+                    </div>
+                  ) : (
+                    <img
+                      key={proofSrc}
+                      src={proofSrc}
+                      alt="Payment Proof Screenshot"
+                      onLoad={() => {
+                        setImageLoading(false);
+                        setImageLoadError(false);
+                      }}
+                      onError={() => {
+                        setImageLoading(false);
+                        setImageLoadError(true);
+                      }}
+                      className="max-h-[500px] w-auto object-contain rounded-md shadow-sm transition-transform duration-200"
+                      style={{
+                        transform: `scale(${zoomLevel}) rotate(${rotation}deg)`,
+                        transformOrigin: 'center center',
+                      }}
+                    />
+                  )}
+                  {!imageLoadError && zoomLevel !== 1 && (
                     <div className="absolute bottom-2 left-2 bg-slate-900/75 text-white text-[10px] font-mono px-2 py-0.5 rounded-md backdrop-blur-xs">
                       Scale: {Math.round(zoomLevel * 100)}%
                     </div>
@@ -420,10 +481,10 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                 {/* Quick Metadata Verification Strip */}
                 <div className="grid grid-cols-2 gap-2 text-xs pt-1">
                   <div className="p-2.5 rounded-md bg-slate-50 border border-slate-200">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase block">Channel & Ref #</span>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase block">Channel &amp; Ref #</span>
                     <div className="flex items-center justify-between mt-0.5">
-                      <span className="font-mono font-bold text-slate-800 truncate" title={payment.referenceNumber}>
-                        {payment.referenceNumber}
+                      <span className="font-mono font-bold text-slate-800 truncate" title={`${payment.method} • ${payment.referenceNumber}`}>
+                        {payment.method} • {payment.referenceNumber}
                       </span>
                       <button
                         type="button"
@@ -515,23 +576,69 @@ export const PaymentReceiptModal: React.FC<PaymentReceiptModalProps> = ({
                 </div>
               </div>
 
-              <div 
+              <div
                 className="relative rounded-md border border-slate-200 bg-slate-950/5 min-h-[460px] max-h-[680px] flex items-center justify-center overflow-auto p-6"
-                style={{ cursor: zoomLevel > 1 ? 'grab' : 'zoom-in' }}
+                style={{ cursor: !imageLoadError && zoomLevel > 1 ? 'grab' : !imageLoadError ? 'zoom-in' : 'default' }}
                 onClick={() => {
-                  if (zoomLevel === 1) setShowImageZoom(true);
+                  if (!imageLoadError && !imageLoading && zoomLevel === 1) setShowImageZoom(true);
                 }}
               >
-                { }
-                <img
-                  src={payment.proofUrl}
-                  alt="Payment Proof Screenshot"
-                  className="max-h-[640px] w-auto object-contain rounded-md shadow-md transition-transform duration-200"
-                  style={{
-                    transform: `scale(${zoomLevel}) rotate(${rotation}deg)`,
-                    transformOrigin: 'center center'
-                  }}
-                />
+                {imageLoading && !imageLoadError && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-slate-50/90 z-10 text-xs text-slate-600">
+                    <RefreshCw className="w-5 h-5 text-[#1E3A8A] animate-spin" />
+                    <span className="font-semibold">Loading payment proof image...</span>
+                  </div>
+                )}
+
+                {imageLoadError ? (
+                  <div className="p-6 text-center space-y-3 max-w-xs">
+                    <div className="w-10 h-10 rounded-full bg-red-50 text-red-600 flex items-center justify-center mx-auto">
+                      <AlertTriangle className="w-5 h-5" />
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-xs font-bold text-slate-800 block">
+                        Unable to Load Payment Proof
+                      </span>
+                      <span className="text-[11px] text-slate-500 block">
+                        The uploaded payment proof image could not be retrieved or may be inaccessible.
+                      </span>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setImageLoadError(false);
+                        setImageLoading(true);
+                        setImageRetryKey((k) => k + 1);
+                      }}
+                      className="h-7 px-3 text-xs font-bold gap-1.5"
+                    >
+                      <RefreshCw className="w-3 h-3" />
+                      <span>Retry Loading Image</span>
+                    </Button>
+                  </div>
+                ) : (
+                  <img
+                    key={proofSrc}
+                    src={proofSrc}
+                    alt="Payment Proof Screenshot"
+                    onLoad={() => {
+                      setImageLoading(false);
+                      setImageLoadError(false);
+                    }}
+                    onError={() => {
+                      setImageLoading(false);
+                      setImageLoadError(true);
+                    }}
+                    className="max-h-[640px] w-auto object-contain rounded-md shadow-md transition-transform duration-200"
+                    style={{
+                      transform: `scale(${zoomLevel}) rotate(${rotation}deg)`,
+                      transformOrigin: 'center center',
+                    }}
+                  />
+                )}
               </div>
 
               <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-md bg-slate-50 border border-slate-200 text-xs">
